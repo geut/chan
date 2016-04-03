@@ -1,6 +1,6 @@
 # chan
 
-Chan is a likeable CLI tool used for write and maintain a CHANGELOG empowering the user to use a coloquial/friendly style. See more here: http://keepachangelog.com/
+Chan is a likeable CLI tool used for writing and maintaining a CHANGELOG empowering the user to use a coloquial/friendly style. See more here: http://keepachangelog.com/
 
 ____
 
