@@ -4,13 +4,15 @@
  * Added entry point
  */
 
-const MarkdownIt = require('markdown-it');
-const md = new MarkdownIt();
-
 const ADDED = '## Added';
+const internals = {};
 
-module.exports = function added ( msg, cmd ){
-    let result = md.render( `${ADDED} ${msg}` );
+exports.use = function use ( options = {} ){
+    internals.md = options.mdParser
+}
+
+exports.action = function action ( msg, cmd ){
+    let result = internals.md.render( `${ADDED} ${msg}` );
     console.log( result )
     return result;
 }
