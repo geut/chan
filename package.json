@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "babel index.js -d ./es5"
+    "build": "rm -rf ./es5 && babel src --out-dir ./es5"
   },
   "keywords": [
     "cli",
@@ -23,6 +23,7 @@
     "markdown-it": "^6.0.1"
   },
   "devDependencies": {
+    "babel-preset-es2015": "^6.6.0",
     "tape": "^4.5.1"
   }
 }
