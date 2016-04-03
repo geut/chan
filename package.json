@@ -1,0 +1,28 @@
+{
+  "name": "chan",
+  "version": "1.0.0",
+  "description": "Chan is a likeable CLI tool used for write and maintain a CHANGELOG empowering the user to use a coloquial/friendly style. See more here: http://keepachangelog.com/",
+  "main": "./es5/index.js",
+  "bin": {
+    "chan": "./es5/index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "babel index.js -d ./es5"
+  },
+  "keywords": [
+    "cli",
+    "geut",
+    "tooling",
+    "changelog"
+  ],
+  "author": "GEUT",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^2.9.0",
+    "markdown-it": "^6.0.1"
+  },
+  "devDependencies": {
+    "tape": "^4.5.1"
+  }
+}
