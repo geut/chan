@@ -3,6 +3,6 @@ export default function () {
         return program
             .command( 'added <msg>' )
             .description( 'Writes your changelog indicating new stuff.' )
-            .action((msg) => root.add(msg));
+            .action( (msg) => root.add(msg) );
     };
 }
