@@ -4,7 +4,7 @@
   "description": "Chan is a likeable CLI tool used for writing and maintaining a CHANGELOG empowering the user to use a coloquial/friendly style. See more here: http://keepachangelog.com/",
   "main": "./es5/index.js",
   "bin": {
-    "chan": "./es5/index.js"
+    "chan": "./es5/cli/index.js"
   },
   "scripts": {
     "test": "babel-tape-runner \"test/**/*-test.js\"",
@@ -29,17 +29,7 @@
     "eslint-config-idiomatic": "^2.0.0"
   },
   "eslintConfig": {
-    "env": {
-      "node": true,
-      "es6": true
-    },
-    "extends": "idiomatic",
-    "rules": {
-      "indent": [
-        2,
-        4
-      ]
-    }
+    "extends": "postcss"
   },
   "babel": {
     "presets": [
