@@ -13,7 +13,7 @@ Tool at early stage, the API will change until we get the kind of usage style we
 Development stage:
 
 ```bash
-git clonet it
+git clone it
 
 npm run build && npm link
 ```
