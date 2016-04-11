@@ -4,7 +4,7 @@ Chan is a likeable CLI tool used for writing and maintaining a CHANGELOG empower
 
 ____
 
-## **Disclaimer**: 
+## **Disclaimer**:
 
 Tool at early stage, the API will change until we get the kind of usage style we have in mind. You are noticed. :warning:
 
@@ -27,7 +27,22 @@ chan <CATEGORY> <MSG>
 Where:
 
 - ```CATEGORY```: It is the category verb in past tense. Categories can be: added, removed, fixed, updated, changed, etc.
-- ```MSG```: It is your message describing what changed according to the category selected. 
+- ```MSG```: It is your message describing what changed according to the category selected.
+
+## Parser
+
+The following represents the parsed CHANGELOG as an object with custom functionality. This is the extension point, transformations are built using this data representation.
+
+```
+[ Root ]
+    [ Release ]
+        [ *Category ]
+            [ *Msg ]
+                [ Commit-Link ]
+                [ Issue-Link ]
+
+* = one or more
+```
 
 ___
 

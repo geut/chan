@@ -8,7 +8,7 @@
 import program from 'commander';
 import pkg from '../../package.json';
 import createCommand from './lib/create-command';
-import { init } from './commands';
+import { init, added } from './commands';
 
 const cli = {
     commands: [],
@@ -32,7 +32,8 @@ program
     .description(`About: ${ pkg.description }`);
 
 cli.use([
-    init()
+    init(),
+    added()
 ]);
 
 cli.run();

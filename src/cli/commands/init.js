@@ -3,7 +3,7 @@ export default function () {
         command: 'init',
         description: 'Init the document',
         action(parser) {
-            parser.root.children[0].children[0].value = Date.now().toString();
+            console.log('INIT');
         }
     };
 }
