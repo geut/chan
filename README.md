@@ -13,9 +13,9 @@ Tool at early stage, the API will change until we get the kind of usage style we
 Development stage:
 
 ```bash
-git clone it
+git clone git@github.com:geut/chan.git
 
-npm run build && npm link
+npm install && npm run build && npm link
 ```
 
 ## API/Usage
