@@ -1,44 +1,38 @@
 #!/usr/bin/env node
+
 /**
  * Chan, the likeable changelog cli tool.
  *
  * By your friends at GEUT
  */
-import pkg from '../../package.json';
 import program from 'commander';
-import parser from '../parser';
-import { added } from './commands';
-
-const root = parser();
+import pkg from '../../package.json';
+import createCommand from './lib/create-command';
+import { init } from './commands';
 
 const cli = {
     commands: [],
-    parser() {
-        return parser;
-    },
-    program() {
-        return program;
-    },
     use(commands = []) {
         commands
-            .forEach((command) => {
+            .forEach((def) => {
                 this.commands.push(
-                    command(program, root)
+                    createCommand(def)
                 );
             });
     },
-    init() {
+    run() {
         program
-            .parse( process.argv );
-
-        if ( !program.args.length ) program.help();
+            .parse(process.argv);
     }
 };
 
+program
+    .version(pkg.version)
+    .option('-p, --path <path>', 'Define the path of the CHANGELOG.md (cwd by default)')
+    .description(`About: ${ pkg.description }`);
+
 cli.use([
-    added()
+    init()
 ]);
 
-program
-    .version( pkg.version )
-    .description( `About: ${ pkg.description }` );
+cli.run();
