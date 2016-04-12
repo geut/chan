@@ -12,9 +12,11 @@ export default function parser(dir = process.cwd()) {
         add(message) {
             console.log('ADDED: ' + message);
         },
+        stringify() {
+            return this.remark.stringify(this.root);
+        },
         write() {
-            contents = this.remark.stringify(this.root);
-            fs.writeFileSync(pathname, contents);
+            fs.writeFileSync(pathname, this.stringify());
         }
     };
 }

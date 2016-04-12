@@ -10,6 +10,11 @@ export default function createCommand(def) {
     def.action = (...args) => {
         const parserInstance = parser(program.path);
         userAction(parserInstance, ...args);
+        if (program.stdout) {
+            process.stdout.on('error', process.exit);
+            process.stdout.write(parserInstance.stringify());
+            return;
+        }
         parserInstance.write();
     };
 

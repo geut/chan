@@ -28,7 +28,8 @@ const cli = {
 
 program
     .version(pkg.version)
-    .option('-p, --path <path>', 'Define the path of the CHANGELOG.md (cwd by default)')
+    .option('-P, --path <path>', 'Define the path of the CHANGELOG.md (cwd by default)')
+    .option('-S, --stdout', 'Define the output as STDOUT')
     .description(`About: ${ pkg.description }`);
 
 cli.use([

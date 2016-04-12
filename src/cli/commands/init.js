@@ -3,7 +3,7 @@ export default function () {
         command: 'init',
         description: 'Init the document',
         action(parser) {
-            console.log('INIT');
+            // console.log(parser.root);
         }
     };
 }
