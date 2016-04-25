@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * Chan, the likeable changelog cli tool.
  *
@@ -37,4 +35,4 @@ cli.use([
     added()
 ]);
 
-cli.run();
+export default cli;

@@ -1,8 +1,8 @@
 import test from 'tape';
-import tempfile from 'tempfile';
+// import tempfile from 'tempfile';
 
-test('test "init" command', function (t) {
+test('test "init" command', (t) => {
     t.plan(1);
 
-    t.equal('pepe', 'pepe', 'should pass');
+    t.pass('example');
 });

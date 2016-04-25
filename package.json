@@ -4,7 +4,7 @@
   "description": "Chan is a likeable CLI tool used for writing and maintaining a CHANGELOG empowering the user to use a coloquial/friendly style. See more here: http://keepachangelog.com/",
   "main": "./es5/index.js",
   "bin": {
-    "chan": "./es5/cli/index.js"
+    "chan": "./es5/cli/runner.js"
   },
   "scripts": {
     "test": "tape -r babel-register \"test/**/*.js\" | tap-spec",
