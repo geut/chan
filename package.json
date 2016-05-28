@@ -17,6 +17,7 @@
   ],
   "dependencies": {
     "commander": "^2.9.0",
+    "inquirer": "^1.0.2",
     "remark": "^4.2.0"
   },
   "devDependencies": {
