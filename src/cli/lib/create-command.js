@@ -8,6 +8,7 @@ export default function createCommand(def) {
     const userAction = def.action;
 
     def.action = (...args) => {
+
         const parserInstance = parser(program.path);
         userAction(parserInstance, ...args);
         if (program.stdout) {
@@ -15,7 +16,6 @@ export default function createCommand(def) {
             process.stdout.write(parserInstance.stringify());
             return;
         }
-        parserInstance.write();
     };
 
     let command = program.command(def.command);
