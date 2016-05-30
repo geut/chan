@@ -3,32 +3,59 @@
  *
  * By your friends at GEUT
  */
-import program from 'commander';
+import yargs from 'yargs';
+import inquirer from 'inquirer';
 import pkg from '../../package.json';
 import createCommand from './lib/create-command';
 import { init, added } from './commands';
 
+const _commands = [];
 const cli = {
-    commands: [],
+    yargs() {
+        return yargs;
+    },
+    inquirer() {
+        return inquirer;
+    },
+    commands() {
+        return _commands;
+    },
     use(commands = []) {
         commands
             .forEach((def) => {
-                this.commands.push(
-                    createCommand(def)
+                _commands.push(
+                    createCommand(this, def)
                 );
             });
     },
     run() {
-        program
-            .parse(process.argv);
+        const argv = yargs.argv;
+        const showHelp = argv._.length === 0 && !argv.h ||
+                         argv._.length > 0 && !this.commands().find((value) => value.name === argv._[0]);
+        if (showHelp) {
+            yargs.showHelp();
+            return;
+        }
     }
 };
 
-program
-    .version(pkg.version)
-    .option('-P, --path <path>', 'Define the path of the CHANGELOG.md (cwd by default)')
-    .option('-S, --stdout', 'Define the output as STDOUT')
-    .description(`About: ${ pkg.description }`);
+yargs
+    .usage(pkg.description)
+    .version()
+    .alias('v', 'version')
+    .help('h')
+    .alias('h', 'help')
+    .option('p', {
+        alias: 'path',
+        describe: 'Define the path of the CHANGELOG.md (cwd by default)'
+    })
+    .option('s', {
+        alias: 'stdout',
+        describe: 'Define the output as STDOUT',
+        default: false
+    })
+    .help('help')
+    .global(['p', 's']);
 
 cli.use([
     init(),
