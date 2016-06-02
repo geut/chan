@@ -29,6 +29,7 @@
     "del-cli": "^0.2.0",
     "eslint": "^2.6.0",
     "eslint-config-postcss": "^2.0.2",
+    "proxyquire": "^1.7.9",
     "tap-spec": "^4.1.1",
     "tape": "^4.5.1",
     "tempfile": "^1.1.1"
