@@ -18,7 +18,8 @@
   "dependencies": {
     "commander": "^2.9.0",
     "inquirer": "^1.0.2",
-    "remark": "^4.2.0"
+    "remark": "^4.2.0",
+    "yargs": "^4.7.1"
   },
   "devDependencies": {
     "babel-cli": "^6.6.5",
