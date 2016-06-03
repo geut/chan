@@ -1,5 +1,3 @@
-import { accessSync, writeFileSync, R_OK, W_OK } from 'fs';
-import { join, resolve } from 'path';
 import { prompt } from 'inquirer';
 
 const initTemplate = `
@@ -10,19 +8,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 `;
 
-function createFile( userPath, data ) {
-    writeFileSync( userPath, data );
-}
-
 export default function () {
     return {
         command: 'init',
         description: 'Creates a CHANGELOG.md if it does not exists. chan will work with this file.',
-        action(parser, userPath = process.cwd()) {
+        action(parser) {
 
-            let changelogExists = parser.exists();
-
-            if (changelogExists) {
+            if (parser.exists()) {
                 prompt([
                     {
                         type: 'confirm',
@@ -32,13 +24,13 @@ export default function () {
                 ])
                 .then( (answer) => {
                     if ( answer.overwriteChangelog ) {
-                        createFile(parser.pathname, initTemplate);
+                        parser.write(initTemplate);
                         parser.read();
                         parser.parse();
                     }
                 });
             } else {
-                createFile(parser.pathname, initTemplate);
+                parser.write(initTemplate);
                 parser.read();
                 parser.parse();
             }
