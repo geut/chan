@@ -20,12 +20,13 @@ export default function createCommand(cli, def) {
             parserInstance,
             argv,
             () => {
-                // writer callback function
+                // write callback function
                 if (argv.stdout) {
                     process.stdout.on('error', process.exit);
                     process.stdout.write(parserInstance.stringify());
                     return;
                 }
+                parserInstance.write();
             }
         );
     };

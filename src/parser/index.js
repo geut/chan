@@ -1,42 +1,29 @@
-import fs from 'fs';
 import path from 'path';
 import remark from 'remark';
-
-const detectChangelog = function detectChangelog(pathname) {
-    const filePath = path.resolve(pathname, 'CHANGELOG.md');
-    let changelogExists = false;
-    try {
-        changelogExists = fs.accessSync(filePath, fs.R_OK | fs.W_OK);
-        changelogExists = true;
-    } catch (e) { }
-    return changelogExists;
-};
+import { read, write } from './fs';
 
 export default function parser(dir = process.cwd()) {
-
+    const pathname = path.resolve(dir, 'CHANGELOG.md');
+    const contents = read(pathname);
 
     return {
         remark,
-        root: {},
-        contents: '',
-        pathname: path.resolve(dir, 'CHANGELOG.md'),
-        parse() {
-            this.root = remark.parse(this.contents);
+        root: remark.parse(contents),
+        createMDAST(value) {
+            const result = remark.parse(value);
+            if (result.children.length === 1) {
+                return result.children[0];
+            }
+            return result.children;
         },
-        add(message) {
-            console.log('ADDED: ' + message);
+        exists() {
+            return contents !== null;
+        },
+        write() {
+            return write(pathname, this.stringify());
         },
         stringify() {
             return this.remark.stringify(this.root);
-        },
-        exists() {
-            return detectChangelog(dir);
-        },
-        read() {
-            this.contents = fs.readFileSync(this.pathname, 'utf8');
-        },
-        write(data, userPath = this.pathname) {
-            fs.writeFileSync( userPath, data );
         }
     };
 }

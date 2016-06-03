@@ -1,5 +1,3 @@
-import { prompt } from 'inquirer';
-
 const initTemplate = `
 # Change Log
 All notable changes to this project will be documented in this file.
@@ -11,11 +9,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 export default function () {
     return {
         command: 'init',
-        description: 'Creates a CHANGELOG.md if it does not exists. chan will work with this file.',
-        action(parser) {
-
+        describe: 'Creates a CHANGELOG.md if it does not exists. chan will work with this file.',
+        handler(parser, argv, write) {
+            const m = parser.createMDAST;
             if (parser.exists()) {
-                prompt([
+                return this.inquirer().prompt([
                     {
                         type: 'confirm',
                         name: 'overwriteChangelog',
@@ -24,16 +22,14 @@ export default function () {
                 ])
                 .then( (answer) => {
                     if ( answer.overwriteChangelog ) {
-                        parser.write(initTemplate);
-                        parser.read();
-                        parser.parse();
+                        parser.root.children = m(initTemplate);
+                        write();
                     }
                 });
-            } else {
-                parser.write(initTemplate);
-                parser.read();
-                parser.parse();
             }
+
+            parser.root.children = m(initTemplate);
+            return write();
         }
     };
 }
