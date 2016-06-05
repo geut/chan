@@ -1,59 +1,37 @@
-import fs from 'fs';
-import * as child from 'child_process';
-import path from 'path';
+import { terminal, answers, readChangelog } from './helpers';
 import test from 'tape';
-import bddStdin from 'bdd-stdin';
-import { stdin } from 'mock-stdin';
-
-// import tempfile from 'tempfile';
-
-const binLoc = path.normalize(`${__dirname}/../../es5/cli/runner.js`);
 
 test('test "init" command --> Precondition: CHANGELOG.md does not exists / Postcondition: command should create a new CHANGELOG.md file in the path: /tmp/chan_test', (t) => {
     t.plan(1);
-    const args = [binLoc];
-    args.push('--path', '/tmp/chan_test/', 'init' );
-    child.spawn(binLoc, args);
-
-    setTimeout( () => {
-        t.doesNotThrow( () => {
-            fs.openSync('/tmp/chan_test/CHANGELOG.md', 'r');
-        }, true, 'CHANGELOG.md successfully created.');
-    }, 1000 );
+    const ti = terminal('init', 'empty');
+    ti.onFinish((message) => {
+        const expected = readChangelog('expected/init').toString();
+        t.equal(expected, message);
+    });
 });
 
-const getStats = function getStats() {
-    let stats = false;
-    try {
-        stats = fs.statSync( '/tmp/chan_test/CHANGELOG.md' );
-    } catch (e) {
-        stats = false;
-    }
-    return stats;
-};
+test('test "init" command --> Precondition: CHANGELOG.md exists / Postcondition: answer=yes | command should create a new CHANGELOG.md file in the path: /tmp/chan_test. Prompt interaction (user) is mocked.', (t) => {
+    t.plan(1);
+    const ti = terminal('init', 'exists');
+    ti.onQuestion((key, question, answer) => {
+        answer(answers.confirmation.yes);
+    });
 
-test('test "init" command --> Precondition: CHANGELOG.md exists / Postcondition: command should create a new CHANGELOG.md file in the path: /tmp/chan_test. Prompt interaction (user) is mocked.', (t) => {
-    t.plan(4);
+    ti.onFinish((message) => {
+        const expected = readChangelog('expected/init').toString();
+        t.equal(expected, message);
+    });
+});
 
-    // First check previous file exists and its mtime
-    const originalStats = getStats();
-    t.equal(typeof originalStats, 'object', 'CHANGELOG.md already exists, stats data obtained OK');
+test('test "init" command --> Precondition: CHANGELOG.md exists / Postcondition: answer=no | command shouldn\'t create a new CHANGELOG.md file.', (t) => {
+    t.plan(1);
+    const ti = terminal('init', 'exists');
+    ti.onQuestion((key, question, answer) => {
+        answer(answers.confirmation.yes);
+    });
 
-    // Then run the init command.
-    const args = [binLoc];
-    // user answer to overwrite previous changelog
-    stdin().send('y');
-    stdin().send(null);
-    args.push('--path', '/tmp/chan_test/', 'init' );
-    child.spawn(binLoc, args);
-
-    setTimeout( () => {
-        t.doesNotThrow( () => {
-            fs.openSync('/tmp/chan_test/CHANGELOG.md', 'r');
-        }, true, 'CHANGELOG.md successfully created.');
-
-        const finalStats = getStats();
-        t.equal(typeof finalStats, 'object', 'CHANGELOG.md already exists, stats data obtained OK');
-        t.notEqual(originalStats.mtime, finalStats.mtime, 'Modification times should be different');
-    }, 1000 );
+    ti.onFinish((message) => {
+        const expected = readChangelog('expected/init').toString();
+        t.equal(expected, message);
+    });
 });
