@@ -7,7 +7,7 @@
     "chan": "./es5/cli/runner.js"
   },
   "scripts": {
-    "pretest": "mkdir -p /tmp/chan_test/ && rm /tmp/chan_test/CHANGELOG.md",
+    "pretest": "mkdir -p /tmp/chan_test/ && rm -f /tmp/chan_test/CHANGELOG.md",
     "test": "tape -r babel-register \"test/**/*.js\" | tap-spec",
     "posttest": "eslint src",
     "build": "del-cli es5 && babel src --out-dir es5",
