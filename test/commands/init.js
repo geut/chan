@@ -5,23 +5,10 @@ import test from 'tape';
 import bddStdin from 'bdd-stdin';
 import { stdin } from 'mock-stdin';
 
-// import tempfile from 'tempfile';
-
 const binLoc = path.normalize(`${__dirname}/../../es5/cli/runner.js`);
+const expectedFile = fs.readFileSync(`${__dirname}/../fixtures/init-empty.md`);
 
-test('test "init" command --> Precondition: CHANGELOG.md does not exists / Postcondition: command should create a new CHANGELOG.md file in the path: /tmp/chan_test', (t) => {
-    t.plan(1);
-    const args = [binLoc];
-    args.push('--path', '/tmp/chan_test/', 'init' );
-    child.spawn(binLoc, args);
-
-    setTimeout( () => {
-        t.doesNotThrow( () => {
-            fs.openSync('/tmp/chan_test/CHANGELOG.md', 'r');
-        }, true, 'CHANGELOG.md successfully created.');
-    }, 1000 );
-});
-
+// helper
 const getStats = function getStats() {
     let stats = false;
     try {
@@ -32,8 +19,25 @@ const getStats = function getStats() {
     return stats;
 };
 
+test('test "init" command --> Precondition: CHANGELOG.md does not exists / Postcondition: command should create a new CHANGELOG.md file in the path: /tmp/chan_test', (t) => {
+    t.plan(2);
+    const args = [binLoc];
+    args.push('--path', '/tmp/chan_test/', 'init' );
+    child.spawn(binLoc, args);
+    let resultTmp = '';
+    setTimeout( () => {
+        t.doesNotThrow( () => {
+            resultTmp = fs.readFileSync('/tmp/chan_test/CHANGELOG.md');
+        }, true, 'CHANGELOG.md successfully created.');
+
+        t.deepEqual(resultTmp.toString(), expectedFile.toString(), 'CHANGELOG.md content created correctly');
+    }, 1000 );
+
+});
+
+
 test('test "init" command --> Precondition: CHANGELOG.md exists / Postcondition: command should create a new CHANGELOG.md file in the path: /tmp/chan_test. Prompt interaction (user) is mocked.', (t) => {
-    t.plan(4);
+    t.plan(5);
 
     // First check previous file exists and its mtime
     const originalStats = getStats();
@@ -46,14 +50,15 @@ test('test "init" command --> Precondition: CHANGELOG.md exists / Postcondition:
     stdin().send(null);
     args.push('--path', '/tmp/chan_test/', 'init' );
     child.spawn(binLoc, args);
-
+    let resultTmp = '';
     setTimeout( () => {
         t.doesNotThrow( () => {
-            fs.openSync('/tmp/chan_test/CHANGELOG.md', 'r');
+            resultTmp = fs.readFileSync('/tmp/chan_test/CHANGELOG.md');
         }, true, 'CHANGELOG.md successfully created.');
 
         const finalStats = getStats();
         t.equal(typeof finalStats, 'object', 'CHANGELOG.md already exists, stats data obtained OK');
         t.notEqual(originalStats.mtime, finalStats.mtime, 'Modification times should be different');
-    }, 1000 );
+        t.deepEqual(resultTmp.toString(), expectedFile.toString(), 'CHANGELOG.md content created correctly');
+}, 1000 );
 });
