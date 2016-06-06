@@ -5,14 +5,11 @@ import { read, write } from './fs';
 export default function parser(dir = process.cwd()) {
     const pathname = path.resolve(dir, 'CHANGELOG.md');
     const contents = read(pathname);
-    const parserOptions = {
-        position: false
-    };
     return {
         remark,
-        root: remark.parse(contents, parserOptions),
+        root: remark.parse(contents),
         createMDAST(value) {
-            const result = this.remark.parse(value, parserOptions);
+            const result = this.remark.parse(value);
             if (result.children.length === 1) {
                 return result.children[0];
             }
@@ -25,7 +22,7 @@ export default function parser(dir = process.cwd()) {
             return write(pathname, this.stringify());
         },
         stringify() {
-            return this.remark.stringify(this.root, parserOptions);
+            return this.remark.stringify(this.root);
         }
     };
 }
