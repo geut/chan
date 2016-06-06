@@ -10,10 +10,6 @@ export const questions = {
     overwriteChangelog: {
         type: 'confirm',
         message: 'A CHANGELOG.md exists, do you want to replace it?'
-    },
-    otraQuestion: {
-        type: 'confirm',
-        message: 'todo bien?'
     }
 };
 
@@ -29,15 +25,10 @@ export default function () {
                         type: questions.overwriteChangelog.type,
                         name: 'overwriteChangelog',
                         message: questions.overwriteChangelog.message
-                    },
-                    {
-                        type: questions.otraQuestion.type,
-                        name: 'otraQuestion',
-                        message: questions.otraQuestion.message
                     }
                 ])
                 .then( (answer) => {
-                    if ( answer.overwriteChangelog && answer.otraQuestion ) {
+                    if ( answer.overwriteChangelog ) {
                         parser.root.children = m(initTemplate);
                         write();
                     }
