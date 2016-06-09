@@ -6,6 +6,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 `;
 
+export const questions = {
+    overwriteChangelog: {
+        type: 'confirm',
+        message: 'A CHANGELOG.md exists, do you want to replace it?'
+    }
+};
+
 export default function () {
     return {
         command: 'init',
@@ -15,9 +22,9 @@ export default function () {
             if (parser.exists()) {
                 return this.inquirer().prompt([
                     {
-                        type: 'confirm',
+                        type: questions.overwriteChangelog.type,
                         name: 'overwriteChangelog',
-                        message: 'A CHANGELOG.md exists, do you want to replace it?'
+                        message: questions.overwriteChangelog.message
                     }
                 ])
                 .then( (answer) => {
