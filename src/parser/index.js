@@ -27,21 +27,31 @@ export default function parser(dir = process.cwd()) {
         },
         addedHeaderExists() {
             return this.root.children[3] &&
-                this.root.children[3].children[0] === 'object' &&
-                this.root.children[3].children[0].type === 'heading' &&
-                this.root.children[3].children[0].children[0] &&
-                this.root.children[3].children[0].children[0].value === 'Added';
+                this.root.children[3].type === 'heading' &&
+                this.root.children[3].children[0] &&
+                this.root.children[3].children[0].value === 'Added';
+        },
+        unreleased() {
+            if (!(this.root.children[4] && this.root.children[4].type === 'list')) {
+                // probably we should create it?
+                return false;
+            }
+            return this.root.children[4];
         },
         added(value) {
             let result = false;
             if (!this.addedHeaderExists()) {
-                console.log('added::inject::header')
-                result = inject('Unreleased', this.root, '### Added\n');
-                console.log('added::inject::header::result', result)
-            } else {
-                result = inject('Added', this.root, value);
+                inject('Unreleased', this.root, remark.parse('### Added\n'));
             }
-            console.log(this.root)
+            const unreleasedAST = this.unreleased();
+            if ( unreleasedAST ) {
+                const toAdd = remark.parse(value);
+                unreleasedAST.children.push(toAdd.children[0].children[0]); // add 'each' children.children?
+                const astToString = remark.stringify(unreleasedAST)
+                result = inject('Added', this.root, remark.parse(astToString));
+            } else {
+                result = inject('Added', this.root, remark.parse(value));
+            }
             return result;
         }
     };
