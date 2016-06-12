@@ -8,13 +8,12 @@ export default function () {
         describe: 'Writes your changelog indicating new stuff.',
         handler(parser, argv, write) {
             if ( !parser.exists() ) {
-                // maybe throw an error... init is needed first
-                return;
+                throw new Error('CHANGELOG.md does not exists. You can run: chan init in order to create a fresh new one.');
             }
             const msg = argv.msg;
             if (!msg) return;
             parser.added( parseMsg(msg) );
-            return write();
+            write();
         }
     };
 }
