@@ -47,7 +47,7 @@ export default function parser(dir = process.cwd()) {
             if ( unreleasedAST ) {
                 const toAdd = remark.parse(value);
                 unreleasedAST.children.push(toAdd.children[0].children[0]); // add 'each' children.children?
-                const astToString = remark.stringify(unreleasedAST)
+                const astToString = remark.stringify(unreleasedAST);
                 result = inject('Added', this.root, remark.parse(astToString));
             } else {
                 result = inject('Added', this.root, remark.parse(value));
