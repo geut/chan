@@ -18,3 +18,12 @@ test('test "added" command. Precondition: CHANGELOG.md already exists and contai
         t.deepEqual(result, expected, 'chan added a new change to an already populated CHANGELOG.md.');
     });
 });
+
+test('test "added" command. Precondition: CHANGELOG.md already exists but there is no user input. / Postcondition: CHANGELOG.md remains the same.', (t) => {
+    t.plan(1);
+    const ti = terminal('added', 'changelog_exists');
+    ti.onFinish((result) => {
+        const expected = null;
+        t.deepEqual(result, expected, 'chan does not modify CHANGELOG.md.');
+    });
+});
