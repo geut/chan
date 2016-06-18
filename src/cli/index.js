@@ -7,7 +7,7 @@ import yargs from 'yargs';
 import inquirer from 'inquirer';
 import pkg from '../../package.json';
 import createCommand from './lib/create-command';
-import { init, added } from './commands';
+import { init, added, release } from './commands';
 
 const _commands = [];
 const cli = {
@@ -59,7 +59,8 @@ yargs
 
 cli.use([
     init(),
-    added()
+    added(),
+    release()
 ]);
 
 export default cli;
