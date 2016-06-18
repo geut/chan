@@ -45,9 +45,7 @@ export default function () {
             }
 
             if (pos === parser.MARKERS.UNRELEASED) return;
-            console.log('pos', pos);
             const previousVersions = parser.root.children.slice(pos, parser.root.children.length);
-            console.log('previousVersions', previousVersions);
             const date = new Date();
             const newVersion = m(`## [${version}] - ${date.getUTCFullYear()}-${date.getUTCMonth() + 1}-${date.getUTCDate()}`);
             let newRoot = [...unchanged, newVersion, ...unreleased, ...previousVersions ];
