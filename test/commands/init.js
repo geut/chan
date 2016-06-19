@@ -1,6 +1,6 @@
 import { EOL } from 'os';
-import { terminal, answers, readChangelog } from './helpers';
 import test from 'tape';
+import { terminal, answers, readChangelog } from './helpers';
 
 test('test "init" command --> Precondition: CHANGELOG.md does not exists / Postcondition: command should create a new CHANGELOG.md file', (t) => {
     t.plan(1);

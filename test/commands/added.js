@@ -1,5 +1,5 @@
-import { terminal, readChangelog } from './helpers';
 import test from 'tape';
+import { terminal, readChangelog } from './helpers';
 
 test('test "added" command. Precondition: CHANGELOG.md exists. Does not contain any new change. / Postcondition: A new change is added to the CHANGELOG.md', (t) => {
     t.plan(1);
