@@ -27,7 +27,9 @@ export default function () {
             if (parser.root.children.length <= parser.MARKERS.UNRELEASED) return;
 
             const m = parser.createMDAST;
+            // the header part of the CHANGELOG
             const unchanged = parser.root.children.slice(parser.MARKERS.INITIAL, parser.MARKERS.UNRELEASED);
+            // Unreleased section "childrens"
             const childrens = parser.root.children.slice(parser.MARKERS.UNRELEASED, parser.root.children.length - 1);
 
             let pos = parser.MARKERS.UNRELEASED;
