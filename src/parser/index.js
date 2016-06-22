@@ -1,6 +1,5 @@
 import path from 'path';
 import remark from 'remark';
-import inject from 'mdast-util-inject';
 import { read, write } from './fs';
 
 
@@ -10,12 +9,25 @@ const MARKERS = {
     CHANGES: 4
 };
 
+const SEPARATORS = {
+    Added: 'Added',
+    Changed: 'Changed',
+    Fixed: 'Fixed',
+    Security: 'Security',
+    Deprecated: 'Deprecated',
+    Removed: 'Removed'
+};
+
+const HEADINGS = new Set(Object.keys(SEPARATORS));
+
 export default function parser(dir = process.cwd()) {
     const pathname = path.resolve(dir, 'CHANGELOG.md');
     const contents = read(pathname);
     return {
         remark,
         MARKERS,
+        SEPARATORS,
+        HEADINGS,
         root: remark.parse(contents),
         createMDAST(value) {
             const result = remark.parse(value);
@@ -33,33 +45,50 @@ export default function parser(dir = process.cwd()) {
         stringify() {
             return this.remark.stringify(this.root);
         },
-        addedHeaderExists() {
-            return this.root.children[MARKERS.UNRELEASED] &&
-                this.root.children[MARKERS.UNRELEASED].type === 'heading' &&
-                this.root.children[MARKERS.UNRELEASED].depth === 3;
+        changeHeaderExists(changeType, node) {
+            return node.type === 'heading' &&
+                node.depth === 3 &&
+                node.children[0].value === changeType;
         },
-        unreleased() {
-            if (!(this.root.children[MARKERS.CHANGES] && this.root.children[MARKERS.CHANGES].type === 'list')) {
-                // probably we should create it?
-                return false;
+        detectChangeHeader(changeType) {
+            const childrens = this.root.children.slice(MARKERS.UNRELEASED, this.root.children.length - 1);
+            let exists = false;
+            let pos = MARKERS.UNRELEASED;
+            for (let node of childrens) {
+                if (node.type === 'heading' && node.depth === 2) {
+                    break;
+                }
+                if (this.changeHeaderExists(changeType, node)) {
+                    exists = true;
+                    break;
+                }
+                pos++;
             }
-            return this.root.children[MARKERS.CHANGES];
+            return { exists, pos };
         },
-        added(value) {
-            let result = false;
-            if (!this.addedHeaderExists()) {
-                inject('Unreleased', this.root, remark.parse('### Added\n'));
-            }
-            const unreleasedAST = this.unreleased();
-            if ( unreleasedAST ) {
-                const toAdd = remark.parse(value);
-                unreleasedAST.children.push(toAdd.children[0].children[0]); // add 'each' children.children?
-                const astToString = remark.stringify(unreleasedAST);
-                result = inject('Added', this.root, remark.parse(astToString));
+        change(changeType, value) {
+            if (typeof changeType === 'undefined') throw new Error('A change type is required.');
+
+            const changeHeader = this.detectChangeHeader(changeType);
+            let unchanged = this.root.children.slice(MARKERS.INITIAL, changeHeader.pos);
+            let change = remark.parse(value);
+
+            if (!changeHeader.exists) {
+                unchanged.push(this.createMDAST(`### ${changeType}`));
+                change = change.children[0]; // list
+                unchanged.push(change);
             } else {
-                result = inject('Added', this.root, remark.parse(value));
+                change = change.children[0].children[0]; // listItem
+                unchanged = this.root.children.slice(MARKERS.INITIAL, changeHeader.pos + 2);
+                unchanged[changeHeader.pos + 1].children.push(change);
+                changeHeader.pos += 2;
             }
-            return result;
+
+            const previousVersions = this.root.children.slice(changeHeader.pos, this.root.children.length);
+            // create the new root childrens
+            let newRoot = [...unchanged, ...previousVersions];
+            this.root.children = newRoot;
+            return this.root;
         }
     };
 }
