@@ -12,7 +12,7 @@ export default function () {
             }
             const msg = argv.msg;
             if (!msg) return;
-            parser.added( parseMsg(msg) );
+            parser.change(parser.SEPARATORS.Added, parseMsg(msg));
             write();
         }
     };
