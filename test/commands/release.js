@@ -14,7 +14,9 @@ test('test "release" command. Precondition: CHANGELOG.md exists and contains new
     t.plan(1);
     const ti = terminal('release', 'unreleased_changes', ['1.0.0']);
     ti.onFinish((result) => {
-        const expected = readChangelog('expected/release/unreleased_changes').toString();
+        let expected = readChangelog('expected/release/unreleased_changes').toString();
+        const today = new Date();
+        expected = expected.replace('<currentDate>', `${today.getUTCFullYear()}-${today.getUTCMonth() + 1}-${today.getUTCDate()}`);
         t.deepEqual(result, expected, 'chan release adds a new version section to the CHANGELOG.md.');
     });
 });
@@ -23,7 +25,9 @@ test('test "release" command. Precondition: CHANGELOG.md exists and contains new
     t.plan(1);
     const ti = terminal('release', 'unreleased_previous_versions', ['1.0.1']);
     ti.onFinish((result) => {
-        const expected = readChangelog('expected/release/unreleased_previous_versions').toString();
+        let expected = readChangelog('expected/release/unreleased_previous_versions').toString();
+        const today = new Date();
+        expected = expected.replace('<currentDate>', `${today.getUTCFullYear()}-${today.getUTCMonth() + 1}-${today.getUTCDate()}`);
         t.deepEqual(result, expected, 'chan release adds a new version section to the CHANGELOG.md on top of previous versions.');
     });
 });
