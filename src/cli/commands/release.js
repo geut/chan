@@ -1,10 +1,4 @@
-const HEADINGS = new Set([
-    'Added',
-    'Updated',
-    'Removed'
-]);
-
-function isUnreleased(node) {
+function isUnreleased(HEADINGS, node) {
     return node.type === 'heading' && HEADINGS.has(node.children[0].value) || node.type === 'list';
 }
 
@@ -38,7 +32,7 @@ export default function () {
                 if (node.type === 'heading' && node.depth === 2) {
                     break;
                 }
-                if (isUnreleased(node)) {
+                if (isUnreleased(parser.HEADINGS, node)) {
                     unreleased.push(node);
                 } else {
                     break;
