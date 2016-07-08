@@ -39,8 +39,8 @@ export default function parser(dir = process.cwd()) {
         exists() {
             return contents !== null;
         },
-        write() {
-            return write(pathname, this.stringify());
+        write(content = this.stringify()) {
+            return write(pathname, content);
         },
         stringify() {
             return this.remark.stringify(this.root);

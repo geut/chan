@@ -4,18 +4,22 @@
  * By your friends at GEUT
  */
 import yargs from 'yargs';
-import inquirer from 'inquirer';
 import pkg from '../../package.json';
 import createCommand from './lib/create-command';
+import createLog from './lib/log';
 import { init, added, release, fixed, changed, deprecated, removed, security } from './commands';
 
 const _commands = [];
+let _log;
 const cli = {
     yargs() {
         return yargs;
     },
-    inquirer() {
-        return inquirer;
+    log() {
+        if (!_log) {
+            _log = createLog();
+        }
+        return _log;
     },
     commands() {
         return _commands;

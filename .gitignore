@@ -31,3 +31,5 @@ src/tests/dest
 es5/
 
 /dist
+
+.tern-project

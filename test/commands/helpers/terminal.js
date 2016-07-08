@@ -1,19 +1,27 @@
 import { spawn as processSpawn } from 'child_process';
+import tmpdir from './tmpdir';
+import cpFile from 'cp-file';
 import path from 'path';
+import fs from 'fs';
 
-const binLoc = path.normalize(`${__dirname}/../../../es5/cli/runner.js`);
+const binLoc = path.normalize(`${__dirname}/../../../src/cli/runner.js`);
+const createTmpDir = tmpdir();
 let children = [];
 
 function terminal(command, fixtureName, userArgs = []) {
-    const fixture = path.normalize(`test/fixtures/${command}/${fixtureName}`);
-    const args = [binLoc, command, '-s', '--path', fixture, ...userArgs];
+    const fixture = createTmpDir(`${command}/${fixtureName}`);
+    if (fixtureName !== 'empty') {
+        cpFile.sync(path.normalize(`test/fixtures/${command}/${fixtureName}/CHANGELOG.md`), path.join(fixture, 'CHANGELOG.md'));
+    }
+    const args = ['-r', 'babel-register', binLoc, command, '--path', fixture, ...userArgs];
     const child = processSpawn('node', args);
-    const questions = require(`../../../es5/cli/commands/${command}`).questions || {};
+    const questions = require(`../../../src/cli/commands/${command}`).questions || {};
     children.push(child);
 
     let _cbQuestion = () => {};
     let _cbFinish = () => {};
     const that = {
+        fixture,
         child,
         messages: [],
         asked: [],
@@ -46,7 +54,13 @@ function terminal(command, fixtureName, userArgs = []) {
     });
 
     child.on('close', () => {
-        _cbFinish(that.messages.length > 0 ? that.messages[that.messages.length - 1] : null);
+        let data;
+        try {
+            data = fs.readFileSync(path.join(fixture, 'CHANGELOG.md'), 'utf8');
+            _cbFinish(null, data);
+        } catch (e) {
+            _cbFinish(e, data);
+        }
     });
 
     return that;

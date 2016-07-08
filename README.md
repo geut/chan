@@ -1,5 +1,5 @@
 # chan
-
+[![Build Status](https://travis-ci.org/geut/chan.svg?branch=master)](https://travis-ci.org/geut/chan)
 Chan is a likeable CLI tool used for writing and maintaining a CHANGELOG empowering the user to use a coloquial/friendly style. See more here: http://keepachangelog.com/
 
 ____
@@ -29,20 +29,13 @@ Where:
 - ```CATEGORY```: It is the category verb in past tense. Categories can be: added, removed, fixed, updated, changed, etc.
 - ```MSG```: It is your message describing what changed according to the category selected.
 
-## Parser
+## Development
 
-The following represents the parsed CHANGELOG as an object with custom functionality. This is the extension point, transformations are built using this data representation.
+### CLI
 
-```
-[ Root ]
-    [ Release ]
-        [ *Category ]
-            [ *Msg ]
-                [ Commit-Link ]
-                [ Issue-Link ]
+### Parser
 
-* = one or more
-```
+The parser is a wrap instance of an excellent library/project called [remark](https://github.com/wooorm/remark).
 
 ___
 

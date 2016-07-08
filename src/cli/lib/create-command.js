@@ -20,13 +20,16 @@ export default function createCommand(cli, def) {
             parserInstance,
             argv,
             () => {
-                // write callback function
-                if (argv.stdout) {
-                    process.stdout.on('error', process.exit);
-                    process.stdout.write(parserInstance.stringify());
-                    return;
-                }
-                parserInstance.write();
+                return new Promise((resolve) => {
+                    const data = parserInstance.stringify();
+                    // write callback function
+                    if (argv.stdout) {
+                        process.stdout.write(data);
+                    } else {
+                        parserInstance.write(data);
+                    }
+                    resolve(data);
+                });
             }
         );
     };
