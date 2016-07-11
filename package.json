@@ -7,7 +7,7 @@
     "chan": "./es5/cli/runner.js"
   },
   "scripts": {
-    "test": "tape -r babel-register \"test/**/*.js\" | tap-spec",
+    "test": "ava test --verbose",
     "posttest": "eslint src",
     "build": "del-cli es5 && babel src --out-dir es5",
     "watch": "npm run build -- --watch"
@@ -22,19 +22,19 @@
     "yargs": "^4.7.1"
   },
   "devDependencies": {
+    "ava": "^0.15.2",
     "babel-cli": "^6.9.0",
     "babel-plugin-add-module-exports": "^0.2.1",
     "babel-plugin-transform-object-assign": "^6.8.0",
     "babel-preset-es2015": "^6.9.0",
     "babel-register": "^6.9.0",
     "cp-file": "^3.1.0",
+    "del": "^2.2.1",
     "del-cli": "^0.2.0",
     "eslint": "^2.11.0",
     "eslint-config-postcss": "^2.0.2",
     "mkdirp": "^0.5.1",
     "os-tmpdir": "^1.0.1",
-    "tap-spec": "^4.1.1",
-    "tape": "^4.5.1",
     "uid2": "0.0.3"
   },
   "eslintConfig": {
@@ -42,6 +42,9 @@
     "rules": {
       "max-len": 0
     }
+  },
+  "ava": {
+    "require": "babel-register"
   },
   "babel": {
     "presets": [
