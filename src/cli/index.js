@@ -34,8 +34,20 @@ const cli = {
     },
     run() {
         const argv = yargs.argv;
+        const commands = this.commands();
+        const findCommand = () => {
+            let found = false;
+            for (let value of commands) {
+                found = value.name === argv._[0];
+                if (found) {
+                    break;
+                }
+            }
+            return found;
+        };
+
         const showHelp = argv._.length === 0 && !argv.h ||
-                         argv._.length > 0 && !this.commands().find((value) => value.name === argv._[0]);
+                         argv._.length > 0 && !findCommand();
         if (showHelp) {
             yargs.showHelp();
             return;
