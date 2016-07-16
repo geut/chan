@@ -4,13 +4,19 @@
   "description": "Chan is a likeable CLI tool used for writing and maintaining a CHANGELOG empowering the user to use a coloquial/friendly style. See more here: http://keepachangelog.com/",
   "main": "./es5/index.js",
   "bin": {
-    "chan": "./es5/cli/runner.js"
+    "chan": "./es5/bin/cmd.js"
   },
   "scripts": {
-    "test": "ava test --verbose",
+    "test": "ava --verbose",
     "posttest": "eslint src",
     "build": "del-cli es5 && babel src --out-dir es5",
     "watch": "npm run build -- --watch"
+  },
+  "ava": {
+    "require": "babel-register",
+    "files": [
+      "test/commands/*.js"
+    ]
   },
   "files": [
     "es5"
@@ -35,6 +41,7 @@
     "eslint-config-postcss": "^2.0.2",
     "mkdirp": "^0.5.1",
     "os-tmpdir": "^1.0.1",
+    "proxyquire": "^1.7.10",
     "uid2": "0.0.3"
   },
   "eslintConfig": {
@@ -42,9 +49,6 @@
     "rules": {
       "max-len": 0
     }
-  },
-  "ava": {
-    "require": "babel-register"
   },
   "babel": {
     "presets": [

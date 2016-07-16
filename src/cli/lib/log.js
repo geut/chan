@@ -1,11 +1,9 @@
 import chalk from 'chalk';
-import yargs from 'yargs';
 
-export default function createLog() {
-    const argv = yargs.parse(process.argv);
+export default function createLog(argv) {
     function createPrint(color) {
         return function print(message) {
-            if (!argv.stdout) {
+            if (!argv.stdout && !argv.silence) {
                 console.log(color(message));
             }
         };

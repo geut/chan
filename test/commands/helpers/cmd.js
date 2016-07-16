@@ -1,18 +1,15 @@
 import { spawn as processSpawn } from 'child_process';
-import cpFile from 'cp-file';
+import createFixture from './create-fixture';
 import path from 'path';
 import fs from 'fs';
 
-const binLoc = path.normalize(`${__dirname}/../../../es5/cli/runner.js`);
+const binLoc = path.normalize(`${__dirname}/../../../es5/bin/cmd.js`);
 
 let children = [];
 
-function terminal(tmp, command, fixtureName, userArgs = []) {
-    const fixture = tmp.create(`${command}/${fixtureName}`);
-    if (fixtureName !== 'empty') {
-        cpFile.sync(path.normalize(`fixtures/${command}/${fixtureName}/CHANGELOG.md`), path.join(fixture, 'CHANGELOG.md'));
-    }
-    const args = [binLoc, command, '--path', fixture, ...userArgs];
+function cmd(tmp, commandName, fixtureName, userArgs = []) {
+    const fixture = createFixture(tmp, commandName, fixtureName, fixtureName !== 'empty');
+    const args = [binLoc, commandName, '--path', fixture, ...userArgs];
     const child = processSpawn('node', args);
     children.push(child);
 
@@ -33,11 +30,11 @@ function terminal(tmp, command, fixtureName, userArgs = []) {
     });
 }
 
-terminal.clear = function clear() {
+cmd.clear = function clear() {
     children.forEach((child) => {
         child.kill();
     });
     children = [];
 };
 
-export default terminal;
+export default cmd;

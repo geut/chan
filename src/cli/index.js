@@ -17,7 +17,7 @@ const cli = {
     },
     log() {
         if (!_log) {
-            _log = createLog();
+            _log = createLog(yargs.argv);
         }
         return _log;
     },
@@ -65,13 +65,16 @@ yargs
         alias: 'path',
         describe: 'Define the path of the CHANGELOG.md (cwd by default)'
     })
-    .option('s', {
-        alias: 'stdout',
+    .option('stdout', {
         describe: 'Define the output as STDOUT',
         default: false
     })
+    .option('silence', {
+        describe: 'Disable the console messages',
+        default: false
+    })
     .help('help')
-    .global(['p', 's']);
+    .global(['p', 'stdout', 'silence']);
 
 cli.use([
     init(),

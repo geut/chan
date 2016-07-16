@@ -15,7 +15,7 @@ export default function createCommand(cli, def) {
 
     def.handler = (argv) => {
         const parserInstance = parser(argv.path);
-        return userHandler.call(
+        const result = userHandler.call(
             cli,
             parserInstance,
             argv,
@@ -32,6 +32,14 @@ export default function createCommand(cli, def) {
                 });
             }
         );
+
+        if (!result || typeof result.then !== 'function') {
+            return new Promise((resolve) => {
+                resolve();
+            });
+        }
+
+        return result;
     };
 
     cli.yargs().command(def);

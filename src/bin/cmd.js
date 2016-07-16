@@ -1,4 +1,4 @@
 #!/usr/bin/env node
-import cli from './index';
+import cli from '../cli/index';
 
 cli.run();
