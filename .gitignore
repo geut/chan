@@ -33,3 +33,5 @@ es5/
 /dist
 
 .tern-project
+
+.nyc_output

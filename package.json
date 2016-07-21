@@ -7,8 +7,9 @@
     "chan": "./es5/bin/cmd.js"
   },
   "scripts": {
-    "test": "ava --verbose",
+    "test": "nyc --cache ava --verbose",
     "posttest": "eslint src",
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
     "build": "del-cli es5 && babel src --out-dir es5",
     "watch": "npm run build -- --watch"
   },
@@ -40,6 +41,7 @@
     "eslint": "^2.11.0",
     "eslint-config-postcss": "^2.0.2",
     "mkdirp": "^0.5.1",
+    "nyc": "^7.0.0",
     "os-tmpdir": "^1.0.1",
     "proxyquire": "^1.7.10",
     "uid2": "0.0.3"
