@@ -5,37 +5,28 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]`;
 
-export const questions = {
-    overwriteChangelog: {
-        type: 'confirm',
-        message: 'A CHANGELOG.md exists, do you want to replace it?'
-    }
-};
-
 export default function () {
     return {
         command: 'init',
         describe: 'Creates a CHANGELOG.md if it does not exists. chan will work with this file.',
+        builder: {
+            o: {
+                alias: 'overwrite',
+                default: false,
+                describe: 'overwrite the current CHANGELOG.md',
+                type: 'boolean'
+            }
+        },
         handler(parser, argv, write) {
             const m = parser.createMDAST;
-            if (parser.exists()) {
-                return this.inquirer().prompt([
-                    {
-                        type: questions.overwriteChangelog.type,
-                        name: 'overwriteChangelog',
-                        message: questions.overwriteChangelog.message
-                    }
-                ])
-                .then( (answer) => {
-                    if ( answer.overwriteChangelog ) {
-                        parser.root.children = m(initTemplate);
-                        write();
-                    }
+            if (parser.exists() && !argv.overwrite) {
+                this.log().info('Init CHANGELOG.md: canceled.');
+            } else {
+                parser.root.children = m(initTemplate);
+                write().then(() => {
+                    this.log().success('Init CHANGELOG.md: succeeded.');
                 });
             }
-
-            parser.root.children = m(initTemplate);
-            return write();
         }
     };
 }

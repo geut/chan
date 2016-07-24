@@ -15,20 +15,31 @@ export default function createCommand(cli, def) {
 
     def.handler = (argv) => {
         const parserInstance = parser(argv.path);
-        return userHandler.call(
+        const result = userHandler.call(
             cli,
             parserInstance,
             argv,
             () => {
-                // write callback function
-                if (argv.stdout) {
-                    process.stdout.on('error', process.exit);
-                    process.stdout.write(parserInstance.stringify());
-                    return;
-                }
-                parserInstance.write();
+                return new Promise((resolve) => {
+                    const data = parserInstance.stringify();
+                    // write callback function
+                    if (argv.stdout) {
+                        process.stdout.write(data);
+                    } else {
+                        parserInstance.write(data);
+                    }
+                    resolve(data);
+                });
             }
         );
+
+        if (!result || typeof result.then !== 'function') {
+            return new Promise((resolve) => {
+                resolve();
+            });
+        }
+
+        return result;
     };
 
     cli.yargs().command(def);

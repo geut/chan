@@ -1,16 +1,4 @@
-import path from 'path';
-import fs from 'fs';
-
-export { default as terminal } from './terminal';
-
-export function readChangelog(name) {
-    const pathname = path.normalize(`test/${name}/CHANGELOG.md`);
-    return fs.readFileSync(pathname);
-}
-
-export const answers = {
-    confirmation: {
-        yes: 'y',
-        no: 'n'
-    }
-};
+export { default as cli } from './cli';
+export { default as cmd } from './cmd';
+export { default as tmpdir } from './tmpdir';
+export { default as readChangelog } from './read-changelog';

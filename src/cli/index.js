@@ -4,18 +4,22 @@
  * By your friends at GEUT
  */
 import yargs from 'yargs';
-import inquirer from 'inquirer';
 import pkg from '../../package.json';
 import createCommand from './lib/create-command';
+import createLog from './lib/log';
 import { init, added, release, fixed, changed, deprecated, removed, security } from './commands';
 
 const _commands = [];
+let _log;
 const cli = {
     yargs() {
         return yargs;
     },
-    inquirer() {
-        return inquirer;
+    log() {
+        if (!_log) {
+            _log = createLog(yargs.argv);
+        }
+        return _log;
     },
     commands() {
         return _commands;
@@ -30,8 +34,20 @@ const cli = {
     },
     run() {
         const argv = yargs.argv;
+        const commands = this.commands();
+        const findCommand = () => {
+            let found = false;
+            for (let value of commands) {
+                found = value.name === argv._[0];
+                if (found) {
+                    break;
+                }
+            }
+            return found;
+        };
+
         const showHelp = argv._.length === 0 && !argv.h ||
-                         argv._.length > 0 && !this.commands().find((value) => value.name === argv._[0]);
+                         argv._.length > 0 && !findCommand();
         if (showHelp) {
             yargs.showHelp();
             return;
@@ -49,13 +65,16 @@ yargs
         alias: 'path',
         describe: 'Define the path of the CHANGELOG.md (cwd by default)'
     })
-    .option('s', {
-        alias: 'stdout',
+    .option('stdout', {
         describe: 'Define the output as STDOUT',
         default: false
     })
+    .option('silence', {
+        describe: 'Disable the console messages',
+        default: false
+    })
     .help('help')
-    .global(['p', 's']);
+    .global(['p', 'stdout', 'silence']);
 
 cli.use([
     init(),
