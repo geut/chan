@@ -41,3 +41,14 @@ for (const command of commands) {
             });
     });
 }
+
+
+test('test 2 commands in a row. Precondition: CHANGELOG.md already exists and contains changes. / Postcondition: CHANGELOG.md is fullfiled according the previous commands.', (t) => {
+    return Promise.all([cli(tmp, 'added', 'changelog_with_items', { msg: 'super *cool feature*' }),
+                        cli(tmp, 'fixed', 'changelog_with_items_added', { msg: 'super *cool fix*' }),
+                        readChangelog('expected/fixed/changelog_with_items_added')])
+        .then((values) => {
+            let [, result, expected] = values;
+            t.deepEqual(result, expected, 'chan injected the new changes labeled as added and fixed successfully.');
+        });
+});
