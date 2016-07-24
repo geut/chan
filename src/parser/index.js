@@ -60,6 +60,7 @@ export default function parser(dir = process.cwd()) {
                 }
                 if (this.changeHeaderExists(changeType, node)) {
                     exists = true;
+                    pos += 2; // move pointer to list
                     break;
                 }
                 pos++;
@@ -70,19 +71,17 @@ export default function parser(dir = process.cwd()) {
             if (typeof changeType === 'undefined') throw new Error('A change type is required.');
 
             const changeHeader = this.detectChangeHeader(changeType);
-            //let unchanged = this.root.children.slice(MARKERS.INITIAL, changeHeader.pos);
             let change = remark.parse(value);
 
-            let unchanged = this.root.children.slice(MARKERS.INITIAL, changeHeader.pos + 2);
+            let unchanged = this.root.children.slice(MARKERS.INITIAL, changeHeader.pos);
+
             if (!changeHeader.exists) {
                 unchanged.push(this.createMDAST(`### ${changeType}`));
                 change = change.children[0]; // list
                 unchanged.push(change);
             } else {
                 change = change.children[0].children[0]; // listItem
-                //unchanged = this.root.children.slice(MARKERS.INITIAL, changeHeader.pos + 2);
-                unchanged[changeHeader.pos + 1].children.push(change);
-                changeHeader.pos += 2;
+                unchanged[changeHeader.pos - 1].children.push(change);
             }
 
             const previousVersions = this.root.children.slice(changeHeader.pos, this.root.children.length);
