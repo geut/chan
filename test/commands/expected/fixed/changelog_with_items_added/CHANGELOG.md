@@ -13,7 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
-- super _cool fix_
+-   super _cool fix_
 
 ## [0.3.0] - 2015-12-03
 
