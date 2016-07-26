@@ -44,13 +44,12 @@ for (const command of commands) {
 
 
 test('test 2 commands in a row. Precondition: CHANGELOG.md already exists and contains changes. / Postcondition: CHANGELOG.md is fullfiled according the previous commands.', (t) => {
+    const syncActions = cli(tmp, 'added', 'changelog_with_items_added', { msg: 'super *cool feature*' })
+        .then(() => cli(tmp, 'fixed', 'changelog_with_items_added', { msg: 'super *cool fix*' }));
+
     return Promise
         .all([
-            cli(tmp, 'added', 'changelog_with_items_added', { msg: 'super *cool feature*' }),
-            readChangelog('expected/added/changelog_with_items')
-        ])
-        .then([
-            cli(tmp, 'fixed', 'changelog_with_items_added', { msg: 'super *cool fix*' }),
+            syncActions,
             readChangelog('expected/fixed/changelog_with_items_added')
         ])
         .then((values) => {
