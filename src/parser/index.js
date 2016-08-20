@@ -1,37 +1,34 @@
 import path from 'path';
 import remark from 'remark';
+import removePosition from 'unist-util-remove-position';
 import { read, write } from './fs';
-
-
-const MARKERS = {
-    INITIAL: 0,
-    UNRELEASED: 3,
-    CHANGES: 4
-};
+import emptySpaces from './empty-spaces';
+import mtree from './mtree';
 
 const SEPARATORS = {
-    Added: 'Added',
-    Changed: 'Changed',
-    Fixed: 'Fixed',
-    Security: 'Security',
-    Deprecated: 'Deprecated',
-    Removed: 'Removed'
+    added: 'Added',
+    changed: 'Changed',
+    fixed: 'Fixed',
+    security: 'Security',
+    deprecated: 'Deprecated',
+    removed: 'Removed'
 };
 
-const HEADINGS = new Set(Object.keys(SEPARATORS));
+const remarkInstance = remark().use(emptySpaces);
 
 export default function parser(dir = process.cwd()) {
+    let _mtree;
+
     const pathname = path.resolve(dir, 'CHANGELOG.md');
     const contents = read(pathname);
     return {
-        remark,
-        MARKERS,
+        remark: remarkInstance,
+        gitCompare: null,
         SEPARATORS,
-        HEADINGS,
-        root: remark.parse(contents),
-        createMDAST(value) {
-            const result = remark.parse(value);
-            if (result.children.length === 1) {
+        root: removePosition(remarkInstance.parse(contents), true),
+        createMDAST(value, forceArray = false) {
+            const result = removePosition(remarkInstance.parse(value), true);
+            if (result.children.length === 1 && !forceArray) {
                 return result.children[0];
             }
             return result.children;
@@ -42,53 +39,21 @@ export default function parser(dir = process.cwd()) {
         write(content = this.stringify()) {
             return write(pathname, content);
         },
-        stringify() {
-            return this.remark.stringify(this.root);
+        stringify(root = this.root) {
+            return remarkInstance.stringify(root);
         },
-        changeHeaderExists(changeType, node) {
-            return node.type === 'heading' &&
-                node.depth === 3 &&
-                node.children[0].value === changeType;
-        },
-        detectChangeHeader(changeType) {
-            const childrens = this.root.children.slice(MARKERS.UNRELEASED, this.root.children.length - 1);
-            let exists = false;
-            let pos = MARKERS.UNRELEASED;
-            for (let node of childrens) {
-                if (node.type === 'heading' && node.depth === 2) {
-                    break;
-                }
-                if (this.changeHeaderExists(changeType, node)) {
-                    exists = true;
-                    pos += 2; // move pointer to list
-                    break;
-                }
-                pos++;
+        getMTREE() {
+            if (_mtree) {
+                return _mtree;
             }
-            return { exists, pos };
+            _mtree = mtree(this);
+            return _mtree;
         },
-        change(changeType, value) {
-            if (typeof changeType === 'undefined') throw new Error('A change type is required.');
-
-            const changeHeader = this.detectChangeHeader(changeType);
-            let change = remark.parse(value);
-
-            let unchanged = this.root.children.slice(MARKERS.INITIAL, changeHeader.pos);
-
-            if (!changeHeader.exists) {
-                unchanged.push(this.createMDAST(`### ${changeType}`));
-                change = change.children[0]; // list
-                unchanged.push(change);
-            } else {
-                change = change.children[0].children[0]; // listItem
-                unchanged[changeHeader.pos - 1].children.push(change);
-            }
-
-            const previousVersions = this.root.children.slice(changeHeader.pos, this.root.children.length);
-            // create the new root childrens
-            let newRoot = [...unchanged, ...previousVersions];
-            this.root.children = newRoot;
-            return this.root;
+        change(type, value) {
+            return this.getMTREE().insert(type, value);
+        },
+        release(version, gitCompare = null) {
+            return this.getMTREE().version(version, gitCompare);
         }
     };
 }

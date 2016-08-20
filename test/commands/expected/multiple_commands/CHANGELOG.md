@@ -1,17 +1,18 @@
 # Change Log
-
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-
 ### Added
+-   added 1
+-   added 2
+-   added 3
 
--   item1
--   item2
+### Changed
+-   changed 1
+-   changed 2
 
-## [0.3.0] - 2015-12-03
+### Fixed
+-   super _cool fix_
 
-### Added
-
--   RU translation from @aishek.
+[unreleased]: https://github.com/geut/chan/compare/first-commit...HEAD

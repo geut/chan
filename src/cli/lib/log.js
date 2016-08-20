@@ -4,7 +4,7 @@ export default function createLog(argv) {
     function createPrint(color) {
         return function print(message) {
             if (!argv.stdout && !argv.silence) {
-                console.log(color(message));
+                console.log(`${chalk.bgCyan('Chan:')} ${color(message)}`);
             }
         };
     }

@@ -3,9 +3,11 @@
  *
  * By your friends at GEUT
  */
+
 import yargs from 'yargs';
 import pkg from '../../package.json';
 import createCommand from './lib/create-command';
+import loadUserCommands from './lib/load-user-commands';
 import createLog from './lib/log';
 import { init, added, release, fixed, changed, deprecated, removed, security } from './commands';
 
@@ -55,7 +57,7 @@ const cli = {
     }
 };
 
-yargs
+const initArgv = yargs
     .usage(pkg.description)
     .version()
     .alias('v', 'version')
@@ -63,20 +65,35 @@ yargs
     .alias('h', 'help')
     .option('p', {
         alias: 'path',
-        describe: 'Define the path of the CHANGELOG.md (cwd by default)'
+        describe: 'Define the path of the CHANGELOG.md (cwd by default)',
+        type: 'string'
     })
     .option('stdout', {
         describe: 'Define the output as STDOUT',
-        default: false
+        type: 'boolean'
     })
     .option('silence', {
         describe: 'Disable the console messages',
-        default: false
+        type: 'boolean'
     })
-    .help('help')
-    .global(['p', 'stdout', 'silence']);
+    .option('git-compare', {
+        describe: 'Overwrite the git compare by default',
+        type: 'string'
+    })
+    .option('u', {
+        alias: 'use',
+        describe: 'Extend chan with your own commands',
+        default: [],
+        type: 'array'
+    })
+    .config()
+    .pkgConf('chan', process.cwd())
+    .global(['p', 'stdout', 'silence', 'git-compare', 'u', 'config'])
+    .argv;
 
-cli.use([
+cli.commandsArgv = initArgv.commands ? initArgv.commands : {};
+
+cli.use(loadUserCommands([
     init(),
     added(),
     fixed(),
@@ -85,6 +102,6 @@ cli.use([
     removed(),
     deprecated(),
     release()
-]);
+], initArgv.use));
 
 export default cli;
