@@ -54,7 +54,7 @@ export default function createCommand(cli, def) {
         return result;
     };
 
-    cli.yargs().command(def.name, def.describe, def.builder, def.handler);
+    cli.yargs().command(def);
 
     return def;
 }

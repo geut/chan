@@ -1,6 +1,6 @@
 export default function () {
     return {
-        command: 'release [semver]',
+        command: 'release <semver>',
         describe: 'Groups all your new features and marks a new release on your CHANGELOG.md.',
         handler(parser, argv, write) {
             if ( !parser.exists() ) {

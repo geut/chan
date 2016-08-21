@@ -1,26 +1,26 @@
 const commands = {
     added: {
-        command: 'added [msg]',
+        command: 'added <msg>',
         describe: 'Writes your changelog indicating new stuff.'
     },
     changed: {
-        command: 'changed [msg]',
+        command: 'changed <msg>',
         describe: 'Writes your changelog indicating updated stuff.'
     },
     deprecated: {
-        command: 'deprecated [msg]',
+        command: 'deprecated <msg>',
         describe: 'Writes your changelog indicating deprecated stuff.'
     },
     fixed: {
-        command: 'fixed [msg]',
+        command: 'fixed <msg>',
         describe: 'Writes your changelog indicating fixed stuff.'
     },
     removed: {
-        command: 'removed [msg]',
+        command: 'removed <msg>',
         describe: 'Writes your changelog indicating removed stuff.'
     },
     security: {
-        command: 'security [msg]',
+        command: 'security <msg>',
         describe: 'Writes your changelog indicating security upgrades.'
     }
 };
