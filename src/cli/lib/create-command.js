@@ -57,7 +57,7 @@ export default function createCommand(cli, userDef = {}) {
         return result;
     };
 
-    cli.yargs().command(name, describe, builder, handler);
+    cli.yargs().command(command, describe, builder, handler);
 
     return {
         name,
