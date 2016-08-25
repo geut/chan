@@ -1,30 +1,35 @@
 import parser from '../../parser';
 
-export default function createCommand(cli, def = { builder: (yargs) => yargs }) {
-    if (!def.command) throw new Error('Property `command` not found in the command definition.');
-    if (!def.handler) throw new Error('Property `handler` not found in the command definition.');
-    if (!def.describe) throw new Error('Property `describe` not found in the command definition.');
+export default function createCommand(cli, userDef = { builder: (yargs) => yargs }) {
+    const {
+        command,
+        handler: userHandler,
+        describe,
+        builder: userBuilder
+    } = userDef;
 
-    def.name = def.command.split(' ')[0].trim();
-    if (def.name.length === 0) {
+    if (!command) throw new Error('Property `command` not found in the command definition.');
+    if (!userHandler) throw new Error('Property `handler` not found in the command definition.');
+    if (!describe) throw new Error('Property `describe` not found in the command definition.');
+
+    const name = command.split(' ')[0].trim();
+    if (name.length === 0) {
         throw new Error('Property `name` must be defined.');
     }
 
-    const userBuilder = def.builder;
-    def.builder = (yargs) => {
+    const builder = (yargs) => {
         yargs = userBuilder(yargs)
             .config()
             .pkgConf('chan', process.cwd());
 
-        if (cli.commandsArgv && cli.commandsArgv[def.name]) {
-            yargs.config(cli.commandsArgv[def.name]);
+        if (cli.commandsArgv && cli.commandsArgv[name]) {
+            yargs.config(cli.commandsArgv[name]);
         }
 
         return yargs;
     };
 
-    const userHandler = def.handler;
-    def.handler = (argv) => {
+    const handler = (argv) => {
         const parserInstance = parser(argv.path);
         parserInstance.gitCompare = argv.gitCompare;
         const result = userHandler.call(
@@ -52,7 +57,12 @@ export default function createCommand(cli, def = { builder: (yargs) => yargs }) 
         return result;
     };
 
-    cli.yargs().command(def);
+    cli.yargs().command(name, describe, builder, handler);
 
-    return def;
+    return {
+        name,
+        describe,
+        builder,
+        handler
+    };
 }
