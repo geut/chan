@@ -11,7 +11,7 @@ import loadUserCommands from './lib/load-user-commands';
 import createLog from './lib/log';
 import { init, added, release, fixed, changed, deprecated, removed, security } from './commands';
 
-const _commands = [];
+const _commands = {};
 let _log;
 const cli = {
     yargs() {
@@ -29,24 +29,15 @@ const cli = {
     use(commands = []) {
         commands
             .forEach((def) => {
-                _commands.push(
-                    createCommand(this, def)
-                );
+                const cmd = createCommand(this, def);
+                _commands[cmd.name] = cmd;
             });
     },
     run() {
         const argv = yargs.argv;
         const commands = this.commands();
-        const findCommand = () => {
-            let found = false;
-            for (let value of commands) {
-                found = value.name === argv._[0];
-                if (found) {
-                    break;
-                }
-            }
-            return found;
-        };
+
+        const findCommand = () =>  !!commands[argv._[0]];
 
         const showHelp = argv._.length === 0 && !argv.h ||
                          argv._.length > 0 && !findCommand();
