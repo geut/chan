@@ -7,7 +7,7 @@
     "chan": "./es5/bin/cmd.js"
   },
   "scripts": {
-    "test": "nyc --cache ava --verbose",
+    "test": "ava --verbose",
     "posttest": "eslint src",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "build": "del-cli es5 && babel src --out-dir es5",
