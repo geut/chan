@@ -46,9 +46,7 @@ export default function createCommand(cli, def) {
         );
 
         if (!result || typeof result.then !== 'function') {
-            return new Promise((resolve) => {
-                resolve();
-            });
+            return Promise.resolve();
         }
 
         return result;
