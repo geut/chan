@@ -7,7 +7,7 @@ export default function createCommand(cli, def) {
 
     def.name = def.command.split(' ')[0].trim();
     if (def.name.length === 0) {
-        throw new Error('Property `name` can\'t be defined.');
+        throw new Error('Property `name` must be defined.');
     }
 
     const userBuilder = def.builder || ((yargs) => yargs);
