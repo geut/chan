@@ -1,11 +1,11 @@
 import parser from '../../parser';
 
-export default function createCommand(cli, userDef = { builder: (yargs) => yargs }) {
+export default function createCommand(cli, userDef = {}) {
     const {
         command,
         handler: userHandler,
         describe,
-        builder: userBuilder
+        builder: userBuilder = (yargs) => yargs
     } = userDef;
 
     if (!command) throw new Error('Property `command` not found in the command definition.');
