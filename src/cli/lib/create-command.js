@@ -1,6 +1,6 @@
 import parser from '../../parser';
 
-export default function createCommand(cli, def) {
+export default function createCommand(cli, def = { builder: (yargs) => yargs }) {
     if (!def.command) throw new Error('Property `command` not found in the command definition.');
     if (!def.handler) throw new Error('Property `handler` not found in the command definition.');
     if (!def.describe) throw new Error('Property `describe` not found in the command definition.');
@@ -10,7 +10,7 @@ export default function createCommand(cli, def) {
         throw new Error('Property `name` must be defined.');
     }
 
-    const userBuilder = def.builder || ((yargs) => yargs);
+    const userBuilder = def.builder;
     def.builder = (yargs) => {
         yargs = userBuilder(yargs)
             .config()
