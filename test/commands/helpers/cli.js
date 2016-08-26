@@ -2,12 +2,10 @@ import createFixture from './create-fixture';
 import readChangelog from './read-changelog';
 import proxyquire from 'proxyquire';
 import logStub from './stubs/log';
-import firstCommitStub from './stubs/first-commit';
 import gitUrlCompareStub from './stubs/git-url-compare';
 
 const mtree = proxyquire('../../../src/parser/mtree', {
-    './lib/git-url-compare': gitUrlCompareStub,
-    './lib/first-commit': firstCommitStub
+    './lib/git-url-compare': gitUrlCompareStub
 });
 
 const parser = proxyquire('../../../src/parser', {

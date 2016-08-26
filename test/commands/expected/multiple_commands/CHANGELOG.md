@@ -14,5 +14,3 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 -   super _cool fix_
-
-[unreleased]: https://github.com/geut/chan/compare/first-commit...HEAD

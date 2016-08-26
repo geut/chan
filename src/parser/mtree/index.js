@@ -1,6 +1,5 @@
 import now from './lib/now';
 import gitUrlCompare from './lib/git-url-compare';
-import firstCommit from './lib/first-commit';
 
 const MARKERS = {
     INITIAL: 0,
@@ -99,11 +98,16 @@ function compileRelease(release = 0, children, m, version = null) {
     }).join(BREAK);
 
     if (version) {
+        let tplVersion = TPL.VERSION
+            .replace('<version>', version)
+            .replace('<date>', now());
+
+        if (this.releases.length === 1) {
+            tplVersion = tplVersion.replace(/(\[|\])/g, '');
+        }
         tpl = TPL.UNRELEASED +
             LINE +
-            TPL.VERSION
-            .replace('<version>', version)
-            .replace('<date>', now()) +
+            tplVersion +
             LINE +
             tpl;
     } else {
@@ -163,27 +167,16 @@ function addDefinition(version = 'unreleased', gitCompare = null) {
                 oldNode.text = oldNode.text
                     .replace('HEAD', `v${version}`)
                     .replace('unreleased', version);
-
-                that.definitions.nodes.splice(0, 0, {
-                    text: def
-                        .replace('<version>', 'unreleased')
-                        .replace('<from>', `v${version}`)
-                        .replace('<to>', 'HEAD')
-                });
-
-                return Promise.resolve();
             }
 
-            return firstCommit().then((commit) => {
-                that.definitions.nodes.push({
-                    text: def
-                        .replace('<version>', version)
-                        .replace('<from>', commit)
-                        .replace('<to>', 'HEAD')
-                });
-
-                return def;
+            that.definitions.nodes.splice(0, 0, {
+                text: def
+                    .replace('<version>', 'unreleased')
+                    .replace('<from>', `v${version}`)
+                    .replace('<to>', 'HEAD')
             });
+
+            return Promise.resolve();
         });
 }
 
@@ -222,15 +215,7 @@ export default function mtree(parser) {
             text: value
         });
         that.compileUnreleased();
-        return new Promise((resolve, reject) => {
-            if (that.definitions.nodes.length === 0) {
-                return that
-                    .addDefinition('unreleased', gitCompare)
-                    .then(resolve)
-                    .catch(reject);
-            }
-            return resolve();
-        });
+        return Promise.resolve();
     };
 
     that.addDefinition = function (version) {

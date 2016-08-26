@@ -24,7 +24,6 @@
   ],
   "dependencies": {
     "chalk": "^1.1.3",
-    "get-first-commit": "^0.2.0",
     "git-url-parse": "^6.0.5",
     "gitconfiglocal": "^2.0.1",
     "pify": "^2.3.0",
