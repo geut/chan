@@ -8,6 +8,7 @@ import yargs from 'yargs';
 import pkg from '../../package.json';
 import createCommand from './lib/create-command';
 import loadUserCommands from './lib/load-user-commands';
+import openInEditor from './lib/open-in-editor';
 import createLog from './lib/log';
 import { init, added, release, fixed, changed, deprecated, removed, security } from './commands';
 
@@ -22,6 +23,9 @@ const cli = {
             _log = createLog(yargs.argv);
         }
         return _log;
+    },
+    openInEditor() {
+        return openInEditor();
     },
     commands() {
         return _commands;

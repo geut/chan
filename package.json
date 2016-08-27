@@ -24,11 +24,13 @@
   ],
   "dependencies": {
     "chalk": "^1.1.3",
+    "editor": "^1.0.0",
     "git-url-parse": "^6.0.5",
     "gitconfiglocal": "^2.0.1",
     "pify": "^2.3.0",
     "remark": "^6.0.0",
     "req-cwd": "^1.0.1",
+    "tempfile": "^1.1.1",
     "unist-util-remove-position": "^1.1.0",
     "yargs": "^5.0.0"
   },
