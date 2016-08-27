@@ -4,4 +4,4 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Fixed
--   super _cool feature_
+- super _cool feature_

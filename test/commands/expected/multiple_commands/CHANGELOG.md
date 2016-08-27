@@ -4,13 +4,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
--   added 1
--   added 2
--   added 3
+- added 1
+- added 2
+- added 3
 
 ### Changed
--   changed 1
--   changed 2
+- changed 1
+- changed 2
 
 ### Fixed
--   super _cool fix_
+- super _cool fix_

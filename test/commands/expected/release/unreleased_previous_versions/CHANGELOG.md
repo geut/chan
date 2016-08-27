@@ -6,11 +6,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [1.0.1] - <currentDate>
 ### Added
--   test change 2
+- test change 2
 
 ## 1.0.0 - 2016-06-18
 ### Added
--   test change 1
+- test change 1
 
 [unreleased]: https://github.com/geut/chan/compare/v1.0.1...HEAD
 [1.0.1]: https://github.com/geut/chan/compare/v1.0.0...v1.0.1

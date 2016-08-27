@@ -40,7 +40,9 @@ export default function parser(dir = process.cwd()) {
             return write(pathname, content);
         },
         stringify(root = this.root) {
-            return remarkInstance.stringify(root);
+            return remarkInstance.stringify(root, {
+                listItemIndent: '1'
+            });
         },
         getMTREE() {
             if (_mtree) {
