@@ -3,7 +3,7 @@ import gitUrlCompare from './lib/git-url-compare';
 
 const MARKERS = {
     INITIAL: 0,
-    UNRELEASED: 2
+    UNRELEASED: 3
 };
 
 const STAGES = {
