@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## 1.0.0 - 2016-08-28
 ### Added
 - default commands: init, release, added, changed, deprecated, fixed, removed and security
 - tests for each command handler
@@ -19,3 +21,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Removed
 - git-first-commit dependency
+
+[unreleased]: https://github.com/geut/chan/compare/v1.0.0...HEAD
