@@ -1,6 +1,6 @@
 # chan [![Build Status](https://travis-ci.org/geut/chan.svg?branch=master)](https://travis-ci.org/geut/chan)
 
-Chan is a likeable CLI tool used for writing and maintaining a CHANGELOG empowering the user to use a coloquial/friendly style. See more here: http://keepachangelog.com/
+Chan is a likeable CLI tool used for writing and maintaining a CHANGELOG empowering the user to use a coloquial/friendly style. See more here: [keepachangelog.com](http://keepachangelog.com/)
 
 ____
 
@@ -151,7 +151,6 @@ $ hello geut
 $ chan hello 'geut' --config=./config.json
 $ hello geut
 ```
----
 
 3. Using the `package.json`:
 
@@ -173,7 +172,7 @@ $ hello geut
 
 ### <a name="parser"></a> Parser
 
-The parser is a wrap instance of an excellent project called [remark](https://github.com/wooorm/remark).
+The parser is a wrapper instance of an excellent project called [remark](https://github.com/wooorm/remark).
 
 Internally, `chan` maintains its own CHANGELOG representation using a simple tree structure which looks like this:
 
@@ -215,4 +214,4 @@ Internally, `chan` maintains its own CHANGELOG representation using a simple tre
 :busts_in_silhouette: Ideas and contributions to the project are welcome. You must follow this [guideline](https://github.com/geut/chan/blob/master/CONTRIBUTING.md).
 ___
 
-A **GEUT** project
+A [**GEUT**](http://geutstudio.com/) project
