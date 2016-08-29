@@ -23,19 +23,6 @@ Install:
 
 ```bash
 $ npm install -g @geut/chan
-<<<<<<< HEAD
-```
-
-## <a name="usage"></a> Usage
-
-### <a name="cli"></a> CLI
-
-Install:
-
-```bash
-$ npm install -g @geut/chan
-=======
->>>>>>> 8d1f2f7acf2792a1259be13a99a99c38cfed6f7d
 ```
 
 ## <a name="usage"></a> Usage
