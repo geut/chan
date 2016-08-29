@@ -23,6 +23,7 @@ Install:
 
 ```bash
 $ npm install -g @geut/chan
+<<<<<<< HEAD
 ```
 
 ## <a name="usage"></a> Usage
@@ -33,6 +34,8 @@ Install:
 
 ```bash
 $ npm install -g @geut/chan
+=======
+>>>>>>> 8d1f2f7acf2792a1259be13a99a99c38cfed6f7d
 ```
 
 ## <a name="usage"></a> Usage
@@ -74,13 +77,13 @@ The following are the available commands and options for `chan`:
   - **init**               Creates a `CHANGELOG.md` if it does not exists. Chan will work with this file.
     - Arguments:
        **-o, --overwrite**  overwrite the current CHANGELOG.md [boolean]
-  - **added [msg]**         Writes your changelog indicating new stuff.
-  - **fixed [msg]**         Writes your changelog indicating fixed stuff.
-  - **changed [msg]**       Writes your changelog indicating updated stuff.
-  - **security [msg]**      Writes your changelog indicating security upgrades.
-  - **removed [msg]**       Writes your changelog indicating removed stuff.
-  - **deprecated [msg]**    Writes your changelog indicating deprecated stuff.
-  - **release <_semver_>**  Groups all your new features and marks a new release on your `CHANGELOG.md`.
+  - **added [msg]**       Writes your changelog indicating new stuff.
+  - **fixed [msg]**       Writes your changelog indicating fixed stuff.
+  - **changed [msg]**     Writes your changelog indicating updated stuff.
+  - **security [msg]**    Writes your changelog indicating security upgrades.
+  - **removed [msg]**     Writes your changelog indicating removed stuff.
+  - **deprecated [msg]**  Writes your changelog indicating deprecated stuff.
+  - **release \<semver\>**  Groups all your new features and marks a new release on your `CHANGELOG.md`.
 
 #### options:
 
