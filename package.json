@@ -1,6 +1,6 @@
 {
   "name": "@geut/chan",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Chan is a likeable CLI tool used for writing and maintaining a CHANGELOG empowering the user to use a coloquial/friendly style. See more here: http://keepachangelog.com/",
   "main": "./es5/index.js",
   "bin": {
@@ -11,7 +11,8 @@
     "posttest": "eslint src",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "build": "del-cli es5 && babel src --out-dir es5",
-    "watch": "npm run build -- --watch"
+    "watch": "npm run build -- --watch",
+    "version": "chan release ${npm_package_version} && git add ."
   },
   "ava": {
     "require": "babel-register",
