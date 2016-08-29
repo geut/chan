@@ -1,6 +1,7 @@
 # chan [![Build Status](https://travis-ci.org/geut/chan.svg?branch=master)](https://travis-ci.org/geut/chan)
 
-Chan is a likeable CLI tool used for writing and maintaining a CHANGELOG empowering the user to use a coloquial/friendly style. See more here: [keepachangelog.com](http://keepachangelog.com/)
+Chan is a likeable CLI tool used for writing and maintaining a CHANGELOG empowering the user to use a coloquial/friendly style.
+See more here: [keepachangelog.com](http://keepachangelog.com/)
 
 ____
 
@@ -21,7 +22,17 @@ Sections |
 Install:
 
 ```bash
-$ npm install @geut/chan
+$ npm install -g @geut/chan
+```
+
+## <a name="usage"></a> Usage
+
+### <a name="cli"></a> CLI
+
+Install:
+
+```bash
+$ npm install -g @geut/chan
 ```
 
 ## <a name="usage"></a> Usage
@@ -55,20 +66,23 @@ $ chan added # this will open your $EDITOR
 
 And so on... You get the idea. :wink:
 
-#### Available commands according to keepachangelog:
+ 
+The following are the available commands and options for `chan`:
 
-  - **init**              Creates a ```CHANGELOG.md``` if it does not exists. Chan will work with this file.
+#### commands:
+
+  - **init**               Creates a `CHANGELOG.md` if it does not exists. Chan will work with this file.
     - Arguments:
        **-o, --overwrite**  overwrite the current CHANGELOG.md [boolean]
-  - **added [msg]**       Writes your changelog indicating new stuff.
-  - **fixed [msg]**       Writes your changelog indicating fixed stuff.
-  - **changed [msg]**     Writes your changelog indicating updated stuff.
-  - **security [msg]**    Writes your changelog indicating security upgrades.
-  - **removed [msg]**     Writes your changelog indicating removed stuff.
-  - **deprecated [msg]**  Writes your changelog indicating deprecated stuff.
-  - **release <semver>**  Groups all your new features and marks a new release on your ```CHANGELOG.md```.
+  - **added [msg]**         Writes your changelog indicating new stuff.
+  - **fixed [msg]**         Writes your changelog indicating fixed stuff.
+  - **changed [msg]**       Writes your changelog indicating updated stuff.
+  - **security [msg]**      Writes your changelog indicating security upgrades.
+  - **removed [msg]**       Writes your changelog indicating removed stuff.
+  - **deprecated [msg]**    Writes your changelog indicating deprecated stuff.
+  - **release <_semver_>**  Groups all your new features and marks a new release on your `CHANGELOG.md`.
 
-#### Options:
+#### options:
 
   - **-p, --path**     Define the path of the CHANGELOG.md (cwd by default)   [string]
   - **--stdout**       Define the output as STDOUT                           [boolean]
@@ -79,13 +93,13 @@ And so on... You get the idea. :wink:
   - **-h, --help**     Show help                                             [boolean]
   - **-v, --version**  Show version number                                   [boolean]
 
-
 Note:
 - [_OPTIONAL_]
 - <_REQUIRED_>
 
+
 ### <a name="api"></a> Programmatic Usage
-Chan is created above two excellent projects. We use [yargs](http://yargs.js.org/) for the CLI and [remark](http://remark.js.org/) to parser the `CHANGELOG.md`
+Chan is created above two excellent projects. We use [yargs](http://yargs.js.org/) for the CLI and [remark](http://remark.js.org/) to parse the `CHANGELOG.md`
 
 ```javascript
 import { cli, parser } from 'chan';
