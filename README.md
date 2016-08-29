@@ -21,7 +21,7 @@ Sections |
 Install:
 
 ```bash
-$ npm install @geut/chan
+$ npm install -g @geut/chan
 ```
 
 ## <a name="usage"></a> Usage
@@ -66,7 +66,7 @@ And so on... You get the idea. :wink:
   - **security [msg]**    Writes your changelog indicating security upgrades.
   - **removed [msg]**     Writes your changelog indicating removed stuff.
   - **deprecated [msg]**  Writes your changelog indicating deprecated stuff.
-  - **release <semver>**  Groups all your new features and marks a new release on your ```CHANGELOG.md```.
+  - **release \<semver\>**  Groups all your new features and marks a new release on your ```CHANGELOG.md```.
 
 #### Options:
 
