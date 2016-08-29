@@ -37,8 +37,27 @@ const cli = {
                 _commands[cmd.name] = cmd;
             });
     },
+    loadCommands() {
+        let argv = yargs.argv;
+
+        this.commandsArgv = argv.commands ? argv.commands : {};
+
+        this.use(loadUserCommands([
+            init(),
+            added(),
+            fixed(),
+            changed(),
+            security(),
+            removed(),
+            deprecated(),
+            release()
+        ], argv.use));
+    },
     run() {
-        const argv = yargs.argv;
+        this.loadCommands();
+
+        const argv = yargs.help('h').alias('h', 'help').showHelpOnFail().argv;
+
         const commands = this.commands();
 
         const findCommand = () =>  !!commands[argv._[0]];
@@ -52,12 +71,10 @@ const cli = {
     }
 };
 
-const initArgv = yargs
+yargs
     .usage(pkg.description)
     .version()
     .alias('v', 'version')
-    .help('h')
-    .alias('h', 'help')
     .option('p', {
         alias: 'path',
         describe: 'Define the path of the CHANGELOG.md (cwd by default)',
@@ -83,20 +100,6 @@ const initArgv = yargs
     })
     .config()
     .pkgConf('chan', process.cwd())
-    .global(['p', 'stdout', 'silence', 'git-compare', 'u', 'config'])
-    .argv;
-
-cli.commandsArgv = initArgv.commands ? initArgv.commands : {};
-
-cli.use(loadUserCommands([
-    init(),
-    added(),
-    fixed(),
-    changed(),
-    security(),
-    removed(),
-    deprecated(),
-    release()
-], initArgv.use));
+    .global(['p', 'stdout', 'silence', 'git-compare', 'u', 'config']);
 
 export default cli;

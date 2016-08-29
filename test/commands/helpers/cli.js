@@ -21,6 +21,8 @@ const cliInstance = proxyquire('../../../src/cli', {
     './lib/create-command': createCommand
 });
 
+cliInstance.loadCommands();
+
 function cli(tmp, commands, fixtureName) {
     const fixture = createFixture(tmp, commands, fixtureName, fixtureName !== 'empty');
 
