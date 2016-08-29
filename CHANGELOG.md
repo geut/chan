@@ -1,4 +1,21 @@
 # Change Log
-
 All notable changes to this project will be documented in this file.
-This project adheres to [Semantic Versioning](http://semver.org/).
+
+The format is based on [Keep a Changelog](http://keepachangelog.com/)
+and this project adheres to [Semantic Versioning](http://semver.org/).
+
+## [Unreleased]
+### Added
+- default commands: init, release, added, changed, deprecated, fixed, removed and security
+- tests for each command handler
+- MTREE structure to work with the markdown
+
+### Changed
+- readme file
+- make commands cli as a map to avoid looping to found a command
+
+### Fixed
+- show help for each command
+
+### Removed
+- git-first-commit dependency
