@@ -55,7 +55,7 @@ $ chan added # this will open your $EDITOR
 
 And so on... You get the idea. :wink:
 
-Available commands according to keepachangelog:
+#### Available commands according to keepachangelog:
 
   - **init**              Creates a ```CHANGELOG.md``` if it does not exists. Chan will work with this file.
     - Arguments:
@@ -68,15 +68,16 @@ Available commands according to keepachangelog:
   - **deprecated [msg]**  Writes your changelog indicating deprecated stuff.
   - **release <semver>**  Groups all your new features and marks a new release on your ```CHANGELOG.md```.
 
-Global Options:
-  **-p, --path**     Define the path of the CHANGELOG.md (cwd by default)   [string]
-  **--stdout**       Define the output as STDOUT                           [boolean]
-  **--silence**      Disable the console messages                          [boolean]
-  **--git-compare**  Overwrite the git compare by default                   [string]
-  **-u, --use**      Extend chan with your own commands        [array] [default: []]
-  **--config**       Path to JSON config file
-  **-h, --help**     Show help                                             [boolean]
-  **-v, --version**  Show version number                                   [boolean]
+#### Options:
+
+  - **-p, --path**     Define the path of the CHANGELOG.md (cwd by default)   [string]
+  - **--stdout**       Define the output as STDOUT                           [boolean]
+  - **--silence**      Disable the console messages                          [boolean]
+  - **--git-compare**  Overwrite the git compare by default                   [string]
+  - **-u, --use**      Extend chan with your own commands        [array] [default: []]
+  - **--config**       Path to JSON config file
+  - **-h, --help**     Show help                                             [boolean]
+  - **-v, --version**  Show version number                                   [boolean]
 
 
 Note:
