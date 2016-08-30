@@ -92,7 +92,7 @@ Note:
 Chan is created above two excellent projects. We use [yargs](http://yargs.js.org/) for the CLI and [remark](http://remark.js.org/) to parse the `CHANGELOG.md`
 
 ```javascript
-import { cli, parser } from 'chan';
+import { cli, parser } from '@geut/chan';
 
 cli.yargs(); // yargs instance
 
