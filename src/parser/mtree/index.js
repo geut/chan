@@ -22,25 +22,32 @@ const TPL = {
     DEFINITION: '[<version>]: <git-compare>'
 };
 
-function processRelease(release, node, elem, stringify) {
+function processRelease(release, node, elem, stringify, m) {
     if (elem.type === 'heading') {
         node = {};
         node.text = stringify(elem.children[0]);
         node.children = [];
         release.nodes.push(node);
     } else  {
+        const mLI = m('- ');
         for (let li of elem.children) {
+            mLI.children[0] = li;
             node.children.push({
-                text: stringify(li.children[0])
+                text: stringify(mLI).slice(2)
             });
         }
+
     }
     release.len++;
 
     return node;
 }
 
-function decode(children, stringify) {
+function decode(parser) {
+    const children = parser.root.children;
+    const stringify = parser.stringify;
+    const m = parser.createMDAST;
+
     const that = {
         releases: [
             {
@@ -75,7 +82,7 @@ function decode(children, stringify) {
         }
 
         if (currentStage === STAGES.RELEASE) {
-            node = processRelease(that.releases[that.releases.length - 1], node, elem, stringify);
+            node = processRelease(that.releases[that.releases.length - 1], node, elem, stringify, m);
         } else {
             if (that.definitions.start === undefined) {
                 that.definitions.start = pos;
@@ -93,7 +100,18 @@ function decode(children, stringify) {
 function compileRelease(release = 0, children, m, version = null) {
     let tpl = this.releases[release].nodes.map((node) => {
         return TPL.H3.replace('<text>', node.text) + LINE + node.children.reduce((result, li) => {
-            return result + LINE + TPL.LI.replace('<text>', li.text);
+            return result +
+                LINE +
+                TPL.LI.replace(
+                    '<text>',
+                    li.text.split('\n').map((line, i) => {
+                        line = line.trim();
+                        if (line.length > 0 && i > 0) {
+                            return '  ' + line;
+                        }
+                        return line;
+                    }).join('\n')
+                );
         }, '');
     }).join(BREAK);
 
@@ -193,7 +211,7 @@ function compileDefinitions(children, m) {
 
 export default function mtree(parser) {
     const gitCompare = parser.gitCompare;
-    const that = Object.assign({}, decode(parser.root.children, parser.stringify));
+    const that = Object.assign({}, decode(parser));
 
     that.compileRelease = function (release) {
         return compileRelease.call(this, release, parser.root.children, parser.createMDAST);

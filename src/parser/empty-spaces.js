@@ -3,8 +3,10 @@ const BREAK = LINE + LINE;
 const GAP = BREAK + LINE;
 const EMPTY = '';
 
-export default function (remark) {
-    remark.Compiler.prototype.block = function (node) {
+export default function (processor) {
+    const Compiler = processor.Compiler;
+
+    Compiler.prototype.block = function (node) {
         let self = this;
         let values = [];
         let children = node.children;
@@ -26,7 +28,6 @@ export default function (remark) {
                  * might easily be mistaken for a paragraph
                  * in the list itself.
                  */
-
                 if (child.type === prev.type && prev.type === 'list') {
                     values.push(prev.ordered === child.ordered ? GAP : BREAK);
                 } else if (
