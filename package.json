@@ -72,8 +72,20 @@
     "cli",
     "geut",
     "tooling",
-    "changelog"
+    "changelog",
+    "keepachangelog"
   ],
-  "author": "GEUT",
-  "license": "ISC"
+  "author": {
+    "name":"GEUT",
+    "email": "contact@geutstudio.com",
+    "url": "http://www.geutstudio.com"
+  },
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/geut/chan.git"
+  },
+  "bugs": {
+    "url": "https://github.com/geut/chan/issues"
+  }
 }
