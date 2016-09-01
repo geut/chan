@@ -75,10 +75,10 @@
     "changelog",
     "keepachangelog"
   ],
+  "homepage": "http://www.geutstudio.com",
   "author": {
     "name":"GEUT",
-    "email": "contact@geutstudio.com",
-    "url": "http://www.geutstudio.com"
+    "email": "contact@geutstudio.com"
   },
   "license": "ISC",
   "repository": {
