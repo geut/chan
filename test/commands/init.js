@@ -7,7 +7,7 @@ test.before('initialized temp folder', () => {
     tmp = tmpdir();
 });
 
-test('test "init" command --> Precondition: CHANGELOG.md does not exists / Postcondition: command should create a new CHANGELOG.md file', (t) => {
+test('CHANGELOG.md does not exists => command should create a new CHANGELOG.md file', (t) => {
     return Promise
         .all([cli(tmp, { name: 'init' }, 'empty'), readChangelog('expected/init')])
         .then((values) => {
@@ -16,7 +16,7 @@ test('test "init" command --> Precondition: CHANGELOG.md does not exists / Postc
         });
 });
 
-test('test "init" command --> Precondition: CHANGELOG.md exists / Postcondition: answer=yes | command should create a new CHANGELOG.md file. Prompt interaction (user) is mocked.', (t) => {
+test('CHANGELOG.md exists => answer=yes | command should create a new CHANGELOG.md file. Prompt interaction (user) is mocked.', (t) => {
     return Promise
         .all([cli(tmp, { name: 'init', args: { overwrite: true } }, 'exists'), readChangelog('expected/init')])
         .then((values) => {
@@ -25,7 +25,7 @@ test('test "init" command --> Precondition: CHANGELOG.md exists / Postcondition:
         });
 });
 
-test('test "init" command --> Precondition: CHANGELOG.md exists / Postcondition: answer=no | command should not create a new CHANGELOG.md file.', (t) => {
+test('CHANGELOG.md exists => answer=no | command should not create a new CHANGELOG.md file.', (t) => {
     return Promise
         .all([cli(tmp, { name: 'init' }, 'exists'), readChangelog('fixtures/init/exists')])
         .then((values) => {

@@ -8,18 +8,18 @@ test.before('initialized temp folder', () => {
     tmp = tmpdir();
 });
 
-test('test "release" command. Precondition: CHANGELOG.md exists. Does not contain any new change. Unrelease section is empty. / Postcondition: CHANGELOG.md remains the same. Does not change.', (t) => {
+test('CHANGELOG.md exists. Does not contain any new change. Unrelease section is empty. There is olders releases. => CHANGELOG.md create a [YANKED] release.', (t) => {
     return Promise.all([
-        cli(tmp, { name: 'release', args: { semver: '1.0.0' } }, 'unreleased_empty'),
-        readChangelog('fixtures/release/unreleased_empty')
+        cli(tmp, { name: 'release', args: { semver: '1.0.0' } }, 'unreleased_yanked'),
+        readChangelog('fixtures/release/unreleased_yanked')
     ])
         .then((values) => {
             let [result, expected] = values;
-            t.deepEqual(result, expected, 'chan release does not modify CHANGELOG.md.');
+            t.deepEqual(result, expected, 'chan release a [YANKED] version.');
         });
 });
 
-test('test "release" command. Precondition: CHANGELOG.md exists and contains new changes. / Postcondition: CHANGELOG.md populates the new version section with the unreleased content.', (t) => {
+test('CHANGELOG.md exists and contains new changes. => CHANGELOG.md populates the new version section with the unreleased content.', (t) => {
     return Promise.all([
         cli(tmp, { name: 'release', args: { semver: '1.0.0' } }, 'unreleased_changes'),
         readChangelog('expected/release/unreleased_changes')
@@ -31,7 +31,7 @@ test('test "release" command. Precondition: CHANGELOG.md exists and contains new
         });
 });
 
-test('test "release" command. Precondition: CHANGELOG.md exists and contains new changes along with previous versions. / Postcondition: CHANGELOG.md creates a new version section with the unreleased content.', (t) => {
+test('CHANGELOG.md exists and contains new changes along with previous versions. => CHANGELOG.md creates a new version section with the unreleased content.', (t) => {
     return Promise.all([
         cli(tmp, { name: 'release', args: { semver: '1.0.1' } }, 'unreleased_previous_versions'), readChangelog('expected/release/unreleased_previous_versions')
     ])

@@ -4,22 +4,21 @@ export default function () {
         describe: 'Groups all your new features and marks a new release on your CHANGELOG.md.',
         handler(parser, argv, write) {
             if ( !parser.exists() ) {
-                throw new Error('CHANGELOG.md does not exists. You can run: chan init in order to create a fresh new one.');
+                this.log().error('CHANGELOG.md does not exists. You can run: chan init in order to create a fresh new one.');
+                return null;
             }
 
             const version = argv.semver;
 
-            if (!version) {
-                throw new Error('Missing argument: version.');
+            if (parser.findRelease(version)) {
+                this.log().warning(`The version [${version}] already exists.`);
+                return null;
             }
 
-            // do nothing if unreleased is empty.
-            if (parser.getMTREE().releases[0].nodes.length === 0) return;
-
-            parser.release(version)
+            return parser.release(version)
                 .then(write)
                 .then(() => {
-                    this.log().success(`Version ${version} released. :)`);
+                    this.log().success(`Version ${version} released :)`);
                 })
                 .catch((e) => {
                     this.log().error(e.message);

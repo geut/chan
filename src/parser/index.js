@@ -56,6 +56,9 @@ export default function parser(dir = process.cwd()) {
         },
         release(version, gitCompare = null) {
             return this.getMTREE().version(version, gitCompare);
+        },
+        findRelease(version) {
+            return this.getMTREE().findRelease(version);
         }
     };
 }

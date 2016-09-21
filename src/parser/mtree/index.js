@@ -22,6 +22,8 @@ const TPL = {
     DEFINITION: '[<version>]: <git-compare>'
 };
 
+const REGEX_GET_VERSION = /##\s\[?([0-9\.]*)\]?\s-/g;
+
 function processRelease(release, node, elem, stringify, m) {
     if (elem.type === 'heading') {
         node = {};
@@ -122,7 +124,10 @@ function compileRelease(release = 0, children, m, version = null) {
 
         if (this.releases.length === 1) {
             tplVersion = tplVersion.replace(/(\[|\])/g, '');
+        } else if (this.releases[release].nodes.length === 0) {
+            tplVersion += ' [YANKED]';
         }
+
         tpl = TPL.UNRELEASED +
             LINE +
             tplVersion +
@@ -241,6 +246,18 @@ export default function mtree(parser) {
             .then(() => {
                 return compileDefinitions.call(that, parser.root.children, parser.createMDAST);
             });
+    };
+
+    that.findRelease = function (version) {
+        let node;
+        for (let value of this.releases) {
+            const release = REGEX_GET_VERSION.exec(value.text.toLowerCase().trim());
+            if (release && release[1] && release[1] === version.toLowerCase().trim()) {
+                node = value;
+                break;
+            }
+        }
+        return node;
     };
 
     that.TPL = TPL;
