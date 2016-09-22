@@ -1,7 +1,7 @@
 {
   "name": "@geut/chan",
   "version": "1.0.0",
-  "description": "Chan is a likeable CLI tool used for writing and maintaining a CHANGELOG empowering the user to use a coloquial/friendly style. See more here: http://keepachangelog.com/",
+  "description": "Chan is a likeable CLI tool used for writing and maintaining a CHANGELOG empowering the user to use a coloquial/friendly style.",
   "main": "./es5/index.js",
   "bin": {
     "chan": "./es5/bin/cmd.js"
@@ -75,7 +75,7 @@
     "changelog",
     "keepachangelog"
   ],
-  "homepage": "http://www.geutstudio.com",
+  "homepage": "http://geutstudio.com",
   "author": {
     "name":"GEUT",
     "email": "contact@geutstudio.com"
