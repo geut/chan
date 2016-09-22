@@ -1,6 +1,6 @@
 {
   "name": "@geut/chan",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Chan is a likeable CLI tool used for writing and maintaining a CHANGELOG empowering the user to use a coloquial/friendly style.",
   "main": "./es5/index.js",
   "bin": {
@@ -77,7 +77,7 @@
   ],
   "homepage": "http://geutstudio.com",
   "author": {
-    "name":"GEUT",
+    "name": "GEUT",
     "email": "contact@geutstudio.com"
   },
   "license": "ISC",
