@@ -66,8 +66,7 @@ The following are the available commands and options for `chan`:
 #### commands:
 
   - **init**               Creates a `CHANGELOG.md` if it does not exists. Chan will work with this file.
-    - Arguments:
-       **-o, --overwrite**  overwrite the current CHANGELOG.md [boolean]
+     - **-o, --overwrite**  overwrite the current CHANGELOG.md [boolean]
   - **added [msg]**       Writes your changelog indicating new stuff.
   - **fixed [msg]**       Writes your changelog indicating fixed stuff.
   - **changed [msg]**     Writes your changelog indicating updated stuff.
@@ -75,8 +74,7 @@ The following are the available commands and options for `chan`:
   - **removed [msg]**     Writes your changelog indicating removed stuff.
   - **deprecated [msg]**  Writes your changelog indicating deprecated stuff.
   - **release \<semver\>**  Groups all your new features and marks a new release on your `CHANGELOG.md`.
-    - Arguments:
-       **--git-compare**  Overwrite the git compare by default [string]
+       - **--git-compare**  Overwrite the git compare by default [string]
 
 #### options:
 
