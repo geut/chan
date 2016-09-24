@@ -29,7 +29,7 @@ function processRelease(release, node, elem, stringify, m) {
         node = {};
         node.text = stringify(elem.children[0]);
         node.children = [];
-        release.nodes.push(node);
+        release.children.push(node);
     } else  {
         const mLI = m('- ');
         for (let li of elem.children) {
@@ -56,11 +56,11 @@ function decode(parser) {
                 text: TPL.UNRELEASED,
                 start: MARKERS.UNRELEASED,
                 len: 1,
-                nodes: []
+                children: []
             }
         ],
         definitions: {
-            nodes: []
+            children: []
         }
     };
 
@@ -74,7 +74,7 @@ function decode(parser) {
                 text: stringify(elem),
                 start: pos,
                 len: 1,
-                nodes: []
+                children: []
             };
             that.releases.push(release);
             pos++;
@@ -89,7 +89,7 @@ function decode(parser) {
             if (that.definitions.start === undefined) {
                 that.definitions.start = pos;
             }
-            that.definitions.nodes.push({
+            that.definitions.children.push({
                 text: stringify(elem)
             });
         }
@@ -100,7 +100,7 @@ function decode(parser) {
 }
 
 function compileRelease(release = 0, children, m, version = null) {
-    let tpl = this.releases[release].nodes.map((node) => {
+    let tpl = this.releases[release].children.map((node) => {
         return TPL.H3.replace('<text>', node.text) + LINE + node.children.reduce((result, li) => {
             return result +
                 LINE +
@@ -124,7 +124,7 @@ function compileRelease(release = 0, children, m, version = null) {
 
         if (this.releases.length === 1) {
             tplVersion = tplVersion.replace(/(\[|\])/g, '');
-        } else if (this.releases[release].nodes.length === 0) {
+        } else if (this.releases[release].children.length === 0) {
             tplVersion += ' [YANKED]';
         }
 
@@ -158,7 +158,7 @@ function compileRelease(release = 0, children, m, version = null) {
 
 function findHeaderOrCreate(type) {
     let node;
-    for (let value of this.releases[0].nodes) {
+    for (let value of this.releases[0].children) {
         if (value.text.toLowerCase().trim() === type.toLowerCase().trim()) {
             node = value;
             break;
@@ -171,9 +171,9 @@ function findHeaderOrCreate(type) {
             children: []
         };
 
-        this.releases[0].nodes.push(node);
+        this.releases[0].children.push(node);
 
-        this.releases[0].nodes.sort((a, b) => a.text.localeCompare(b.text));
+        this.releases[0].children.sort((a, b) => a.text.localeCompare(b.text));
     }
 
     return node;
@@ -185,14 +185,14 @@ function addDefinition(version = 'unreleased', gitCompare = null) {
         .then((url) => {
             let def = TPL.DEFINITION.replace('<git-compare>', url);
 
-            if (that.definitions.nodes.length > 0) {
-                const oldNode = that.definitions.nodes[0];
+            if (that.definitions.children.length > 0) {
+                const oldNode = that.definitions.children[0];
                 oldNode.text = oldNode.text
                     .replace('HEAD', `v${version}`)
                     .replace('unreleased', version);
             }
 
-            that.definitions.nodes.splice(0, 0, {
+            that.definitions.children.splice(0, 0, {
                 text: def
                     .replace('<version>', 'unreleased')
                     .replace('<from>', `v${version}`)
@@ -204,7 +204,7 @@ function addDefinition(version = 'unreleased', gitCompare = null) {
 }
 
 function compileDefinitions(children, m) {
-    const tpl = this.definitions.nodes.map((node) => {
+    const tpl = this.definitions.children.map((node) => {
         return node.text;
     }).join(LINE);
 

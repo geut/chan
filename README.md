@@ -1,4 +1,4 @@
-# chan 
+# chan
 
 [![Build Status](https://travis-ci.org/geut/chan.svg?branch=master)](https://travis-ci.org/geut/chan)
 [![npm version](https://badge.fury.io/js/%40geut%2Fchan.svg)](https://badge.fury.io/js/%40geut%2Fchan)
@@ -59,7 +59,7 @@ $ chan added # this will open your $EDITOR
 
 And so on... You get the idea. :wink:
 
- 
+
 The following are the available commands and options for `chan`:
 
 #### commands:
@@ -190,9 +190,9 @@ Internally, `chan` maintains its own CHANGELOG representation using a simple tre
         text: '## [Unreleased]',
         start: Number,
         len: Number,
-        nodes: [{
+        children: [{
             text: 'Added',
-            nodes: [{
+            children: [{
                 text: 'some new feature'
             }, {
                 text: 'other feature'
@@ -202,11 +202,11 @@ Internally, `chan` maintains its own CHANGELOG representation using a simple tre
         text: '## [0.3.0] - 2015-12-03',
         start: Number,
         len: Number,
-        nodes: [Object]
+        children: [Object]
     }],
     definitions: {
         start: Number,
-        nodes: [{
+        children: [{
             text: '[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v0.3.0...HEAD'
         }]
     }
