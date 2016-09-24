@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [1.2.0] - 2016-09-24
 ### Changed
 - changed yargs config in favor of a custom config function
 
@@ -32,5 +34,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Removed
 - git-first-commit dependency
 
-[unreleased]: https://github.com/geut/chan/compare/v1.1.0...HEAD
+[unreleased]: https://github.com/geut/chan/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/geut/chan/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/geut/chan/compare/v1.0.0...v1.1.0
