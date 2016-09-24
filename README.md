@@ -15,6 +15,7 @@ Sections |
 [Usage](#usage) |
 [CLI](#cli) |
 [API](#api) |
+[Configuration](#configuration) |
 [Plugins](#plugins) |
 [Parser](#parser) |
 [Issues](#issues) |
@@ -74,15 +75,16 @@ The following are the available commands and options for `chan`:
   - **removed [msg]**     Writes your changelog indicating removed stuff.
   - **deprecated [msg]**  Writes your changelog indicating deprecated stuff.
   - **release \<semver\>**  Groups all your new features and marks a new release on your `CHANGELOG.md`.
+    - Arguments:
+       **--git-compare**  Overwrite the git compare by default [string]
 
 #### options:
 
   - **-p, --path**     Define the path of the CHANGELOG.md (cwd by default)   [string]
   - **--stdout**       Define the output as STDOUT                           [boolean]
   - **--silence**      Disable the console messages                          [boolean]
-  - **--git-compare**  Overwrite the git compare by default                   [string]
   - **-u, --use**      Extend chan with your own commands        [array] [default: []]
-  - **--config**       Path to JSON config file
+  - **--config**       Path to your JSON config file                          [string]
   - **-h, --help**     Show help                                             [boolean]
   - **-v, --version**  Show version number                                   [boolean]
 
@@ -114,6 +116,42 @@ cli.run(); // start the command line
 const parserInstance = parser(); // create a parser instance
 
 ```
+### <a name="configuration"></a> Configuration
+
+You can use a `config JSON file` or your `package.json` to set a static configuration (global arguments, command arguments and plugins).
+
+**config.json**
+```json
+{
+    "global-argv": [
+        "stdout": true
+    ],
+    "command-argv": [
+        "init": {
+           "overwrite": true
+        }
+    ]
+}
+```
+```bash
+$ chan --config=./config.json
+```
+
+**package.json**
+```json
+{
+    "chan": {
+        "global-argv": [
+            "stdout": true
+        ],
+        "command-argv": [
+            "init": {
+               "overwrite": true
+            }
+        ]
+    }
+}
+```
 
 ### <a name="plugins"></a> Plugins
 
@@ -142,7 +180,6 @@ New commands can be added by three different ways.
 $ chan hello 'geut' --use=chan-command-hello
 $ hello geut
 ```
-
 
 2. Using `--config` pointing to a json file:
 

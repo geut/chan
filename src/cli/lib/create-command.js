@@ -1,5 +1,6 @@
 import parser from '../../parser';
 
+
 export default function createCommand(cli, userDef = {}) {
     const {
         command,
@@ -18,12 +19,14 @@ export default function createCommand(cli, userDef = {}) {
     }
 
     const builder = (yargs) => {
-        yargs = userBuilder(yargs)
-            .config()
-            .pkgConf('chan', process.cwd());
+        yargs = userBuilder(yargs);
 
-        if (cli.commandsArgv && cli.commandsArgv[name]) {
-            yargs.config(cli.commandsArgv[name]);
+        if (cli.config('global-argv')) {
+            yargs.config(cli.config('global-argv'));
+        }
+
+        if (cli.config('command-argv') && cli.config('command-argv')[name]) {
+            yargs.config(cli.config('command-argv')[name]);
         }
 
         return yargs;

@@ -10,13 +10,21 @@ import createCommand from './lib/create-command';
 import loadUserCommands from './lib/load-user-commands';
 import openInEditor from './lib/open-in-editor';
 import createLog from './lib/log';
+import createConfig from './lib/config';
 import { init, added, release, fixed, changed, deprecated, removed, security } from './commands';
 
 const _commands = {};
 let _log;
+let _config;
 const cli = {
     yargs() {
         return yargs;
+    },
+    config(key = null) {
+        if (!_config) {
+            _config = createConfig(yargs.argv);
+        }
+        return key ? _config[key] : _config;
     },
     log() {
         if (!_log) {
@@ -38,10 +46,6 @@ const cli = {
             });
     },
     loadCommands() {
-        let argv = yargs.argv;
-
-        this.commandsArgv = argv.commands ? argv.commands : {};
-
         this.use(loadUserCommands([
             init(),
             added(),
@@ -51,7 +55,7 @@ const cli = {
             removed(),
             deprecated(),
             release()
-        ], argv.use));
+        ], this.config('use')));
     },
     run() {
         this.loadCommands();
@@ -60,7 +64,7 @@ const cli = {
 
         const commands = this.commands();
 
-        const findCommand = () =>  !!commands[argv._[0]];
+        const findCommand = () => !!commands[argv._[0]];
 
         const showHelp = argv._.length === 0 && !argv.h ||
                          argv._.length > 0 && !findCommand();
@@ -88,18 +92,16 @@ yargs
         describe: 'Disable the console messages',
         type: 'boolean'
     })
-    .option('git-compare', {
-        describe: 'Overwrite the git compare by default',
-        type: 'string'
-    })
     .option('u', {
         alias: 'use',
         describe: 'Extend chan with your own commands',
         default: [],
         type: 'array'
     })
-    .config()
-    .pkgConf('chan', process.cwd())
-    .global(['p', 'stdout', 'silence', 'git-compare', 'u', 'config']);
+    .option('config', {
+        describe: 'Path to your JSON config file',
+        type: 'string'
+    })
+    .global(['p', 'stdout', 'silence', 'config', 'u']);
 
 export default cli;
