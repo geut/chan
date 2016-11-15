@@ -6,7 +6,7 @@
 Chan is a likeable CLI tool used for writing and maintaining a CHANGELOG empowering the user to use a coloquial/friendly style.
 See more here: [keepachangelog.com](http://keepachangelog.com/)
 
-![chan](https://cloud.githubusercontent.com/assets/819446/20306615/fbbe9fda-ab19-11e6-9348-14f9b53a1b44.gif)
+![chan](https://cloud.githubusercontent.com/assets/819446/20307361/dad71d52-ab1d-11e6-83d7-bed3629308c1.gif)
 ____
 
 ## Table of contents
