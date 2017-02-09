@@ -1,12 +1,14 @@
-const initTemplate = `
-# Change Log
-All notable changes to this project will be documented in this file.
+// const initTemplate = `
+// # Change Log
+// All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/)
-and this project adheres to [Semantic Versioning](http://semver.org/).
+// The format is based on [Keep a Changelog](http://keepachangelog.com/)
+// and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
-`;
+// ## [Unreleased]
+// `;
+
+import init from '../../api/init';
 
 export default function () {
     return {
@@ -20,15 +22,13 @@ export default function () {
             });
         },
         handler(parser, argv, write) {
-            const m = parser.createMDAST;
-            if (parser.exists() && !argv.overwrite) {
-                this.log().info('Init CHANGELOG.md: canceled.');
-            } else {
-                parser.root.children = m(initTemplate);
-                write().then(() => {
+            const { overwrite } = argv;
+            init({ overwrite, parserInstance: parser, write })
+                .then(() => {
                     this.log().success('Init CHANGELOG.md: succeeded.');
+                }).catch(() => {
+                    this.log().info('Init CHANGELOG.md: canceled.');
                 });
-            }
         }
     };
 }
