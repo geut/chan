@@ -8,10 +8,12 @@ const change = ({ type, msg, cwd, parserInstance = parser(cwd), write = writer({
 };
 
 export default change;
-// types
-export const ADDED = 'Added';
-export const CHANGED = 'Changed';
-export const FIXED = 'Fixed';
-export const SECURITY = 'Security';
-export const DEPRECATED = 'Deprecated';
-export const REMOVED = 'Removed';
+
+export const TYPE = {
+    ADDED : 'Added',
+    CHANGED : 'Changed',
+    FIXED : 'Fixed',
+    SECURITY : 'Security',
+    DEPRECATED : 'Deprecated',
+    REMOVED : 'Removed'
+};
