@@ -1,3 +1,5 @@
+import release from '../../api/release';
+
 export default function () {
     return {
         command: 'release <semver>',
@@ -21,8 +23,7 @@ export default function () {
                 return null;
             }
 
-            return parser.release(version)
-                .then(write)
+            return release({ version, parserInstance: parser, write })
                 .then(() => {
                     this.log().success(`Version ${version} released :)`);
                 })

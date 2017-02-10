@@ -2,7 +2,7 @@ import parser from '../parser';
 import writer from '../cli/lib/writer';
 
 
-const initTemplate = `
+const template = `
 # Change Log
 All notable changes to this project will be documented in this file.
 
@@ -13,15 +13,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 `;
 
 const init = ({ overwrite = false, cwd, parserInstance = parser(cwd), write = writer({ parserInstance }) }) => {
-    return new Promise(() => {
+    return new Promise((resolve) => {
         const m = parserInstance.createMDAST;
 
         if (parserInstance.exists() && !overwrite) {
             throw new Error('Init CHANGELOG.md: canceled.');
         }
 
-        parserInstance.root.children = m(initTemplate);
-        return write();
+        parserInstance.root.children = m(template);
+        resolve(write());
     });
 
 };
