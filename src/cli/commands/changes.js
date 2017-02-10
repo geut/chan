@@ -1,3 +1,6 @@
+import change from '../../api/change';
+
+
 const commands = {
     added: {
         command: 'added [msg]',
@@ -44,9 +47,7 @@ Object.keys(commands).forEach((type) => {
                     if (!msg || msg.length === 0) {
                         return null;
                     }
-                    return parser
-                        .change(parser.SEPARATORS[type], msg)
-                        .then(write);
+                    return change({ type, msg, parserInstance:parser, write });
                 })
                 .catch((e) => {
                     this.log().error(e.message);

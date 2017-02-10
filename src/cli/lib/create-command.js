@@ -1,5 +1,5 @@
 import parser from '../../parser';
-
+import writer from './writer';
 
 export default function createCommand(cli, userDef = {}) {
     const {
@@ -39,18 +39,7 @@ export default function createCommand(cli, userDef = {}) {
             cli,
             parserInstance,
             argv,
-            () => {
-                return new Promise((resolve) => {
-                    const data = parserInstance.stringify();
-                    // write callback function
-                    if (argv.stdout) {
-                        process.stdout.write(data);
-                    } else {
-                        parserInstance.write(data);
-                    }
-                    resolve(data);
-                });
-            }
+            writer({ parserInstance, stdout: argv.stdout })
         );
 
         if (!result || typeof result.then !== 'function') {
