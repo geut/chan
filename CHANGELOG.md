@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Added chan as default export to expose api (init, changes & release)
 
+### Changed
+- Readme with better documentation for API and programmatic usage
+
 ## [1.3.0-0] - 2017-02-10 [YANKED]
 
 ## [1.2.0] - 2016-09-24
