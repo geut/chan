@@ -198,7 +198,7 @@ import chan, { cli, parser } from '@geut/chan';
 
 ####  <a name="api.chan"></a> chan
 
-`chan` exposes the main api methods:
+`chan` exposes the main api:
 
 - `init({ overwrite = false,  cwd })`:  The init method will create a CHANGELOG.md file in `cwd` directory.
     - overwrite {Boolean}: True to overwrite an exisiting CHANGELOG file. Default to `false`.
@@ -228,6 +228,28 @@ import chan, { cli, parser } from '@geut/chan';
 #### <a name="api.parser"></a> parser
 
 The `parser` is a wrapper instance of an excellent project called [remark](https://github.com/wooorm/remark).
+
+To instantiate a parser supply the working directory where the CHANGELOG file is located:
+
+```javascript
+import { parser } from '@geut/chan';
+
+//....
+
+const myParser = parser(cwd);
+
+```
+If `cwd` is not passed, the `process.cwd()` is used.
+
+The parser instance exposes the following methods and properties:
+
+- `remark`: The remark instance.
+- `exists()`: Returns true if the CHANGELOG file exists.
+- `write(content)`: Writes the content to the CHANGELOG file.
+    - content {String}: If not supplied, the `remark.stringify` content.
+- `findRelease(version)`: Returns the sub-tree corresponding to the provided version.
+    - version {String}: Release version.
+- `getMTREE()`: Returns the CHANGELOG representation. 
 
 Internally, `chan` maintains its own CHANGELOG representation using a simple tree structure which looks like this:
 
