@@ -13,7 +13,6 @@
     "build": "del-cli es5 && babel src --out-dir es5",
     "watch": "npm run build -- --watch",
     "version": "chan release ${npm_package_version} && git add .",
-    "install": "npm run build",
     "prepublish": "npm test && npm run build"
   },
   "ava": {
