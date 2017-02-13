@@ -12,7 +12,8 @@
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "build": "del-cli es5 && babel src --out-dir es5",
     "watch": "npm run build -- --watch",
-    "version": "chan release ${npm_package_version} && git add ."
+    "version": "chan release ${npm_package_version} && git add .",
+    "postinstall": "npm run build"
   },
   "ava": {
     "require": "babel-register",
