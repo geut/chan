@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Added chan as default export to expose api (init, changes & release)
+
+### Changed
+- Readme with better documentation for API and programmatic usage
+
+## [1.3.0-0] - 2017-02-10 [YANKED]
 
 ## [1.2.0] - 2016-09-24
 ### Changed
@@ -34,6 +41,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Removed
 - git-first-commit dependency
 
-[unreleased]: https://github.com/geut/chan/compare/v1.2.0...HEAD
+[unreleased]: https://github.com/geut/chan/compare/v1.3.0-0...HEAD
+[1.3.0-0]: https://github.com/geut/chan/compare/v1.2.0...v1.3.0-0
 [1.2.0]: https://github.com/geut/chan/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/geut/chan/compare/v1.0.0...v1.1.0

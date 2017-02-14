@@ -4,7 +4,7 @@
 [![npm version](https://badge.fury.io/js/%40geut%2Fchan.svg)](https://badge.fury.io/js/%40geut%2Fchan)
 
 Chan is a likeable CLI tool used for writing and maintaining a CHANGELOG empowering the user to use a coloquial/friendly style.
-See more here: [keepachangelog.com](http://keepachangelog.com/)
+See more here: [keepachangelog.com](1)
 
 ![chan](https://cloud.githubusercontent.com/assets/819446/20307361/dad71d52-ab1d-11e6-83d7-bed3629308c1.gif)
 ____
@@ -15,10 +15,12 @@ Sections |
 [Getting started](#install) |
 [Usage](#usage) |
 [CLI](#cli) |
-[API](#api) |
 [Configuration](#configuration) |
 [Plugins](#plugins) |
-[Parser](#parser) |
+[API](#api) |
+[- chan](#api.chan) |
+[- cli](#api.cli) |
+[- parser](#api.parser) |
 [Issues](#issues) |
 [Contribute](#contribute) |
 
@@ -34,37 +36,29 @@ $ npm install -g @geut/chan
 
 ### <a name="cli"></a> CLI
 
-You want to create a CHANGELOG.md :
+Create a CHANGELOG.md file in your project root folder with:
 
 ```bash
 $ chan init
 ```
-Cool, now you can start to work. I.e.: _add/fix/etc_.
+To add entries to your CHANGELOG use the command that describes better your change (`added`, `changed`, `fixed`, etc)
 
-Let's say you add something important to your project:
 ```bash
-$ chan added [MSG]
+$ chan added "Added `foo` in API to print foo in the console."
 ```
-This will modify your changelog. Creating a new entry called `added`.
+This command will modify your CHANGELOG creating a new entry called `added` under the `Unreleased` section.
 
-Then, you fix something and think it is important to no:
-```bash
-$ chan fixed [MSG]
-```
-Now your CHANGELOG.md will contain a `fixed` entry. These entries follow the **keepachangelog** format/style.
+> `chan` follows the [**keepachangelog**](1) format/style.
 
-Or maybe you made a big change in your project and you want to write a better and longer description of your change, in that case you can execute a **change** command without the `msg` argument and `chan` will open your favorite editor in that case.
-E.g.:
+#### Using your own editor
+
+In case you want to use an editor you can just omit the message parameter:
+
 ```bash
 $ chan added # this will open your $EDITOR
 ```
 
-And so on... You get the idea. :wink:
-
-
-The following are the available commands and options for `chan`:
-
-#### commands:
+#### available commands:
 
   - **init**               Creates a `CHANGELOG.md` if it does not exists. Chan will work with this file.
      - **-o, --overwrite**  overwrite the current CHANGELOG.md [boolean]
@@ -87,34 +81,10 @@ The following are the available commands and options for `chan`:
   - **-h, --help**     Show help                                             [boolean]
   - **-v, --version**  Show version number                                   [boolean]
 
-Note:
-- [_OPTIONAL_]
-- <_REQUIRED_>
+> Notes:
+> - [_OPTIONAL_]
+> - <_REQUIRED_>
 
-
-### <a name="api"></a> Programmatic Usage
-Chan is created above two excellent projects. We use [yargs](http://yargs.js.org/) for the CLI and [remark](http://remark.js.org/) to parse the `CHANGELOG.md`
-
-```javascript
-import { cli, parser } from '@geut/chan';
-
-cli.yargs(); // yargs instance
-
-/**
- * commands loaded, this method return [] until
- * you execute run() or loadCommands()
- */
-cli.commands();
-
-
-cli.run(); // start the command line
-
-/**
- * (dir = process.cwd()) => parserObject
- */
-const parserInstance = parser(); // create a parser instance
-
-```
 ### <a name="configuration"></a> Configuration
 
 You can use a `config JSON file` or your `package.json` to set a static configuration (global arguments, command arguments and plugins).
@@ -156,7 +126,8 @@ $ chan --config=./config.json
 
 You can extend `chan` quite easily by adding your own commands as plugins.
 
-chan-command-hello:
+> chan-command-hello.js
+
 ```javascript
 module.exports = function () {
     return {
@@ -214,9 +185,71 @@ $ chan hello 'geut'
 $ hello geut
 ```
 
-### <a name="parser"></a> Parser
+### <a name="api"></a> API
 
-The parser is a wrapper instance of an excellent project called [remark](https://github.com/wooorm/remark).
+Chan is created above two excellent projects. 
+We use [yargs](http://yargs.js.org/) for the CLI and [remark](http://remark.js.org/) to parse the `CHANGELOG.md`
+
+```javascript
+
+import chan, { cli, parser } from '@geut/chan';
+
+```
+
+####  <a name="api.chan"></a> chan
+
+`chan` exposes the main api:
+
+- `init({ overwrite = false,  cwd })`:  The init method will create a CHANGELOG.md file in `cwd` directory.
+    - overwrite {Boolean}: True to overwrite an exisiting CHANGELOG file. Default to `false`.
+    - cwd {String}: The directory to create the CHANGELOG. If not provided the `process.cwd()` is used.
+- `change({ type, msg, cwd })`: Adds the message `msg` as part of the section `type`.
+    - type {String}: One of the `chan.CHANGE_TYPE`
+    - msg {String}: The message text to be added.
+    - cwd {String}: The directory of CHANGELOG. If not provided the `process.cwd()` is used.
+- `CHANGE_TYPE`
+    - `ADDED`
+    - `CHANGED`
+    - `FIXED`
+    - `SECURITY`
+    - `DEPRECATED`
+    - `REMOVED`
+- `release({ version, cwd })`: Generates a new release section. Moves the current `Unrelasead` changes list to the provided version.
+    - version {String}: The version number.
+    - cwd {String}: The directory of CHANGELOG. If not provided the `process.cwd()` is used.
+
+#### <a name="api.cli"></a> cli
+
+`cli` retruns a command line interface instance.
+
+- `run()`: Executes the cli.
+- `yargs()`: Returns the `yargs` instance.
+
+#### <a name="api.parser"></a> parser
+
+The `parser` is a wrapper instance of an excellent project called [remark](https://github.com/wooorm/remark).
+
+To instantiate a parser supply the working directory where the CHANGELOG file is located:
+
+```javascript
+import { parser } from '@geut/chan';
+
+//....
+
+const myParser = parser(cwd);
+
+```
+If `cwd` is not passed, the `process.cwd()` is used.
+
+The parser instance exposes the following methods and properties:
+
+- `remark`: The remark instance.
+- `exists()`: Returns true if the CHANGELOG file exists.
+- `write(content)`: Writes the content to the CHANGELOG file.
+    - content {String}: If not supplied, the `remark.stringify` content.
+- `findRelease(version)`: Returns the sub-tree corresponding to the provided version.
+    - version {String}: Release version.
+- `getMTREE()`: Returns the CHANGELOG representation. 
 
 Internally, `chan` maintains its own CHANGELOG representation using a simple tree structure which looks like this:
 
@@ -259,3 +292,5 @@ Internally, `chan` maintains its own CHANGELOG representation using a simple tre
 ___
 
 A [**GEUT**](http://geutstudio.com/) project
+
+[1]: (http://keepachangelog.com/)
