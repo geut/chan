@@ -4,7 +4,7 @@
 [![npm version](https://badge.fury.io/js/%40geut%2Fchan.svg)](https://badge.fury.io/js/%40geut%2Fchan)
 
 Chan is a likeable CLI tool used for writing and maintaining a CHANGELOG empowering the user to use a coloquial/friendly style.
-See more here: [keepachangelog.com](1)
+See more here: [keepachangelog.com](http://keepachangelog.com/)
 
 ![chan](https://cloud.githubusercontent.com/assets/819446/20307361/dad71d52-ab1d-11e6-83d7-bed3629308c1.gif)
 ____
@@ -48,7 +48,7 @@ $ chan added "Added `foo` in API to print foo in the console."
 ```
 This command will modify your CHANGELOG creating a new entry called `added` under the `Unreleased` section.
 
-> `chan` follows the [**keepachangelog**](1) format/style.
+> `chan` follows the [keepachangelog.com](http://keepachangelog.com/) format/style.
 
 #### Using your own editor
 
@@ -292,5 +292,3 @@ Internally, `chan` maintains its own CHANGELOG representation using a simple tre
 ___
 
 A [**GEUT**](http://geutstudio.com/) project
-
-[1]: (http://keepachangelog.com/)
