@@ -1,9 +1,9 @@
 import parser from '../parser';
 import writer from '../cli/lib/writer';
 
-const change = ({ type, msg, cwd, parserInstance = parser(cwd), write = writer({ parserInstance }) }) => {
+const change = ({ type, msg, cwd, parserInstance = parser(cwd), write = writer({ parserInstance }), group }) => {
     return parserInstance
-        .change(parserInstance.SEPARATORS[type], msg)
+        .change(parserInstance.SEPARATORS[type], msg, { group })
         .then(write);
 };
 

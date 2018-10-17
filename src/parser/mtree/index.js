@@ -17,12 +17,14 @@ const BREAK = LINE + LINE;
 const TPL = {
     UNRELEASED: '## [Unreleased]',
     H3: '### <text>',
+    H4: '#### <text>',
     VERSION: '## [<version>] - <date>',
     LI: '- <text>',
     DEFINITION: '[<version>]: <git-compare>'
 };
 
 const REGEX_GET_VERSION = /##\s\[?([0-9\.]*)\]?\s-/g;
+const REGEX_GROUP = /\[([^\]]+)\]\s/g;
 
 function processRelease(release, node, elem, stringify, m) {
     if (elem.type === 'heading') {
@@ -34,9 +36,15 @@ function processRelease(release, node, elem, stringify, m) {
         const mLI = m('- ');
         for (let li of elem.children) {
             mLI.children[0] = li;
+
+            const text = stringify(mLI).slice(2);
+            const group = REGEX_GROUP.exec(text);
+
             node.children.push({
-                text: stringify(mLI).slice(2)
+                text: text.replace(REGEX_GROUP, ''),
+                group: group ? group[1] : undefined
             });
+
         }
 
     }
@@ -99,23 +107,72 @@ function decode(parser) {
     return that;
 }
 
-function compileRelease(release = 0, children, m, version = null) {
-    let tpl = this.releases[release].children.map((node) => {
-        return TPL.H3.replace('<text>', node.text) + LINE + node.children.reduce((result, li) => {
-            return result +
-                LINE +
-                TPL.LI.replace(
-                    '<text>',
-                    li.text.split('\n').map((line, i) => {
-                        line = line.trim();
-                        if (line.length > 0 && i > 0) {
-                            return '  ' + line;
-                        }
-                        return line;
-                    }).join('\n')
-                );
-        }, '');
-    }).join(BREAK);
+function textFromLI(li) {
+    return li.text.split('\n').map((line, i) => {
+        line = line.trim();
+        if (line.length > 0 && i > 0) {
+            return '  ' + line;
+        }
+        return line;
+    }).join('\n');
+}
+
+function groupFromLI(li) {
+    if (!li.group) return '';
+
+    return `[${li.group}] `;
+}
+
+function groupChanges(changes = []) {
+    const groups = {};
+
+    for (const {text: type, children} of changes) {
+        for (const { text, group = '' } of children) {
+            if (!groups[group]) groups[group] = {};
+            if (!groups[group][type]) groups[group][type] = [];
+
+            groups[group][type].push(textFromLI({ text }));
+        }
+    }
+
+    const tpl = Object.keys(groups).sort().reduce((result, group) => {
+        result += TPL.H3.replace('<text>', group || 'Core') + LINE; // ### group OR ### Core
+
+        result += Object.keys(groups[group]).map(type => {
+            let typeTpl = TPL.H4.replace('<text>', type) + LINE; // #### Added
+
+            typeTpl += groups[group][type].reduce((result, text) => {
+                return result + TPL.LI.replace('<text>', text);
+            }, '');
+
+            return typeTpl;
+        }).join(BREAK);
+
+        result += BREAK;
+
+        return result;
+    }, '');
+
+    return tpl;
+}
+
+function compileRelease(release = 0, children, m, version = null, group = false) {
+    let tpl;
+
+    if (group) {
+        tpl = groupChanges(this.releases[release].children);
+    } else {
+        tpl = this.releases[release].children.map((node) => {
+            return TPL.H3.replace('<text>', node.text) + LINE + node.children.reduce((result, li) => {
+                return result +
+                    LINE +
+                    TPL.LI.replace(
+                        '<text>',
+                        groupFromLI(li) + textFromLI(li)
+                    );
+            }, '');
+        }).join(BREAK);
+    }
 
     if (version) {
         let tplVersion = TPL.VERSION
@@ -226,17 +283,17 @@ export default function mtree(parser) {
         return that.compileRelease(0);
     };
 
-    that.version = function (version) {
-        compileRelease.call(this, 0, parser.root.children, parser.createMDAST, version);
+    that.version = function (version, options) {
+        compileRelease.call(this, 0, parser.root.children, parser.createMDAST, version, options.group);
 
         return that.addDefinition(version, gitCompare);
     };
 
-    that.insert = function (type, value) {
+    that.insert = function (type, value, options) {
         const node = findHeaderOrCreate.call(this, type);
-        node.children.push({
-            text: value
-        });
+
+        node.children.push({ text: value, group: options.group });
+
         that.compileUnreleased();
         return Promise.resolve();
     };
