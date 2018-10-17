@@ -126,7 +126,7 @@ function groupFromLI(li) {
 function groupChanges(changes = []) {
     const groups = {};
 
-    for (const {text: type, children} of changes) {
+    for (const { text: type, children } of changes) {
         for (const { text, group = '' } of children) {
             if (!groups[group]) groups[group] = {};
             if (!groups[group][type]) groups[group][type] = [];
@@ -141,8 +141,8 @@ function groupChanges(changes = []) {
         result += Object.keys(groups[group]).map(type => {
             let typeTpl = TPL.H4.replace('<text>', type) + LINE; // #### Added
 
-            typeTpl += groups[group][type].reduce((result, text) => {
-                return result + TPL.LI.replace('<text>', text);
+            typeTpl += groups[group][type].reduce((resultItems, text) => {
+                return resultItems + TPL.LI.replace('<text>', text);
             }, '');
 
             return typeTpl;

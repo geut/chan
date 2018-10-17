@@ -54,7 +54,7 @@ Object.keys(commands).forEach((type) => {
                     if (!msg || msg.length === 0) {
                         return null;
                     }
-                    
+
                     return change({ type, msg, parserInstance, write, group: argv.group });
                 })
                 .catch((e) => {

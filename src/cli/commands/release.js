@@ -13,7 +13,7 @@ export default function () {
             yargs.option('group-changes', {
                 describe: 'Group changes based on [<group>] prefix on each change.',
                 type: 'boolean'
-            })
+            });
 
             return yargs;
         },
