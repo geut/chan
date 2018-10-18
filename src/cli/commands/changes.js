@@ -46,7 +46,7 @@ Object.keys(commands).forEach((type) => {
             if (argv.msg) {
                 result = Promise.resolve(argv.msg);
             } else {
-                result = this.openInEditor();
+                result = this.openInEditor({ group: argv.group });
             }
 
             return result
