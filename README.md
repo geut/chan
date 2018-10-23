@@ -168,7 +168,7 @@ Following options applies to `added`, `fixed`, `changed`, `security`, `removed` 
     - [geut/cool-repo] New thing on geut/cool-repo group
 
     ### Changed
-    - This brokes something on root base repo
+    - This broke something on root base repo
 
     ### Fixed
     - [geut/cool-repo] Something on geut/cool-repo group
