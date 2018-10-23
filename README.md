@@ -154,7 +154,7 @@ Following options applies to `added`, `fixed`, `changed`, `security`, `removed` 
     grouped under **Core**, as first group.
   
     Example:
-    Supose you make next changes on your changelog:
+    Suppose you make the next changes to your changelog:
     ```bash
     $ chan fixed 'Something on geut/cool-repo group' -g geut/cool-repo
     $ chan added 'New thing on geut/cool-repo group' -g geut/cool-repo
