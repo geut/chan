@@ -150,7 +150,7 @@ Following options applies to `added`, `fixed`, `changed`, `security`, `removed` 
   - **--group-changes** (string):
     
     Groups changes based on group prefix found on each
-    unreleased change item. If no group prefix is found, change item will be 
+    unreleased change item. If no group prefix is found, the changed item will be 
     grouped under **Core**, as first group.
   
     Example:
