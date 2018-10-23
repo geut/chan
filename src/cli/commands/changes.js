@@ -33,7 +33,7 @@ Object.keys(commands).forEach((type) => {
         builder(yargs) {
             return yargs.option('g', {
                 alias: 'group',
-                describe: 'Prefix change with [<group>]. This allow to group changes on release.',
+                describe: 'Prefix change with [<group>]. This allows to group changes on release time.',
                 type: 'string'
             });
         },
