@@ -20,6 +20,7 @@ const TPL = {
     H4: '#### <text>',
     VERSION: '## [<version>] - <date>',
     LI: '- <text>',
+    LI1: '  - <text>',
     DEFINITION: '[<version>]: <git-compare>'
 };
 
@@ -128,30 +129,29 @@ function groupChanges(changes = []) {
 
     for (const { text: type, children } of changes) {
         for (const { text, group = '' } of children) {
-            if (!groups[group]) groups[group] = {};
-            if (!groups[group][type]) groups[group][type] = [];
+            if (!groups[type]) groups[type] = {};
+            if (!groups[type][group]) groups[type][group] = [];
 
-            groups[group][type].push(textFromLI({ text }));
+            groups[type][group].push(textFromLI({ text }));
         }
     }
 
-    const tpl = Object.keys(groups).sort().reduce((result, group) => {
-        result += TPL.H3.replace('<text>', group || 'Core') + LINE; // ### group OR ### Core
+    const tpl = Object.keys(groups).map(type => {
+        let result = TPL.H3.replace('<text>', type) + LINE; // #### Added
 
-        result += Object.keys(groups[group]).map(type => {
-            let typeTpl = TPL.H4.replace('<text>', type) + LINE; // #### Added
+        result += Object.keys(groups[type]).sort().map(group => {
+            let typeTpl = TPL.LI.replace('<text>', group || 'Core') + LINE; // ### group OR ### Core
 
-            typeTpl += groups[group][type].reduce((resultItems, text) => {
-                return resultItems + TPL.LI.replace('<text>', text);
-            }, '');
+            typeTpl += groups[type][group].map(text => {
+                return TPL.LI1.replace('<text>', text);
+            }).join(LINE);
 
             return typeTpl;
-        }).join(BREAK);
-
-        result += BREAK;
+        }).join(LINE);
 
         return result;
-    }, '');
+
+    }).join(BREAK);
 
     return tpl;
 }
