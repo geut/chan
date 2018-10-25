@@ -32,8 +32,8 @@ const cli = {
         }
         return _log;
     },
-    openInEditor() {
-        return openInEditor();
+    openInEditor(options) {
+        return openInEditor(options);
     },
     commands() {
         return _commands;

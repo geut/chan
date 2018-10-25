@@ -58,28 +58,143 @@ In case you want to use an editor you can just omit the message parameter:
 $ chan added # this will open your $EDITOR
 ```
 
-#### available commands:
+#### Available commands:
 
-  - **init**               Creates a `CHANGELOG.md` if it does not exists. Chan will work with this file.
-     - **-o, --overwrite**  overwrite the current CHANGELOG.md [boolean]
-  - **added [msg]**       Writes your changelog indicating new stuff.
-  - **fixed [msg]**       Writes your changelog indicating fixed stuff.
-  - **changed [msg]**     Writes your changelog indicating updated stuff.
-  - **security [msg]**    Writes your changelog indicating security upgrades.
-  - **removed [msg]**     Writes your changelog indicating removed stuff.
-  - **deprecated [msg]**  Writes your changelog indicating deprecated stuff.
-  - **release \<semver\>**  Groups all your new features and marks a new release on your `CHANGELOG.md`.
-       - **--git-compare**  Overwrite the git compare by default [string]
+  - **init**                
+    Creates a `CHANGELOG.md` if it does not exists. Chan will work with this file.
+    
+  - **added [msg]**         
+    Writes your changelog indicating new stuff.
+    
+  - **fixed [msg]**         
+    Writes your changelog indicating fixed stuff.
+    
+  - **changed [msg]**       
+    Writes your changelog indicating updated stuff.
+    
+  - **security [msg]**      
+    Writes your changelog indicating security upgrades.
+    
+  - **removed [msg]**       
+    Writes your changelog indicating removed stuff.
+    
+  - **deprecated [msg]**    
+    Writes your changelog indicating deprecated stuff.
+    
+  - **release \<semver\>**  
+    Groups all your new features and marks a new release on your `CHANGELOG.md`.
+    
 
-#### options:
+#### Options
+Global options to `chan` command:
 
-  - **-p, --path**     Define the path of the CHANGELOG.md (cwd by default)   [string]
-  - **--stdout**       Define the output as STDOUT                           [boolean]
-  - **--silence**      Disable the console messages                          [boolean]
-  - **-u, --use**      Extend chan with your own commands        [array] [default: []]
-  - **--config**       Path to your JSON config file                          [string]
-  - **-h, --help**     Show help                                             [boolean]
-  - **-v, --version**  Show version number                                   [boolean]
+  - **-p, --path** (`string`)
+
+    Define the path of the CHANGELOG.md (cwd by default)
+  
+  - **--stdout** (`boolean`)
+
+    Define the output as STDOUT
+  
+  - **--silence** (`boolean`)
+  
+    Disable the console messages
+  
+  - **-u, --use** (`array`, default: `[]`)
+  
+    Extend chan with your own commands
+  
+  - **--config** (`string`)
+  
+    Path to your JSON config file
+  
+  - **-h, --help** (`boolean`)
+    
+    Show help
+  
+  - **-v, --version** (`boolean`)
+  
+    Show version number
+
+##### Init options
+
+  - **-o, --overwrite**  (`boolean`)
+
+    Overwrite the current CHANGELOG.md
+
+
+##### Change options
+Following options applies to `added`, `fixed`, `changed`, `security`, `removed` and `deprecated` commands:
+
+  - **-g, --group** (`string`)
+    
+    Prefix change with provided group value
+    
+    Example:
+    ```bash
+    chan added --group=chan/sub-repo 'New stuff added'
+    ```
+    will add 
+    ```markdown
+    - [chan/sub-repo] New stuff added.
+    ```
+    to your changelog unreleased changes.
+
+
+##### Release options
+
+  - **--git-compare** (string)
+    
+    Overwrite the git compare by default
+  
+  - **--group-changes** (string):
+    
+    Group changes based on the `group prefix` found on each
+    unreleased change item. If no group prefix is found, the changed item will be 
+    grouped under **Core**, as first group.
+  
+    Example:
+    Suppose you make the next changes to your changelog:
+    ```bash
+    $ chan fixed 'Something on geut/cool-repo group' -g geut/cool-repo
+    $ chan added 'New thing on geut/cool-repo group' -g geut/cool-repo
+    $ chan changed 'change something on root level repo'
+    ```
+
+    Now, your changelog should be:
+    ```markdown
+    ## [Unreleased]
+    ### Added
+    - [geut/cool-repo] New thing on geut/cool-repo group
+
+    ### Changed
+    - change something on root level repo
+
+    ### Fixed
+    - [geut/cool-repo] Something on geut/cool-repo group
+    ```
+
+    Release time:
+    ```bash
+    chan release --group-changes 1.0.0
+    ```
+
+    Grouped changelog:
+    ```markdown
+    ## [Unreleased]
+
+    ## 1.0.0 - 2018-10-22
+    ### Core
+    #### Changed
+    - change something on root level repo
+
+    ### geut/cool-repo
+    #### Added
+    - New thing on geut/cool-repo group
+
+    #### Fixed
+    - Something on geut/cool-repo group
+    ```
 
 > Notes:
 > - [_OPTIONAL_]

@@ -5,10 +5,17 @@ export default function () {
         command: 'release <semver>',
         describe: 'Groups all your new features and marks a new release on your CHANGELOG.md.',
         builder(yargs) {
-            return yargs.option('git-compare', {
+            yargs.option('git-compare', {
                 describe: 'Overwrite the git url compare by default.\n e.g.: https://bitbucket.org/project/compare/<from>..<to>',
                 type: 'string'
             });
+
+            yargs.option('group-changes', {
+                describe: 'Group changes based on [<group>] prefix.',
+                type: 'boolean'
+            });
+
+            return yargs;
         },
         handler(parser, argv, write) {
             if ( !parser.exists() ) {
@@ -23,7 +30,7 @@ export default function () {
                 return null;
             }
 
-            return release({ version, parserInstance: parser, write })
+            return release({ version, parserInstance: parser, write, group: argv.groupChanges })
                 .then(() => {
                     this.log().success(`Version ${version} released :)`);
                 })

@@ -41,3 +41,27 @@ test('CHANGELOG.md exists and contains new changes along with previous versions.
             t.deepEqual(result, expected, 'chan release adds a new version section to the CHANGELOG.md on top of previous versions.');
         });
 });
+
+test('test --group-changes option => Groups changes by prefix (no core changes)', t => {
+    return Promise.all([
+        cli(tmp, { name: 'release', args: { semver: '1.0.0', groupChanges: true } }, '../grouped/unreleased_no_core'),
+        readChangelog('expected/grouped/released-no-core')
+    ])
+        .then((values) => {
+            let [result, expected] = values;
+            expected = expected.replace('<currentDate>', now());
+            t.deepEqual(result, expected, 'chan release adds a new version section grouped by prefixes detected (no core changes).');
+        });
+});
+
+test('test --group-changes option => Groups changes by prefix (with core changes)', t => {
+    return Promise.all([
+        cli(tmp, { name: 'release', args: { semver: '1.0.0', groupChanges: true } }, '../grouped/unreleased_with_core'),
+        readChangelog('expected/grouped/released-with-core')
+    ])
+        .then((values) => {
+            let [result, expected] = values;
+            expected = expected.replace('<currentDate>', now());
+            t.deepEqual(result, expected, 'chan release adds a new version section grouped by prefixes detected (with core changes)');
+        });
+});

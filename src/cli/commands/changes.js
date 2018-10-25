@@ -30,8 +30,15 @@ const commands = {
 
 Object.keys(commands).forEach((type) => {
     const command = Object.assign({}, commands[type], {
-        handler(parser, argv, write) {
-            if ( !parser.exists() ) {
+        builder(yargs) {
+            return yargs.option('g', {
+                alias: 'group',
+                describe: 'Prefix change with [<group>]. This allows to group changes on release time.',
+                type: 'string'
+            });
+        },
+        handler(parserInstance, argv, write) {
+            if ( !parserInstance.exists() ) {
                 throw new Error('CHANGELOG.md does not exists. You can run: chan init in order to create a fresh new one.');
             }
 
@@ -39,7 +46,7 @@ Object.keys(commands).forEach((type) => {
             if (argv.msg) {
                 result = Promise.resolve(argv.msg);
             } else {
-                result = this.openInEditor();
+                result = this.openInEditor({ group: argv.group });
             }
 
             return result
@@ -47,7 +54,8 @@ Object.keys(commands).forEach((type) => {
                     if (!msg || msg.length === 0) {
                         return null;
                     }
-                    return change({ type, msg, parserInstance:parser, write });
+
+                    return change({ type, msg, parserInstance, write, group: argv.group });
                 })
                 .catch((e) => {
                     this.log().error(e.message);

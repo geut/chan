@@ -51,11 +51,11 @@ export default function parser(dir = process.cwd()) {
             _mtree = mtree(this);
             return _mtree;
         },
-        change(type, value) {
-            return this.getMTREE().insert(type, value);
+        change(type, value, options) {
+            return this.getMTREE().insert(type, value, options);
         },
-        release(version, gitCompare = null) {
-            return this.getMTREE().version(version, gitCompare);
+        release(version, options) {
+            return this.getMTREE().version(version, options);
         },
         findRelease(version) {
             return this.getMTREE().findRelease(version);

@@ -55,3 +55,54 @@ test('test 2 commands in a row => CHANGELOG.md already exists and contains chang
             t.deepEqual(result, expected, 'chan injected the new changes labeled as added and fixed successfully.');
         });
 });
+
+test('test --group option => Add new changes to the same group', t => {
+    const groupedChanges = cli(tmp, [
+        { name: 'added', args: { msg: 'added 1', group: 'group-1' } },
+        { name: 'changed', args: { msg: 'changed 1', group: 'group-1' } }
+    ], 'grouped/empty');
+
+    return Promise.all([
+        groupedChanges,
+        readChangelog('expected/grouped/same-group')
+    ]).then(values => {
+        const [result, expected] = values;
+        t.deepEqual(result, expected, 'chan injected the new grouped changes successfully.');
+    });
+}); 
+
+test('test --group option => Add new changes to different groups', t => {
+    const groupedChanges = cli(tmp, [
+        { name: 'added', args: { msg: 'added 1', group: 'group-1' } },
+        { name: 'changed', args: { msg: 'changed 2', group: 'group-2' } },
+        { name: 'changed', args: { msg: 'changed 1', group: 'group-1' } },
+        { name: 'added', args: { msg: 'added 2', group: 'group-2' } },
+        { name: 'fixed', args: { msg: 'fixed 1', group: 'group-3' } }
+    ], 'grouped/empty');
+
+    return Promise.all([
+        groupedChanges,
+        readChangelog('expected/grouped/different-group')
+    ]).then(values => {
+        const [result, expected] = values;
+        t.deepEqual(result, expected, 'chan injected the new grouped changes successfully.');
+    });
+});
+
+test('test --group option => Add new changes with/without group', t => {
+    const groupedChanges = cli(tmp, [
+        { name: 'added', args: { msg: 'added 1', group: 'group-1' } },
+        { name: 'changed', args: { msg: 'changed 2', group: 'group-2' } },
+        { name: 'changed', args: { msg: 'changed 1', group: 'group-1' } },
+        { name: 'added', args: { msg: 'added 2 to core' } },
+        { name: 'fixed', args: { msg: 'fixed 1 to core' } }
+    ], 'grouped/empty');
+
+    return Promise.all([
+        groupedChanges,
+        readChangelog('expected/grouped/mixed-group-no-group')
+    ]).then(values => {
+        const [result, expected] = values;
+        t.deepEqual(result, expected, 'chan injected the new grouped changes successfully.');
+    });
+});
