@@ -186,7 +186,7 @@ Following options applies to `added`, `fixed`, `changed`, `security`, `removed` 
     ## 1.0.0 - 2018-10-22
     ### Core
     #### Changed
-    - This brokes something on root base repo
+    - change something on root level repo
 
     ### geut/cool-repo
     #### Added
