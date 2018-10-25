@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 - Added chan as default export to expose api (init, changes & release)
+- New feature for grouping changes (#13) by @estebanprimost
 
 ### Changed
 - Updated Changelog head wording according to [Keep a Changelog](http://keepachangelog.com/) v1.0.0
