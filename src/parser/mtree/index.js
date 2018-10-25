@@ -140,10 +140,12 @@ function groupChanges(changes = []) {
         let result = TPL.H3.replace('<text>', type) + LINE; // #### Added
 
         result += Object.keys(groups[type]).sort().map(group => {
-            let typeTpl = TPL.LI.replace('<text>', group || 'Core') + LINE; // ### group OR ### Core
+            const haveGroup = !!group;
+
+            let typeTpl = haveGroup ? (TPL.LI.replace('<text>', group) + LINE) : ''; // ### group OR ### Core
 
             typeTpl += groups[type][group].map(text => {
-                return TPL.LI1.replace('<text>', text);
+                return (haveGroup ? TPL.LI1 : TPL.LI).replace('<text>', text);
             }).join(LINE);
 
             return typeTpl;
