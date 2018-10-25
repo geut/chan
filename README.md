@@ -128,7 +128,7 @@ Following options applies to `added`, `fixed`, `changed`, `security`, `removed` 
 
   - **-g, --group** (`string`)
     
-    Prefix change with group provided
+    Prefix change with provided group value
     
     Example:
     ```bash
