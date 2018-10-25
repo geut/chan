@@ -7,7 +7,7 @@ export default {
                 return resolve(gitCompare);
             }
 
-            return resolve(defineGITCompare('git@github.com:geut/chan.git'));
+            return resolve(defineGITCompare('git@github.com/geut/chan.git'));
         });
     },
     defineGITCompare

@@ -7,22 +7,22 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 ## 1.0.0 - <currentDate>
-### Core
-#### Deprecated
-- deprecated 1
+### Added
+- group-1
+  - added 1
 
-#### Fixed
-- fixed 1
+### Changed
+- group-1
+  - changed 1
+- group-2
+  - changed 2
 
-### group-1
-#### Added
-- added 1
+### Deprecated
+- Core
+  - deprecated 1
 
-#### Changed
-- changed 1
-
-### group-2
-#### Changed
-- changed 2
+### Fixed
+- Core
+  - fixed 1
 
 [unreleased]: https://github.com/geut/chan/compare/v1.0.0...HEAD
