@@ -142,7 +142,7 @@ function groupChanges(changes = []) {
         result += Object.keys(groups[type]).sort().map(group => {
             const haveGroup = !!group;
 
-            let typeTpl = haveGroup ? (TPL.LI.replace('<text>', group) + LINE) : ''; // ### group OR ### Core
+            let typeTpl = haveGroup ? TPL.LI.replace('<text>', group) + LINE : ''; // ### group OR ### Core
 
             typeTpl += groups[type][group].map(text => {
                 return (haveGroup ? TPL.LI1 : TPL.LI).replace('<text>', text);

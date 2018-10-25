@@ -18,11 +18,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   - changed 2
 
 ### Deprecated
-- Core
-  - deprecated 1
+- deprecated 1
 
 ### Fixed
-- Core
-  - fixed 1
+- fixed 1
 
 [unreleased]: https://github.com/geut/chan/compare/v1.0.0...HEAD
