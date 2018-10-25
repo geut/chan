@@ -158,7 +158,7 @@ Following options applies to `added`, `fixed`, `changed`, `security`, `removed` 
     ```bash
     $ chan fixed 'Something on geut/cool-repo group' -g geut/cool-repo
     $ chan added 'New thing on geut/cool-repo group' -g geut/cool-repo
-    $ chan changed 'This broke something on root base repo'
+    $ chan changed 'change something on root level repo'
     ```
 
     Now, your changelog should be:
