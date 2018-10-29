@@ -1,6 +1,6 @@
 {
   "name": "@geut/chan",
-  "version": "1.3.0-1",
+  "version": "1.3.0",
   "description": "Changelog CLI",
   "main": "./es5/index.js",
   "bin": {
