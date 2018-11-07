@@ -1,0 +1,175 @@
+#!/usr/bin/env node
+
+function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+
+var yargs = _interopDefault(require('yargs'));
+var chanCore = require('@chan/chan-core');
+var ora = _interopDefault(require('ora'));
+var chalk = _interopDefault(require('chalk'));
+
+const options = {
+  o: {
+    alias: 'overwrite',
+    describe: 'Overwrite the current CHANGELOG.md',
+    type: 'boolean',
+    default: false
+  }
+};
+var registerOptions = (cli => {
+  for (const [name, option] of Object.entries(options)) {
+    cli.option(name, option);
+  }
+});
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+function _objectSpread(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+    var ownKeys = Object.keys(source);
+
+    if (typeof Object.getOwnPropertySymbols === 'function') {
+      ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(source, sym).enumerable;
+      }));
+    }
+
+    ownKeys.forEach(function (key) {
+      _defineProperty(target, key, source[key]);
+    });
+  }
+
+  return target;
+}
+
+/*eslint no-console: "off"*/
+const failSymbol = '✖';
+
+const prefix = text => {
+  return `${text} `;
+};
+
+const log = console.log;
+const fail = (msg, options = {
+  noPrefix: false
+}) => {
+  log(chalk.redBright(['\n', !options.noPrefix ? prefix(failSymbol) : '', msg].join('')));
+};
+
+const addCommand = (cli, command) => {
+  const originalHandler = command.handler;
+  log();
+  command.spinner = ora(command.command);
+
+  const enhancedCommand = _objectSpread({}, command, {
+    handler: async argv => {
+      command.spinner.start();
+      const result = await originalHandler(argv);
+
+      if (result instanceof Error) {
+        throw result;
+      }
+
+      command.spinner.succeed(command.success(command));
+      return result;
+    }
+  });
+
+  cli.command(enhancedCommand).fail(failHandler(command));
+};
+
+const failHandler = command => {
+  const commandFail = command.fail(command);
+
+  if (typeof commandFail === 'string') {
+    return (msg, error) => {
+      command.spinner.fail(commandFail);
+      fail(msg || error, {
+        noPrefix: true
+      });
+      process.exit(1);
+    };
+  }
+
+  return command.fail;
+};
+
+const command = {
+  command: 'init',
+  describe: 'Creates a CHANGELOG.md if it does not exists. Chan will work with this file.',
+  builder: registerOptions,
+  handler: async ({
+    overwrite,
+    path
+  }) => {
+    return await chanCore.init({
+      overwrite,
+      folder: path
+    });
+  },
+  success: () => 'CHANGELOG.md initialized successfully',
+  fail: () => 'CHANGELOG.md cannot be initialized'
+};
+var init = (cli => {
+  addCommand(cli, command);
+});
+
+var registerCommands = (cli => {
+  init(cli);
+});
+
+const options$1 = {
+  config: {
+    describe: 'Path to your JSON config file',
+    type: 'string'
+  },
+  p: {
+    alias: 'path',
+    describe: 'Define the path of the CHANGELOG.md (cwd by default)',
+    type: 'string',
+    default: process.cwd()
+  },
+  silence: {
+    describe: 'Disable the console messages',
+    type: 'boolean'
+  },
+  stdout: {
+    describe: 'Define the output as STDOUT',
+    type: 'boolean'
+  },
+  u: {
+    alias: 'use',
+    describe: 'Extend chan with your own commands',
+    default: [],
+    type: 'array'
+  }
+};
+var registerOptions$1 = (cli => {
+  for (const [name, option] of Object.entries(options$1)) {
+    cli.option(name, option).global(name);
+  }
+});
+
+const description = `A Changelog CLI based on http://keepachangelog.com/`;
+const cli = yargs.scriptName('').usage(description).help('h').alias({
+  h: 'help'
+}).showHelpOnFail(true).demandCommand(1); // Global options
+
+registerOptions$1(cli);
+registerCommands(cli);
+cli.argv;
+
+module.exports = cli;
