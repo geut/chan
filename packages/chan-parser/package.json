@@ -1,0 +1,36 @@
+{
+  "name": "@chan/chan-parser",
+  "version": "2.0.0",
+  "description": "@chan parser",
+  "homepage": "http://geutstudio.com",
+  "main": "./dist/cjs/chan-parser.js",
+  "module": "./dist/esm/chan-parser.js",
+  "files": [
+    "dist"
+  ],
+  "author": {
+    "name": "GEUT",
+    "email": "contact@geutstudio.com"
+  },
+  "license": "ISC",
+  "repository": "https://github.com/geut/chan/tree/master/packages/chan",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "remark": "^10.0.0",
+    "unist-util-remove-position": "^1.1.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.1.2",
+    "rollup": "^0.67.0",
+    "rollup-plugin-babel": "^4.0.3",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-json": "^3.1.0",
+    "rollup-plugin-node-resolve": "^3.4.0",
+    "rollup-plugin-replace": "^2.1.0"
+  },
+  "scripts": {
+    "build": "rollup -c"
+  }
+}
