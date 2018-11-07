@@ -48,19 +48,18 @@
     "cp-file": "^3.2.0",
     "del": "^2.2.2",
     "del-cli": "^0.2.0",
-    "eslint": "^3.4.0",
-    "eslint-config-postcss": "^2.0.2",
+    "eslint": "^5.8.0",
+    "eslint-config-postcss": "^3.0.6",
+    "eslint-config-prettier": "^3.1.0",
+    "eslint-config-recommended": "^4.0.0",
+    "eslint-plugin-prettier": "^3.0.0",
+    "lerna": "^3.4.3",
     "mkdirp": "^0.5.1",
     "nyc": "^8.1.0",
     "os-tmpdir": "^1.0.1",
+    "prettier": "^1.14.3",
     "proxyquire": "^1.7.10",
     "uid2": "0.0.3"
-  },
-  "eslintConfig": {
-    "extends": "postcss",
-    "rules": {
-      "max-len": 0
-    }
   },
   "babel": {
     "presets": [
