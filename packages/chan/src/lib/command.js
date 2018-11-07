@@ -11,30 +11,34 @@ export const addCommand = (cli, command) => {
     handler: async argv => {
       command.spinner.start();
 
-      const result = await originalHandler(argv);
+      try {
+        const result = await originalHandler(argv);
 
-      if (result instanceof Error) {
-        throw result;
+        if (result instanceof Error) {
+          throw result;
+        }
+
+        command.spinner.succeed(command.success);
+
+        return result;
+      } catch (error) {
+        command.spinner.fail(command.fail);
+        fail(error.message, { noPrefix: true });
+        process.exit(1);
       }
-
-      command.spinner.succeed(command.success(command));
-
-      return result;
     }
   };
 
-  cli.command(enhancedCommand).fail(failHandler(command));
+  cli.command(enhancedCommand);
 };
 
-const failHandler = command => {
-  const commandFail = command.fail(command);
-  if (typeof commandFail === 'string') {
-    return (msg, error) => {
-      command.spinner.fail(commandFail);
-      fail(msg || error, { noPrefix: true });
-      process.exit(1);
-    };
-  }
+// const failHandler = command => {
+//   return (msg, error) => {
+//     console.log(msg);
+//     command.spinner.fail(command.fail());
+//     fail(msg || error, { noPrefix: true });
+//     process.exit(1);
+//   };
 
-  return command.fail;
-};
+// return command.fail;
+// };

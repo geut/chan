@@ -1,32 +1,31 @@
-const options = {
+export default {
   config: {
     describe: 'Path to your JSON config file',
-    type: 'string'
+    type: 'string',
+    global: true
   },
   p: {
     alias: 'path',
     describe: 'Define the path of the CHANGELOG.md (cwd by default)',
     type: 'string',
-    default: process.cwd()
+    default: process.cwd(),
+    global: true
   },
   silence: {
     describe: 'Disable the console messages',
-    type: 'boolean'
+    type: 'boolean',
+    global: true
   },
   stdout: {
     describe: 'Define the output as STDOUT',
-    type: 'boolean'
+    type: 'boolean',
+    global: true
   },
   u: {
     alias: 'use',
     describe: 'Extend chan with your own commands',
     default: [],
-    type: 'array'
-  }
-};
-
-export default cli => {
-  for (const [name, option] of Object.entries(options)) {
-    cli.option(name, option).global(name);
+    type: 'array',
+    global: true
   }
 };

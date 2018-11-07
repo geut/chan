@@ -1,22 +1,8 @@
 import yargs from 'yargs';
 import registerCommands from './commands';
-import registerOptions from './options';
 
-const description = `A Changelog CLI based on http://keepachangelog.com/`;
+registerCommands(yargs);
 
-const cli = yargs
-  .scriptName('')
-  .usage(description)
-  .help('h')
-  .alias({ h: 'help' })
-  .showHelpOnFail(true)
-  .demandCommand(1);
+yargs.argv;
 
-// Global options
-registerOptions(cli);
-
-registerCommands(cli);
-
-cli.argv;
-
-export default cli;
+export default yargs;
