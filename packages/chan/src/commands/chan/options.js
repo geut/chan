@@ -4,6 +4,11 @@ export default {
     type: 'string',
     global: true
   },
+  debug: {
+    describe: 'Debug',
+    type: 'boolean',
+    global: true
+  },
   p: {
     alias: 'path',
     describe: 'Define the path of the CHANGELOG.md (cwd by default)',

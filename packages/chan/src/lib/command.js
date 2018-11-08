@@ -1,14 +1,13 @@
 import ora from 'ora';
-import { fail, log } from './logger';
+import { fail } from './logger';
 
 export const addCommand = (cli, command) => {
   const originalHandler = command.handler;
-  log();
   command.spinner = ora(command.command);
 
   const enhancedCommand = {
     ...command,
-    handler: async argv => {
+    handler: async ({ debug, ...argv }) => {
       command.spinner.start();
 
       try {
@@ -24,6 +23,11 @@ export const addCommand = (cli, command) => {
       } catch (error) {
         command.spinner.fail(command.fail);
         fail(error.message, { noPrefix: true });
+
+        if (debug) {
+          console.error(error);
+        }
+
         process.exit(1);
       }
     }
@@ -31,14 +35,3 @@ export const addCommand = (cli, command) => {
 
   cli.command(enhancedCommand);
 };
-
-// const failHandler = command => {
-//   return (msg, error) => {
-//     console.log(msg);
-//     command.spinner.fail(command.fail());
-//     fail(msg || error, { noPrefix: true });
-//     process.exit(1);
-//   };
-
-// return command.fail;
-// };
