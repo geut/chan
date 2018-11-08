@@ -18,3 +18,9 @@ export class ChangelogAlreadyExistsError extends ChanError {
     );
   }
 }
+
+export class ChangelogNotExistsError extends ChanError {
+  constructor(info) {
+    super(`CHANGELOG.md does not exists. Path: ${info.folder}.`, info);
+  }
+}
