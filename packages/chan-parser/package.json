@@ -19,7 +19,10 @@
   },
   "dependencies": {
     "remark": "^10.0.0",
-    "unist-util-remove-position": "^1.1.2"
+    "remark-parse": "^6.0.1",
+    "remark-stringify": "^6.0.2",
+    "unist-util-remove-position": "^1.1.2",
+    "unist-util-visit": "^1.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.1.2",

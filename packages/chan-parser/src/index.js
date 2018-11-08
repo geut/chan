@@ -1,8 +1,10 @@
 import path from 'path';
 import remark from 'remark';
+import markdown from 'remark-parse';
+import stringify from 'remark-stringify';
 import removePosition from 'unist-util-remove-position';
 import { read, write } from './fs';
-import emptySpaces from './empty-spaces';
+// import emptySpaces from './empty-spaces';
 import mtree from './mtree';
 
 const SEPARATORS = {
@@ -14,7 +16,11 @@ const SEPARATORS = {
   removed: 'Removed'
 };
 
-const remarkInstance = remark(); //.use(emptySpaces);
+const remarkInstance = remark()
+  .use(markdown)
+  .use(stringify, {
+    listItemIndent: '1'
+  });
 
 export default function parser(dir = process.cwd()) {
   let _mtree;
@@ -40,9 +46,7 @@ export default function parser(dir = process.cwd()) {
       return write(pathname, content);
     },
     stringify(root = this.root) {
-      return remarkInstance.stringify(root, {
-        listItemIndent: '1'
-      });
+      return remarkInstance.stringify(root);
     },
     getMTREE() {
       if (_mtree) {
