@@ -7,7 +7,6 @@ const demandCommandMsg =
 
 export default yargs => {
   yargs
-    .scriptName('')
     .usage(description)
     .help('h')
     .alias({ h: 'help' })

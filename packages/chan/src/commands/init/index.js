@@ -15,6 +15,6 @@ const command = {
   fail: 'CHANGELOG.md cannot be initialized'
 };
 
-export default cli => {
-  addCommand(cli, command);
+export default yargs => {
+  addCommand(yargs, command);
 };
