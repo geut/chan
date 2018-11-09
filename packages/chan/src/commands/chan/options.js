@@ -26,11 +26,4 @@ export default {
     type: 'boolean',
     global: true
   }
-  // u: {
-  //   alias: 'use',
-  //   describe: 'Extend chan with your own commands',
-  //   default: [],
-  //   type: 'array',
-  //   global: true
-  // }
 };
