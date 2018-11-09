@@ -12,16 +12,13 @@ class ChanError extends Error {
 
 export class ChangelogAlreadyExistsError extends ChanError {
   constructor(info) {
-    super(
-      `A CHANGELOG.md already exists on ${info.folder}/CHANGELOG.md.`,
-      info
-    );
+    super(`A CHANGELOG.md already exists on ${info.path}/CHANGELOG.md.`, info);
   }
 }
 
 export class ChangelogNotExistsError extends ChanError {
   constructor(info) {
-    super(`CHANGELOG.md does not exists. Path: ${info.folder}.`, info);
+    super(`CHANGELOG.md does not exists. Path: ${info.path}.`, info);
   }
 }
 

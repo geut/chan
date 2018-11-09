@@ -9,7 +9,7 @@ const command = {
     'Creates a CHANGELOG.md if it does not exists. Chan will work with this file.',
   builder: registerOptions(options),
   handler: async ({ overwrite, path }) => {
-    return await init({ overwrite, folder: path });
+    return await init({ overwrite, path: path });
   },
   success: 'CHANGELOG.md initialized successfully',
   fail: 'CHANGELOG.md cannot be initialized'

@@ -6,7 +6,7 @@ import options from './options';
 const handler = async ({ semver, path, groupChanges, gitCompare }) => {
   return await release({
     version: semver,
-    folder: path,
+    path,
     group: groupChanges,
     gitCompare
   });
