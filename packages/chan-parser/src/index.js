@@ -4,7 +4,7 @@ import markdown from 'remark-parse';
 import stringify from 'remark-stringify';
 import removePosition from 'unist-util-remove-position';
 import { read, write } from './fs';
-// import emptySpaces from './empty-spaces';
+import emptySpaces from './empty-spaces';
 import mtree from './mtree';
 
 const SEPARATORS = {
@@ -20,7 +20,8 @@ const remarkInstance = remark()
   .use(markdown)
   .use(stringify, {
     listItemIndent: '1'
-  });
+  })
+  .use(emptySpaces);
 
 export default function parser(dir = process.cwd()) {
   let _mtree;
