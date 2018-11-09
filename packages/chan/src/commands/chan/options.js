@@ -5,13 +5,13 @@ export default {
     global: true
   },
   debug: {
-    describe: 'Debug',
+    describe: 'Run in debug mode',
     type: 'boolean',
     global: true
   },
   p: {
     alias: 'path',
-    describe: 'Define the path of the CHANGELOG.md (cwd by default)',
+    describe: 'Path of the CHANGELOG.md',
     type: 'string',
     default: process.cwd(),
     global: true
@@ -22,15 +22,15 @@ export default {
     global: true
   },
   stdout: {
-    describe: 'Define the output as STDOUT',
+    describe: 'Set the output as STDOUT',
     type: 'boolean',
     global: true
-  },
-  u: {
-    alias: 'use',
-    describe: 'Extend chan with your own commands',
-    default: [],
-    type: 'array',
-    global: true
   }
+  // u: {
+  //   alias: 'use',
+  //   describe: 'Extend chan with your own commands',
+  //   default: [],
+  //   type: 'array',
+  //   global: true
+  // }
 };
