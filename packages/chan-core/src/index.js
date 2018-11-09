@@ -1,3 +1,3 @@
-export { default as init } from './init';
-export { default as change } from './change';
-export { default as release } from './release';
+export { default as init } from './api/init';
+export { default as change } from './api/change';
+export { default as release } from './api/release';

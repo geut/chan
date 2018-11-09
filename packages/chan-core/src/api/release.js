@@ -1,5 +1,5 @@
 import parser from '@chan/chan-parser';
-import writer from './lib/writer';
+import writer from '../lib/writer';
 import {
   ChangelogNotExistsError,
   VersionAlreadyExistsError
@@ -7,14 +7,14 @@ import {
 
 const release = async ({
   version,
-  folder = process.cwd(),
+  path = process.cwd(),
   group,
   gitCompare
 }) => {
-  const parserInstance = parser(folder);
+  const parserInstance = parser(path);
 
   if (!parserInstance.exists()) {
-    throw new ChangelogNotExistsError({ folder });
+    throw new ChangelogNotExistsError({ path });
   }
 
   if (parserInstance.findRelease(version)) {

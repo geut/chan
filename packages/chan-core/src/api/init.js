@@ -1,6 +1,6 @@
 import parser from '@chan/chan-parser';
 import { ChangelogAlreadyExistsError } from '@chan/chan-errors';
-import writer from './lib/writer';
+import writer from '../lib/writer';
 
 const template = `
 # Changelog
@@ -12,17 +12,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 `;
 
-const init = async ({ overwrite = false, folder = process.cwd() }) => {
-  const parserInstance = parser(folder);
+const init = async ({ overwrite = false, path = process.cwd() } = {}) => {
+  const parserInstance = parser(path);
 
   if (parserInstance.exists() && !overwrite) {
-    throw new ChangelogAlreadyExistsError({ folder });
+    throw new ChangelogAlreadyExistsError({ path });
   }
 
   const m = parserInstance.createMDAST;
   const write = writer({ parserInstance });
   parserInstance.root.children = m(template);
-  write();
+  await write();
 };
 
 export default init;

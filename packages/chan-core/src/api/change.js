@@ -1,12 +1,12 @@
 import parser from '@chan/chan-parser';
-import writer from './lib/writer';
+import writer from '../lib/writer';
 import { ChangelogNotExistsError } from '@chan/chan-errors';
 
-const change = async ({ type, msg, folder = process.cwd(), group }) => {
-  const parserInstance = parser(folder);
+const change = async ({ type, msg, path = process.cwd(), group }) => {
+  const parserInstance = parser(path);
 
   if (!parserInstance.exists()) {
-    throw new ChangelogNotExistsError({ folder });
+    throw new ChangelogNotExistsError({ path });
   }
 
   const write = writer({ parserInstance });
