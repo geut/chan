@@ -296,7 +296,6 @@ function compileDefinitions(children, m) {
 }
 
 export default function mtree(parser) {
-  const gitCompare = parser.gitCompare;
   const that = Object.assign({}, decode(parser));
 
   that.compileRelease = function(release) {
@@ -322,7 +321,7 @@ export default function mtree(parser) {
       options.group
     );
 
-    return that.addDefinition(version, gitCompare);
+    return that.addDefinition(version, options.gitCompare);
   };
 
   that.insert = function(type, value, options) {
@@ -334,7 +333,7 @@ export default function mtree(parser) {
     return Promise.resolve();
   };
 
-  that.addDefinition = function(version) {
+  that.addDefinition = function(version, gitCompare) {
     return addDefinition.call(that, version, gitCompare).then(() => {
       return compileDefinitions.call(
         that,

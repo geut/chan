@@ -5,7 +5,12 @@ import {
   VersionAlreadyExistsError
 } from '@chan/chan-errors';
 
-const release = async ({ version, folder = process.cwd(), group }) => {
+const release = async ({
+  version,
+  folder = process.cwd(),
+  group,
+  gitCompare
+}) => {
   const parserInstance = parser(folder);
 
   if (!parserInstance.exists()) {
@@ -17,7 +22,7 @@ const release = async ({ version, folder = process.cwd(), group }) => {
   }
 
   const write = writer({ parserInstance });
-  await parserInstance.release(version, { group });
+  await parserInstance.release(version, { group, gitCompare });
   return await write();
 };
 

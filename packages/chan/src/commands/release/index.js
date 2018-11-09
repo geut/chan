@@ -3,11 +3,12 @@ import { addCommand } from '../../lib/command';
 import { registerOptions } from '../../lib/options';
 import options from './options';
 
-const handler = async ({ semver, path, groupChanges }) => {
+const handler = async ({ semver, path, groupChanges, gitCompare }) => {
   return await release({
     version: semver,
     folder: path,
-    group: groupChanges
+    group: groupChanges,
+    gitCompare
   });
 };
 

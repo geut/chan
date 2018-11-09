@@ -29,7 +29,6 @@ export default function parser(dir = process.cwd()) {
   const contents = read(pathname);
   return {
     remark: remarkInstance,
-    gitCompare: null,
     SEPARATORS,
     root: removePosition(remarkInstance.parse(contents), true),
     createMDAST(value, forceArray = false) {
