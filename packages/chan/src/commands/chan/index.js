@@ -3,7 +3,7 @@ import options from './options';
 
 const description = `A Changelog CLI based on http://keepachangelog.com/`;
 const demandCommandMsg =
-  'Please, type a command to execute. Example:\n\n $ chan init';
+  'Please, type a command to run. Example:\n\n $ chan init';
 
 export default yargs => {
   yargs
