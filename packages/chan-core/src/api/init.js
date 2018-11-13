@@ -1,28 +1,19 @@
-import parser from '@chan/chan-parser';
+import ChanParser from '@chan/chan-parser';
 import { ChangelogAlreadyExistsError } from '@chan/chan-errors';
-import writer from '../lib/writer';
+import buildWriter from '../lib/writer';
+import emptyTemplate from '../templates/empty';
 
-const template = `
-# Changelog
-All notable changes to this project will be documented in this file.
+const init = async (overwrite = false, { path, stdout } = {}) => {
+  const parser = ChanParser(path);
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
-and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
-
-## [Unreleased]
-`;
-
-const init = async ({ overwrite = false, path = process.cwd() } = {}) => {
-  const parserInstance = parser(path);
-
-  if (parserInstance.exists() && !overwrite) {
+  if (parser.exists() && !overwrite) {
     throw new ChangelogAlreadyExistsError({ path });
   }
 
-  const m = parserInstance.createMDAST;
-  const write = writer({ parserInstance });
-  parserInstance.root.children = m(template);
-  await write();
+  const m = parser.createMDAST;
+  parser.root.children = m(emptyTemplate);
+  const writer = buildWriter(parser, stdout);
+  await writer.write();
 };
 
 export default init;

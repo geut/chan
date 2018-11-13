@@ -1,17 +1,18 @@
-import parser from '@chan/chan-parser';
-import writer from '../lib/writer';
+import ChanParser from '@chan/chan-parser';
+import buildWriter from '../lib/writer';
 import { ChangelogNotExistsError } from '@chan/chan-errors';
 
-const change = async ({ type, msg, path = process.cwd(), group }) => {
-  const parserInstance = parser(path);
+const change = async (type, msg, group = false, { path, stdout } = {}) => {
+  const parser = ChanParser(path);
 
-  if (!parserInstance.exists()) {
+  if (!parser.exists()) {
     throw new ChangelogNotExistsError({ path });
   }
 
-  const write = writer({ parserInstance });
-  await parserInstance.change(parserInstance.SEPARATORS[type], msg, { group });
-  return await write();
+  await parser.change(parser.SEPARATORS[type], msg, { group });
+
+  const writer = buildWriter(parser, stdout);
+  await writer.write();
 };
 
 export default change;

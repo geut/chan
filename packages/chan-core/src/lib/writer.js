@@ -1,13 +1,31 @@
-const writer = ({ parserInstance, stdout = false }) => async () => {
-  const data = parserInstance.stringify();
-  // write callback function
-  if (stdout) {
-    process.stdout.write(data);
-  } else {
-    await parserInstance.write(data);
+class Writer {
+  constructor(parser) {
+    this.parser = parser;
   }
 
-  return data;
+  get data() {
+    return this.parser.stringify();
+  }
+}
+
+export class FsWriter extends Writer {
+  async write() {
+    await this.parser.write(this.data);
+    return this.data;
+  }
+}
+
+export class StdOutWriter extends Writer {
+  write() {
+    process.stdout.write(this.data);
+    return this.data;
+  }
+}
+
+const buildWritter = (parser, stdout = false) => {
+  const WriterClass = stdout ? StdOutWriter : FsWriter;
+
+  return new WriterClass(parser);
 };
 
-export default writer;
+export default buildWritter;
