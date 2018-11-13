@@ -7,11 +7,13 @@
     "chan": "./es5/bin/cmd.js"
   },
   "scripts": {
-    "test": "ava --verbose",
-    "posttest": "eslint src",
+    "build": "lerna run build",
+    "bootstrap": "lerna clean && lerna bootstrap",
+    "test": "lerna run test",
+    "posttest": "npm run lint",
+    "lint": "eslint --cache packages --fix",
+    "lint:fix": "npm run lint --fix",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "build": "del-cli es5 && babel src --out-dir es5",
-    "watch": "npm run build -- --watch",
     "version": "chan release ${npm_package_version} && git add .",
     "prepublish": "npm test && npm run build"
   },
@@ -19,7 +21,13 @@
 
   },
   "devDependencies": {
-
+    "babel-eslint": "^10.0.1",
+    "eslint-plugin-ie11": "^1.0.0",
+    "eslint-config-prettier": "^3.3.0",
+    "eslint-plugin-prettier": "^3.0.0",
+    "eslint": "^5.9.0",
+    "nyc": "^13.1.0",
+    "prettier": "^1.15.2"
   },
   "keywords": [
     "cli",
