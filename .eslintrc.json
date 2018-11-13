@@ -21,5 +21,6 @@
         "ecmaVersion": 9,
         "sourceType": "module",
         "ecmaFeatures": {}
-    }
+    },
+    "parser": "babel-eslint"
 }
