@@ -6,7 +6,7 @@ const json = require('rollup-plugin-json');
 const babel = require('rollup-plugin-babel');
 
 const env = process.env.NODE_ENV || 'production';
-const production = env === 'production';
+// const production = env === 'production';
 
 export default {
   input: './src/index.js',

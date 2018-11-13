@@ -7,24 +7,15 @@ export function defineGITCompare(url) {
   return `${parseUrl.toString('https')}/compare/<from>...<to>`;
 }
 
-export default function gitUrlCompare(gitCompare) {
-  let request;
+export default async function gitUrlCompare(gitCompare) {
+  let config;
   if (gitCompare) {
-    request = Promise.resolve({ fromUser: true, url: gitCompare });
+    config = { fromUser: true, url: gitCompare };
   } else {
-    request = pify(gitconfig)(process.cwd()).then(config => {
-      const url =
-        config.remote && config.remote.origin && config.remote.origin.url;
-
-      return { fromUser: false, url };
-    });
+    const { remote } = await pify(gitconfig)(process.cwd());
+    const url = remote && remote.origin && remote.origin.url;
+    config = { fromUser: false, url };
   }
 
-  return request.then(urlObj => {
-    if (urlObj.fromUser) {
-      return urlObj.url;
-    }
-
-    return defineGITCompare(urlObj.url);
-  });
+  return config.fromUser ? config.url : defineGITCompare(config.url);
 }

@@ -24,7 +24,7 @@ const TPL = {
   DEFINITION: '[<version>]: <git-compare>'
 };
 
-const REGEX_GET_VERSION = /##\s\[?([0-9\.]*)\]?\s-/g;
+const REGEX_GET_VERSION = /##\s\[?([0-9.]*)\]?\s-/g;
 const REGEX_GROUP = /\[([^\]]+)\]\s/g;
 
 function processRelease(release, node, elem, stringify, m) {
@@ -277,8 +277,6 @@ function addDefinition(version = 'unreleased', gitCompare = null) {
         .replace('<from>', `v${version}`)
         .replace('<to>', 'HEAD')
     });
-
-    return Promise.resolve();
   });
 }
 
@@ -330,7 +328,6 @@ export default function mtree(parser) {
     node.children.push({ text: value, group: options.group });
 
     that.compileUnreleased();
-    return Promise.resolve();
   };
 
   that.addDefinition = function(version, gitCompare) {

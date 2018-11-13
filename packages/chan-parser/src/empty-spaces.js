@@ -17,14 +17,14 @@ function blockProcessor(node) {
 
     if (prev) {
       /*
-          * Duplicate nodes, such as a list
-          * directly following another list,
-          * often need multiple new lines.
-          *
-          * Additionally, code blocks following a list
-          * might easily be mistaken for a paragraph
-          * in the list itself.
-          */
+       * Duplicate nodes, such as a list
+       * directly following another list,
+       * often need multiple new lines.
+       *
+       * Additionally, code blocks following a list
+       * might easily be mistaken for a paragraph
+       * in the list itself.
+       */
       if (child.type === prev.type && prev.type === 'list') {
         values.push(prev.ordered === child.ordered ? GAP : BREAK);
       } else if (prev.type === 'list' && child.type === 'code' && !child.lang) {
