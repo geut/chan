@@ -1,19 +1,20 @@
 export default {
   config: {
-    describe: 'Path to your JSON config file',
+    alias: 'c',
+    describe: 'Path to your config file',
     type: 'string',
     global: true
   },
-  debug: {
-    describe: 'Run in debug mode',
+  verbose: {
+    describe: 'Show more info on error',
     type: 'boolean',
     global: true
   },
-  p: {
-    alias: 'path',
+  path: {
+    alias: 'p',
     describe: 'Path of the CHANGELOG.md',
     type: 'string',
-    default: process.cwd(),
+    // default: process.cwd(),
     global: true
   },
   silence: {
@@ -24,6 +25,7 @@ export default {
   stdout: {
     describe: 'Set the output as STDOUT',
     type: 'boolean',
+    // default: false,
     global: true
   }
 };

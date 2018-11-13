@@ -6,7 +6,7 @@ export const successSymbol = '✔';
 export const failSymbol = '✖';
 
 const prefix = text => {
-  return `${text} `;
+  return ` ${text} `;
 };
 
 export const log = console.log;
@@ -14,15 +14,15 @@ export const log = console.log;
 export const success = (msg, options = { noPrefix: false }) => {
   log(
     chalk.greenBright(
-      ['\n', !options.noPrefix ? prefix(successSymbol) : '', msg].join('')
+      ['\n', !options.noPrefix ? prefix(successSymbol) : ' ', msg, ' '].join('')
     )
   );
 };
 
 export const fail = (msg, options = { noPrefix: false }) => {
   log(
-    chalk.redBright(
-      ['\n', !options.noPrefix ? prefix(failSymbol) : '', msg].join('')
+    chalk.bgRedBright.white(
+      ['\n', !options.noPrefix ? prefix(failSymbol) : ' ', msg, ' '].join('')
     )
   );
 };

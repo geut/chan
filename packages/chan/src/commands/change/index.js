@@ -1,4 +1,3 @@
-import { change } from '@chan/chan-core';
 import { addCommand } from '../../lib/command';
 import { registerOptions } from '../../lib/options';
 import options from './options';
@@ -38,11 +37,12 @@ const commands = [
 
 const changeCommand = type => ({
   builder: registerOptions(options),
-  async handler({ path, msg, group }) {
-    return await change({ type, msg, path, group });
+  async handler({ msg, group }, chanApi) {
+    return await chanApi.change(type, msg, group);
   },
   success: `Change (type: ${type}) added to changelog`,
-  fail: `Change (type: ${type}) cannot be added to changelog`
+  fail: `Change (type: ${type}) cannot be added to changelog`,
+  runningMsg: `Adding a new ${type} change to your changelog...`
 });
 
 export default yargs => {

@@ -1,30 +1,46 @@
-import ora from 'ora';
-import { fail } from './logger';
+/* eslint no-console: 0 */
+import ChanApi from '@chan/chan-core';
+import { fail, success } from './logger';
+import CommandSpinner from './command-spinner';
+import loadConfig from './config-loader';
 
 export const addCommand = (cli, command) => {
   const originalHandler = command.handler;
-  command.spinner = ora(command.command);
 
   const enhancedCommand = {
     ...command,
-    handler: async ({ debug, ...argv }) => {
-      command.spinner.start();
+    handler: async ({ verbose, ...argv }) => {
+      let silence = Boolean(argv.silence);
+
+      const commandSpinner = new CommandSpinner(
+        command,
+        silence,
+        Boolean(argv.stdout)
+      );
 
       try {
-        const result = await originalHandler(argv);
+        const chanConfig = loadConfig(argv);
+        commandSpinner.stdout = Boolean(chanConfig.stdout);
+
+        commandSpinner.start();
+
+        const chanApi = new ChanApi(chanConfig);
+
+        const result = await originalHandler(argv, chanApi);
 
         if (result instanceof Error) {
           throw result;
         }
 
-        command.spinner.succeed(command.success);
+        commandSpinner.succeed();
+        !silence && success(command.success, { noPrefix: true });
 
         return result;
       } catch (error) {
-        command.spinner.fail(command.fail);
-        fail(error.message, { noPrefix: true });
+        commandSpinner.fail(command.fail);
+        !silence && fail(error.message, { noPrefix: true });
 
-        if (debug) {
+        if (verbose) {
           console.error(error);
         }
 
