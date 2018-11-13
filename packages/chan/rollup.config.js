@@ -10,9 +10,9 @@ const production = env === 'production';
 
 export default {
   input: './src/index.js',
-  external: Object.keys(pkg.devDependencies).concat(
-    Object.keys(pkg.dependencies)
-  ),
+  external: ['path']
+    .concat(Object.keys(pkg.devDependencies))
+    .concat(Object.keys(pkg.dependencies)),
   plugins: [
     babel({
       exclude: 'node_modules/**',
