@@ -6,6 +6,9 @@
   "command": {
     "bootstrap": {
       "npmClientArgs": ["--no-package-lock"]
+    },
+    "clean": {
+      "yes": true
     }
   }
 }
