@@ -17,15 +17,14 @@
     "version": "chan release ${npm_package_version} && git add .",
     "prepublish": "npm test && npm run build"
   },
-  "dependencies": {
-
-  },
+  "dependencies": {},
   "devDependencies": {
     "babel-eslint": "^10.0.1",
     "eslint-plugin-ie11": "^1.0.0",
     "eslint-config-prettier": "^3.3.0",
     "eslint-plugin-prettier": "^3.0.0",
     "eslint": "^5.9.0",
+    "lerna": "^3.4.3",
     "nyc": "^13.1.0",
     "prettier": "^1.15.2"
   },
