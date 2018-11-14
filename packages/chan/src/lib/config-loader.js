@@ -27,11 +27,14 @@ const loadConfig = ({ config, path, stdout }) => {
 
   try {
     // Try to load chan.config.js from current path
-    const configFile = path.join(path, configFileName);
+    const configFile = osPath.join(path, configFileName);
     loadedConfig = require(configFile);
     return override(loadedConfig);
   } catch (error) {
-    return {};
+    return {
+      path,
+      stdout
+    };
   }
 };
 
