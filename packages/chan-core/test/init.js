@@ -20,7 +20,7 @@ afterEach.always(() => {
   process.stdout.write.restore();
 });
 
-const existentChangelogPath = path.join(__dirname, 'fixtures', 'exists');
+const existentChangelogPath = path.join(__dirname, 'fixtures', 'initialized');
 
 test.serial('>   Existent CHANGELOG.md (override: true)', async t => {
   await init(true, {

@@ -24,7 +24,7 @@ afterEach.always(() => {
   process.stdout.write.restore();
 });
 
-const existentChangelogPath = path.join(__dirname, 'fixtures', 'exists');
+const existentChangelogPath = path.join(__dirname, 'fixtures', 'initialized');
 
 test.serial('>   Custom path', async t => {
   await t.throwsAsync(
