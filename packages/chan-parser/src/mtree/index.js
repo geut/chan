@@ -239,15 +239,14 @@ function compileRelease(
 function findHeaderOrCreate(type) {
   let node;
   for (let value of this.releases[0].children) {
-    if (value.text.toLowerCase().trim() === type.toLowerCase().trim()) {
+    if (value.text.toLowerCase().trim() === type) {
       node = value;
       break;
     }
   }
   if (!node) {
-    const text = type.toLowerCase().trim();
     node = {
-      text: text[0].toUpperCase() + text.substr(1, text.length),
+      text: type[0].toUpperCase() + type.substr(1, type.length),
       children: []
     };
 
