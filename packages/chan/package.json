@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.1.2",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
+    "@babel/preset-env": "^7.1.6",
     "@chan/chan-core": "^2.0.0",
     "ava": "^1.0.0-rc.2",
     "rollup": "^0.67.0",

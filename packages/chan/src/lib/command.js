@@ -1,7 +1,7 @@
 /* eslint no-console: 0 */
-import ChanApi from '@chan/chan-core';
+import createChanApi from '@chan/chan-core';
 import { fail, success } from './logger';
-import CommandSpinner from './command-spinner';
+import createCommandSpinner from './command-spinner';
 import loadConfig from './config-loader';
 
 export const addCommand = (cli, command) => {
@@ -9,10 +9,10 @@ export const addCommand = (cli, command) => {
 
   const enhancedCommand = {
     ...command,
-    handler: async ({ verbose, ...argv }) => {
-      let silence = Boolean(argv.silence);
+    handler: ({ verbose, ...argv }) => {
+      let silence = Boolean(argv.silence || argv.stdout);
 
-      const commandSpinner = new CommandSpinner(
+      const commandSpinner = createCommandSpinner(
         command,
         silence,
         Boolean(argv.stdout)
@@ -24,9 +24,9 @@ export const addCommand = (cli, command) => {
 
         commandSpinner.start();
 
-        const chanApi = new ChanApi(chanConfig);
+        const chanApi = createChanApi(chanConfig);
 
-        const result = await originalHandler(argv, chanApi);
+        const result = originalHandler(argv, chanApi);
 
         if (result instanceof Error) {
           throw result;

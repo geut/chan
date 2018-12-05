@@ -2,8 +2,8 @@ import { addCommand } from '../../lib/command';
 import { registerOptions } from '../../lib/options';
 import options from './options';
 
-const handler = async ({ semver, groupChanges, gitCompare }, chanApi) => {
-  return await chanApi.release(semver, groupChanges, gitCompare);
+const handler = ({ semver, groupChanges, gitCompare }, chanApi) => {
+  return chanApi.release(semver, groupChanges, gitCompare);
 };
 
 const command = {

@@ -15,8 +15,7 @@ export default {
     .concat(Object.keys(pkg.dependencies)),
   plugins: [
     babel({
-      exclude: 'node_modules/**',
-      plugins: ['@babel/plugin-proposal-object-rest-spread']
+      exclude: 'node_modules/**'
     }),
 
     json(),

@@ -37,8 +37,8 @@ const commands = [
 
 const changeCommand = type => ({
   builder: registerOptions(options),
-  async handler({ msg, group }, chanApi) {
-    return await chanApi.change(type, msg, group);
+  handler({ msg, group }, chanApi) {
+    return chanApi.change(type, msg, group);
   },
   success: `Change (type: ${type}) added to changelog`,
   fail: `Change (type: ${type}) cannot be added to changelog`,

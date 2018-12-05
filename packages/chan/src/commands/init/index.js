@@ -7,8 +7,8 @@ const command = {
   describe:
     'Creates a CHANGELOG.md if it does not exists. Chan will work with this file.',
   builder: registerOptions(options),
-  handler: async ({ overwrite }, chanApi) => {
-    return await chanApi.init(overwrite);
+  handler: ({ overwrite }, chanApi) => {
+    return chanApi.init(overwrite);
   },
   success: 'CHANGELOG.md initialized successfully',
   fail: 'CHANGELOG.md cannot be initialized',
