@@ -1,18 +1,22 @@
-import ChanParser from '@chan/chan-parser';
-import buildWriter from '../lib/writer';
-import { ChangelogNotExistsError } from '@chan/chan-errors';
+import createParser from '@chan/chan-parser';
+import { createFsWriter, createStdOutWriter } from '../lib/writer';
+import getReader from '../lib/reader';
 
-const change = async (type, msg, group = false, { path, stdout } = {}) => {
-  const parser = ChanParser(path);
+const change = (
+  type,
+  msg,
+  group = false,
+  { path, stdout, reader = null } = {}
+) => {
+  reader = getReader(path, reader);
 
-  if (!parser.exists()) {
-    throw new ChangelogNotExistsError({ path });
-  }
+  const parser = createParser();
+  parser.initialize(reader.read());
 
-  await parser.change(parser.SEPARATORS[type], msg, { group });
+  parser.change(type, msg, { group });
 
-  const writer = buildWriter(parser, stdout);
-  await writer.write();
+  const writer = stdout ? createStdOutWriter() : createFsWriter(path);
+  parser.write(writer);
 };
 
 export default change;

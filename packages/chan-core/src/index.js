@@ -5,29 +5,28 @@ import { defaultConfig } from './config';
 
 import { extendConfig, getGlobalConfig } from './lib/config-loader';
 
-class ChanCore {
-  config;
+function createChanCore(config = defaultConfig) {
+  const coreConfig = extendConfig(config);
 
-  constructor(config = defaultConfig) {
-    this.config = extendConfig(config);
-    const globalConfig = getGlobalConfig(this.config);
+  const globalConfig = getGlobalConfig(coreConfig);
 
-    this.init = (overwrite = this.config.init.overwrite) => {
+  return {
+    init(overwrite = coreConfig.init.overwrite) {
       return chanInit(overwrite, globalConfig);
-    };
+    },
 
-    this.change = (type, msg, group = this.config.change.group) => {
+    change(type, msg, group = coreConfig.change.group) {
       return chanChange(type, msg, group, globalConfig);
-    };
+    },
 
-    this.release = (
+    release(
       version,
-      gitCompare = this.config.release.gitCompare,
-      groupChanges = this.config.release.groupChanges
-    ) => {
+      gitCompare = coreConfig.release.gitCompare,
+      groupChanges = coreConfig.release.groupChanges
+    ) {
       return chanRelease(version, gitCompare, groupChanges, globalConfig);
-    };
-  }
+    }
+  };
 }
 
-export default ChanCore;
+export default createChanCore;

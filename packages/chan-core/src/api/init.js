@@ -1,19 +1,23 @@
-import ChanParser from '@chan/chan-parser';
+import createParser from '@chan/chan-parser';
 import { ChangelogAlreadyExistsError } from '@chan/chan-errors';
-import buildWriter from '../lib/writer';
+import { createFsWriter, createStdOutWriter } from '../lib/writer';
+import createFsReader from '../lib/reader/fs-reader';
 import emptyTemplate from '../templates/empty';
 
-const init = async (overwrite = false, { path, stdout } = {}) => {
-  const parser = ChanParser(path);
+const init = (overwrite = false, { path, stdout } = {}) => {
+  if (path) {
+    const reader = createFsReader(path);
 
-  if (parser.exists() && !overwrite) {
-    throw new ChangelogAlreadyExistsError({ path });
+    if (!overwrite && reader.exists()) {
+      throw new ChangelogAlreadyExistsError({ path });
+    }
   }
 
-  const m = parser.createMDAST;
-  parser.root.children = m(emptyTemplate);
-  const writer = buildWriter(parser, stdout);
-  await writer.write();
+  const writer = stdout ? createStdOutWriter() : createFsWriter(path);
+
+  const parser = createParser();
+  parser.initialize(emptyTemplate);
+  parser.write(writer);
 };
 
 export default init;

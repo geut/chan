@@ -1,30 +1,26 @@
-import ChanParser from '@chan/chan-parser';
-import buildWriter from '../lib/writer';
-import {
-  ChangelogNotExistsError,
-  VersionAlreadyExistsError
-} from '@chan/chan-errors';
+import { VersionAlreadyExistsError } from '@chan/chan-errors';
+import createParser from '@chan/chan-parser/src';
+import getReader from '../lib/reader';
+import { createFsWriter, createStdOutWriter } from '../lib/writer';
 
-const release = async (
+const release = (
   version,
   groupChanges,
   gitCompare,
-  { path, stdout } = {}
+  { path, stdout, reader = null } = {}
 ) => {
-  const parser = ChanParser(path);
-
-  if (!parser.exists()) {
-    throw new ChangelogNotExistsError({ path });
-  }
+  reader = getReader(path, reader);
+  const parser = createParser();
+  parser.read(reader);
 
   if (parser.findRelease(version)) {
     throw new VersionAlreadyExistsError({ version });
   }
 
-  await parser.release(version, { group: groupChanges, gitCompare });
+  parser.release(version, { group: groupChanges, gitCompare });
 
-  const writer = buildWriter(parser, stdout);
-  await writer.write();
+  const writer = stdout ? createStdOutWriter() : createFsWriter(path);
+  parser.write(writer);
 };
 
 export default release;

@@ -4,22 +4,24 @@ const commonjs = require('rollup-plugin-commonjs');
 const replace = require('rollup-plugin-replace');
 const json = require('rollup-plugin-json');
 const babel = require('rollup-plugin-babel');
+const builtins = require('rollup-plugin-node-builtins');
 
 const env = process.env.NODE_ENV || 'production';
 // const production = env === 'production';
 
 export default {
   input: './src/index.js',
-  external: ['path'].concat(
+  external: ['path', 'fs'].concat(
     Object.keys(pkg.devDependencies).concat(Object.keys(pkg.dependencies))
   ),
   plugins: [
     babel({
-      exclude: /node_modules/,
-      plugins: ['@babel/plugin-proposal-class-properties']
+      exclude: /node_modules/
     }),
 
     json(),
+
+    builtins(),
 
     resolve({
       jsnext: true
