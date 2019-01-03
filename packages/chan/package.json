@@ -1,0 +1,44 @@
+{
+  "name": "@chan/chan",
+  "version": "2.0.0",
+  "description": "@chan command line",
+  "homepage": "http://geutstudio.com",
+  "bin": {
+    "chan": "./bin/chan"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "files": [
+    "bin"
+  ],
+  "author": {
+    "name": "GEUT",
+    "email": "contact@geutstudio.com"
+  },
+  "license": "ISC",
+  "repository": "https://github.com/geut/chan/tree/master/packages/chan",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "chalk": "^2.4.1",
+    "ora": "^3.0.0",
+    "yargs": "^12.0.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.1.2",
+    "@babel/preset-env": "^7.1.6",
+    "@chan/chan-core": "^2.0.0",
+    "ava": "^1.0.0-rc.2",
+    "rollup": "^0.67.0",
+    "rollup-plugin-babel": "^4.0.3",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-json": "^3.1.0",
+    "rollup-plugin-node-resolve": "^3.4.0",
+    "rollup-plugin-replace": "^2.1.0"
+  },
+  "scripts": {
+    "build": "rollup -c"
+  }
+}
