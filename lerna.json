@@ -4,15 +4,6 @@
     "packages/*"
   ],
   "command": {
-    "bootstrap": {
-      "hoist": true,
-      "nohoist": [
-        "jest",
-        "@babel/**",
-        "babel-**",
-        "rollup**"
-      ]
-    },
     "clean": {
       "yes": true
     }

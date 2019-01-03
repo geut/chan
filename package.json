@@ -10,7 +10,6 @@
     "build": "lerna run build",
     "bootstrap": "lerna clean && lerna bootstrap",
     "test": "lerna run test",
-    "posttest": "npm run lint",
     "lint": "eslint --cache packages --fix",
     "lint:fix": "npm run lint --fix",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
@@ -19,10 +18,11 @@
   "dependencies": {},
   "devDependencies": {
     "babel-eslint": "^10.0.1",
+    "eslint": "^5.9.0",
+    "eslint-plugin-jest": "^22.0.0",
     "eslint-plugin-ie11": "^1.0.0",
     "eslint-config-prettier": "^3.3.0",
     "eslint-plugin-prettier": "^3.0.0",
-    "eslint": "^5.9.0",
     "lerna": "^3.4.3",
     "nyc": "^13.1.0",
     "prettier": "^1.15.2"
