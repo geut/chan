@@ -9,7 +9,8 @@
       "nohoist": [
         "jest",
         "@babel/**",
-        "babel-**"
+        "babel-**",
+        "rollup**"
       ],
       "npmClientArgs": ["--no-package-lock"]
     },
