@@ -11,7 +11,7 @@
     "bootstrap": "lerna clean && lerna bootstrap",
     "test": "lerna run test",
     "lint": "lerna run lint",
-    "lint:fix": "lerna run lint --fix",
+    "lint:fix": "lerna run lint -- --fix",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "version": "chan release ${npm_package_version} && git add ."
   },
