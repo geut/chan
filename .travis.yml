@@ -3,4 +3,4 @@ node_js:
   - "10"
   - "8"
   - "6"
-before_script: npm run bootstrap && npm run build
+before_script: npx lerna bootstrap --ci && npm run build
