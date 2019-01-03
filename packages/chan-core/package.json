@@ -20,8 +20,7 @@
   "dependencies": {
     "@chan/chan-errors": "^2.0.0",
     "@chan/chan-parser": "^2.0.0",
-    "extend": "^3.0.2",
-    "proxyquire": "^2.1.0"
+    "extend": "^3.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.1.2",
@@ -39,8 +38,7 @@
     "rollup-plugin-json": "^3.1.0",
     "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-node-resolve": "^3.4.0",
-    "rollup-plugin-replace": "^2.1.0",
-    "sinon": "^7.1.1"
+    "rollup-plugin-replace": "^2.1.0"
   },
   "scripts": {
     "build": "rollup -c",

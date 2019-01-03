@@ -14,8 +14,7 @@
     "lint": "eslint --cache packages --fix",
     "lint:fix": "npm run lint --fix",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "version": "chan release ${npm_package_version} && git add .",
-    "prepublish": "npm test && npm run build"
+    "version": "chan release ${npm_package_version} && git add ."
   },
   "dependencies": {},
   "devDependencies": {

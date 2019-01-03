@@ -5,6 +5,12 @@
   ],
   "command": {
     "bootstrap": {
+      "hoist": true,
+      "nohoist": [
+        "jest",
+        "@babel/**",
+        "babel-**"
+      ],
       "npmClientArgs": ["--no-package-lock"]
     },
     "clean": {
