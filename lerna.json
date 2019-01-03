@@ -11,8 +11,7 @@
         "@babel/**",
         "babel-**",
         "rollup**"
-      ],
-      "npmClientArgs": ["--no-package-lock"]
+      ]
     },
     "clean": {
       "yes": true
