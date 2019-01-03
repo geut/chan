@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.1.2",
+    "@babel/preset-env": "^7.1.6",
     "eslint": "^5.11.1",
     "rollup": "^0.67.0",
     "rollup-plugin-babel": "^4.0.3",
