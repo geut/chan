@@ -1,6 +1,6 @@
 {
   "name": "@geut/chan-errors",
-  "version": "2.0.0-beta.1",
+  "version": "2.0.0-beta.2",
   "description": "@chan shared errors",
   "homepage": "http://geutstudio.com",
   "main": "./dist/cjs/chan-errors.js",
