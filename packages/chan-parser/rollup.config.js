@@ -11,7 +11,6 @@ const env = process.env.NODE_ENV || 'production';
 export default {
   input: './src/index.js',
   external: ['fs', 'path', 'url', 'querystring']
-    .concat(Object.keys(pkg.devDependencies))
     .concat(Object.keys(pkg.dependencies)),
   plugins: [
     babel({
