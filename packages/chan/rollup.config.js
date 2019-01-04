@@ -10,8 +10,7 @@ const env = process.env.NODE_ENV || 'production';
 
 export default {
   input: './src/index.js',
-  external: ['path']
-    .concat(Object.keys(pkg.dependencies)),
+  external: Object.keys(pkg.dependencies),
   plugins: [
     babel({
       exclude: 'node_modules/**'
@@ -37,9 +36,6 @@ export default {
 
   output: {
     format: 'cjs',
-    file: pkg.bin.chan,
-    name: 'chan',
-    intro: '#!/usr/bin/env node',
-    strict: false
+    file: pkg.main
   }
 };
