@@ -1,6 +1,6 @@
 {
   "name": "@geut/chan-core",
-  "version": "2.0.0",
+  "version": "2.0.0-beta.0",
   "description": "@chan core API",
   "homepage": "http://geutstudio.com",
   "main": "./dist/cjs/chan-core.js",
@@ -18,8 +18,8 @@
     "access": "public"
   },
   "dependencies": {
-    "@geut/chan-errors": "^2.0.0",
-    "@geut/chan-parser": "^2.0.0",
+    "@geut/chan-errors": "^2.0.0-beta.0",
+    "@geut/chan-parser": "^2.0.0-beta.0",
     "extend": "^3.0.2"
   },
   "scripts": {
