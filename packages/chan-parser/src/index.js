@@ -25,15 +25,17 @@ const Parser = {
   },
 
   createMDAST(value, forceArray = false) {
-    const result = removePosition(this.remark.parse(value), true);
+    const result = removePosition(remarkInstance.parse(value), true);
     if (result.children.length === 1 && !forceArray) {
       return result.children[0];
     }
     return result.children;
   },
 
-  stringify() {
-    return this.remark.stringify(this.root);
+  stringify(root = this.root) {
+    return remarkInstance.stringify(root, {
+      listItemIndent: '1'
+    });
   },
 
   getMtree() {
