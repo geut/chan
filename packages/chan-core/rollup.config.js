@@ -4,7 +4,6 @@ const commonjs = require('rollup-plugin-commonjs');
 const replace = require('rollup-plugin-replace');
 const json = require('rollup-plugin-json');
 const babel = require('rollup-plugin-babel');
-const builtins = require('rollup-plugin-node-builtins');
 
 const env = process.env.NODE_ENV || 'production';
 // const production = env === 'production';
@@ -18,8 +17,6 @@ export default {
     }),
 
     json(),
-
-    builtins(),
 
     resolve({
       jsnext: true

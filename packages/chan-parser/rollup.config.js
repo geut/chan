@@ -19,8 +19,7 @@ export default {
     json(),
 
     resolve({
-      jsnext: true,
-      preferBuiltins: false
+      jsnext: true
     }),
 
     commonjs({
