@@ -1,4 +1,4 @@
-import createParser from '@chan/chan-parser';
+import createParser from '@geut/chan-parser';
 import { createFsWriter, createStdOutWriter } from '../lib/writer';
 import getReader from '../lib/reader';
 

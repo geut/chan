@@ -1,5 +1,5 @@
-import { VersionAlreadyExistsError } from '@chan/chan-errors';
-import createParser from '@chan/chan-parser/src';
+import { VersionAlreadyExistsError } from '@geut/chan-errors';
+import createParser from '@geut/chan-parser/src';
 import getReader from '../lib/reader';
 import { createFsWriter, createStdOutWriter } from '../lib/writer';
 

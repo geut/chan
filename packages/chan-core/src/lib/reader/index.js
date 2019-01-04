@@ -2,7 +2,7 @@ import {
   NoReaderProvidedError,
   ChangelogNotExistsOnPathError,
   ChangelogNotExistsError
-} from '@chan/chan-errors';
+} from '@geut/chan-errors';
 import createFsReader from './fs-reader';
 
 export { default as createFsReader } from './fs-reader';

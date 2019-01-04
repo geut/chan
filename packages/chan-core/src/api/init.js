@@ -1,5 +1,5 @@
-import createParser from '@chan/chan-parser';
-import { ChangelogAlreadyExistsError } from '@chan/chan-errors';
+import createParser from '@geut/chan-parser';
+import { ChangelogAlreadyExistsError } from '@geut/chan-errors';
 import { createFsWriter, createStdOutWriter } from '../lib/writer';
 import createFsReader from '../lib/reader/fs-reader';
 import emptyTemplate from '../templates/empty';

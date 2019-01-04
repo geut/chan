@@ -3,7 +3,7 @@ import createFsReader from '../src/lib/reader/fs-reader';
 import createFsWriter from '../src/lib/writer/fs-writer';
 import createStdOutWriter from '../src/lib/writer/stdout-writer';
 import init from '../src/api/init';
-import { ChangelogAlreadyExistsError } from '@chan/chan-errors';
+import { ChangelogAlreadyExistsError } from '@geut/chan-errors';
 
 const existentChangelogPath = path.join(__dirname, 'fixtures', 'initialized');
 

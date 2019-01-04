@@ -31,9 +31,14 @@ export default {
     // production && minify()
   ],
 
-  output: {
-    format: 'cjs',
-    file: pkg.main,
-    name: 'chan-errors'
-  }
+  output: [
+    {
+      format: 'esm',
+      file: pkg.module
+    },
+    {
+      format: 'cjs',
+      file: pkg.main
+    }
+  ]
 };
