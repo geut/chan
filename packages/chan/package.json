@@ -1,32 +1,36 @@
 {
-	"name": "@chan/chan",
-	"version": "2.0.0",
-	"description": "@chan command line",
-	"homepage": "http://geutstudio.com",
-	"bin": {
-		"chan": "./bin/chan"
-	},
-	"engines": {
-		"node": ">=8.0.0"
-	},
-	"files": [
-		"bin"
-	],
-	"author": {
-		"name": "GEUT",
-		"email": "contact@geutstudio.com"
-	},
-	"license": "ISC",
-	"repository": "https://github.com/geut/chan/tree/master/packages/chan",
-	"publishConfig": {
-		"access": "public"
-	},
-	"dependencies": {
-		"chalk": "^2.4.1",
-		"ora": "^3.0.0",
-		"yargs": "^12.0.2"
-	},
+  "name": "@geut/chan",
+  "version": "2.0.0",
+  "description": "@chan command line",
+  "homepage": "http://geutstudio.com",
+  "main": "./dist/cjs/index.js",
+  "bin": {
+    "chan": "./bin/chan"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "files": [
+    "bin",
+    "dist"
+  ],
+  "author": {
+    "name": "GEUT",
+    "email": "contact@geutstudio.com"
+  },
+  "license": "ISC",
+  "repository": "https://github.com/geut/chan/tree/master/packages/chan",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@geut/chan-core": "2.0.0",
+    "chalk": "^2.4.1",
+    "ora": "^3.0.0",
+    "yargs": "^12.0.2"
+  },
   "scripts": {
+    "build": "rollup -c",
     "lint": "eslint . --ignore-path ../../.eslintignore"
   }
 }

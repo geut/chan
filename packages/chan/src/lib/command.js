@@ -1,5 +1,5 @@
 /* eslint no-console: 0 */
-import createChanApi from '@chan/chan-core';
+import createChanApi from '@geut/chan-core';
 import { fail, success } from './logger';
 import createCommandSpinner from './command-spinner';
 import loadConfig from './config-loader';
