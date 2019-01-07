@@ -3,8 +3,8 @@
   "version": "2.0.0-beta.2",
   "description": "@chan parser",
   "homepage": "http://geutstudio.com",
-  "main": "./dist/cjs/chan-parser.js",
-  "module": "./dist/esm/chan-parser.js",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
   "files": [
     "dist"
   ],
@@ -18,16 +18,16 @@
     "access": "public"
   },
   "dependencies": {
-    "git-url-parse": "^11.1.1",
-    "gitconfiglocal": "^2.0.2",
-    "pify": "^4.0.1",
-    "remark": "^10.0.0",
-    "remark-parse": "^6.0.1",
-    "remark-stringify": "^6.0.2",
-    "unist-util-remove-position": "^1.1.2"
+    "unist-builder": "^1.0.3",
+    "unist-util-remove-position": "^1.1.2",
+    "unist-util-select": "^2.0.0"
   },
   "scripts": {
-    "build": "rollup -c",
     "lint": "eslint . --ignore-path ../../.eslintignore"
+  },
+  "devDependencies": {
+    "remark-parse": "^6.0.3",
+    "to-vfile": "^5.0.2",
+    "unist-util-inspect": "^4.1.3"
   }
 }
