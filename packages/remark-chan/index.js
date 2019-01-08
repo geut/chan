@@ -42,13 +42,13 @@ function parseReleases(tree) {
         return result;
       }, []);
 
-    const props = parseReleaseHeading(node, definitions);
+    const props = parseHeadingRelease(node, definitions);
 
     return u('release', props, actions.map(action => parseAction(action)));
   });
 }
 
-function parseReleaseHeading(heading, definitions) {
+function parseHeadingRelease(heading, definitions) {
   let link = select(':root > linkReference', heading);
   let text = select(':root > text', heading);
   let unreleased = link && link.identifier === 'unreleased' ? true : null;
