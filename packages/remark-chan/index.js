@@ -11,9 +11,9 @@ const {
 
 function remarkToChan() {
   return tree => {
-    tree = removePosition(tree, true);
+    const newTree = removePosition(tree, true);
     return createRoot(
-      [parsePreface(tree), ...parseReleases(tree)].filter(Boolean)
+      [parsePreface(newTree), ...parseReleases(newTree)].filter(Boolean)
     );
   };
 }
@@ -132,6 +132,7 @@ module.exports = remarkToChan;
 
 /**
  * root {
+ *   preface {}
  *   release [version, date, link?] {
  *     action [name=(ADDED, CHANGED, REMOVED)] {
  *        group {

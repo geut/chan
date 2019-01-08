@@ -26,7 +26,7 @@ const { initialize, addChanges, addRelease } = require('..');
         {
           action: 'Changed',
           value: 'vaaamos',
-          group: 'package1'
+          group: 'package2'
         },
         {
           version: '0.0.1',
