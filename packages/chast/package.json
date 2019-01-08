@@ -1,0 +1,23 @@
+{
+  "name": "@geut/chast",
+  "version": "2.0.0-beta.2",
+  "description": "Chast nodes creation",
+  "homepage": "http://geutstudio.com",
+  "main": "index.js",
+  "author": {
+    "name": "GEUT",
+    "email": "contact@geutstudio.com"
+  },
+  "license": "ISC",
+  "repository": "https://github.com/geut/chan/tree/master/packages/chan",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "semver": "^5.6.0",
+    "unist-builder": "^1.0.3"
+  },
+  "scripts": {
+    "lint": "eslint . --ignore-path ../../.eslintignore"
+  }
+}

@@ -14,7 +14,7 @@
     "access": "public"
   },
   "dependencies": {
-    "unist-builder": "^1.0.3",
+    "@geut/chast": "^2.0.0-beta.2",
     "unist-util-remove-position": "^1.1.2",
     "unist-util-select": "^2.0.0"
   },

@@ -3,11 +3,7 @@
   "version": "2.0.0-beta.2",
   "description": "Remark to chan (chast)",
   "homepage": "http://geutstudio.com",
-  "main": "./dist/cjs/index.js",
-  "module": "./dist/esm/index.js",
-  "files": [
-    "dist"
-  ],
+  "main": "index.js",
   "author": {
     "name": "GEUT",
     "email": "contact@geutstudio.com"
@@ -18,10 +14,19 @@
     "access": "public"
   },
   "dependencies": {
-    "extend": "^3.0.2"
+    "@geut/chast": "^2.0.0-beta.2",
+    "remark-parse": "^6.0.3",
+    "unified": "^7.1.0",
+    "unist-util-remove-position": "^1.1.2",
+    "unist-util-select": "^2.0.0"
+  },
+  "devDependencies": {
+    "@geut/chan-stringify": "^2.0.0-beta.2",
+    "@geut/remark-chan": "^2.0.0-beta.2",
+    "to-vfile": "^5.0.2",
+    "vfile-reporter": "^5.1.1"
   },
   "scripts": {
-    "build": "rollup -c",
     "lint": "eslint . --ignore-path ../../.eslintignore",
     "test": "jest"
   }

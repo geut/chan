@@ -1,16 +1,31 @@
 const removePosition = require('unist-util-remove-position');
-const u = require('unist-builder');
 const { select } = require('unist-util-select');
+const {
+  createRoot,
+  createPreface,
+  createRelease,
+  createAction,
+  createGroup,
+  createChange
+} = require('@geut/chast');
 
 function remarkToChan() {
   return tree => {
     tree = removePosition(tree, true);
-    return u('root', [parsePreface(tree), ...parseReleases(tree)]);
+    return createRoot(
+      [parsePreface(tree), ...parseReleases(tree)].filter(Boolean)
+    );
   };
 }
 
 function parsePreface(tree) {
-  return u('preface', tree.children.slice(0, 3));
+  const value = tree.children.slice(0, 3);
+
+  if (value.length !== 3) {
+    return null;
+  }
+
+  return createPreface(tree.children.slice(0, 3));
 }
 
 function parseReleases(tree) {
@@ -45,7 +60,7 @@ function parseReleases(tree) {
 
     const props = parseHeadingRelease(node, definitions);
 
-    return u('release', props, actions.map(action => parseAction(action)));
+    return createRelease(props, actions.map(action => parseAction(action)));
   });
 }
 
@@ -58,6 +73,7 @@ function parseHeadingRelease(heading, definitions) {
     // first release
     const [version, date] = text.value.split(' - ');
     return {
+      identifier: version,
       version,
       date
     };
@@ -66,6 +82,7 @@ function parseHeadingRelease(heading, definitions) {
   if (link.identifier === 'yanked') {
     const [version, date] = text.value.trim().split(' - ');
     return {
+      identifier: version,
       version,
       date,
       yanked: true
@@ -79,7 +96,7 @@ function parseHeadingRelease(heading, definitions) {
   return {
     identifier: link.identifier,
     version: link.label,
-    url: definition.url,
+    url: definition ? definition.url : null,
     date: unreleased
       ? null
       : text.value
@@ -94,7 +111,7 @@ function parseAction(action) {
   const { changes, children } = action;
   const name = children[0].value;
 
-  return u('action', { name }, changes && parseChanges(changes.children));
+  return createAction({ name }, changes && parseChanges(changes.children));
 }
 
 function parseChanges(changes) {
@@ -102,13 +119,12 @@ function parseChanges(changes) {
     const groupList = select(':root > list', change);
     if (groupList) {
       const name = select(':first-child > text', change).value;
-      return u(
-        'group',
+      return createGroup(
         { name },
-        groupList.children.map(change => u('change', change.children))
+        groupList.children.map(change => createChange(change.children))
       );
     }
-    return u('change', change.children);
+    return createChange(change.children);
   });
 }
 
