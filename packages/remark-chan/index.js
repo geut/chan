@@ -40,7 +40,8 @@ function parseReleases(tree) {
 
         result[result.length - 1].changes = next;
         return result;
-      }, []);
+      }, [])
+      .filter(action => action.changes);
 
     const props = parseHeadingRelease(node, definitions);
 

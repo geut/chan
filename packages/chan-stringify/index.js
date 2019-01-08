@@ -57,7 +57,8 @@ function compileReleases({ tree, parse }) {
 
 function tplHeadingRelease(release) {
   const date = release.unreleased ? '' : `- ${release.date}`;
-  const version = release.yanked ? release.version : `[${release.version}]`;
+  const version =
+    release.yanked || !release.url ? release.version : `[${release.version}]`;
   const yanked = release.yanked ? '[YANKED]' : '';
 
   return `## ${version} ${date} ${yanked}`.trim();
