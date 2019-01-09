@@ -4,11 +4,7 @@ const semver = require('semver');
 
 const actions = require('./actions');
 
-const validValue = (value = []) =>
-  assert(
-    Array.isArray(value),
-    'Value must be a valid array of unist elements.'
-  );
+const validValue = (value = []) => assert(Array.isArray(value), 'Value must be a valid array of unist elements.');
 
 exports.createRoot = (value = []) => {
   validValue(value);
@@ -24,20 +20,14 @@ exports.createPreface = (value = []) => {
 
 exports.createRelease = (props, value = []) => {
   assert(props.identifier, '`identifier` is required');
-  assert(
-    props.version === 'Unreleased' || semver.valid(props.version),
-    '`version` is not valid'
-  );
+  assert(props.version === 'Unreleased' || semver.valid(props.version), '`version` is not valid');
   validValue(value);
 
   return u('release', props, value);
 };
 
 exports.createAction = ({ name }, value = []) => {
-  assert(
-    Object.values(actions).includes(name),
-    'the `name` for the action is not valid.'
-  );
+  assert(Object.values(actions).includes(name), 'the `name` for the action is not valid.');
   validValue(value);
 
   return u('action', { name }, value);

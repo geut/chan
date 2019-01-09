@@ -15,14 +15,14 @@
   },
   "dependencies": {
     "@geut/chast": "^2.0.0-beta.2",
+    "@geut/chan-stringify": "^2.0.0-beta.2",
+    "@geut/remark-chan": "^2.0.0-beta.2",
     "remark-parse": "^6.0.3",
     "unified": "^7.1.0",
     "unist-util-remove-position": "^1.1.2",
     "unist-util-select": "^2.0.0"
   },
   "devDependencies": {
-    "@geut/chan-stringify": "^2.0.0-beta.2",
-    "@geut/remark-chan": "^2.0.0-beta.2",
     "to-vfile": "^5.0.2",
     "vfile-reporter": "^5.1.1"
   },

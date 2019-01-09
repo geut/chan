@@ -1,20 +1,11 @@
 const removePosition = require('unist-util-remove-position');
 const { select } = require('unist-util-select');
-const {
-  createRoot,
-  createPreface,
-  createRelease,
-  createAction,
-  createGroup,
-  createChange
-} = require('@geut/chast');
+const { createRoot, createPreface, createRelease, createAction, createGroup, createChange } = require('@geut/chast');
 
 function remarkToChan() {
   return tree => {
     const newTree = removePosition(tree, true);
-    return createRoot(
-      [parsePreface(newTree), ...parseReleases(newTree)].filter(Boolean)
-    );
+    return createRoot([parsePreface(newTree), ...parseReleases(newTree)].filter(Boolean));
   };
 }
 
@@ -31,13 +22,9 @@ function parsePreface(tree) {
 function parseReleases(tree) {
   const definitions = tree.children.filter(node => node.type === 'definition');
 
-  const releases = tree.children.filter(
-    node => ['heading', 'list'].includes(node.type) && node.depth !== 1
-  );
+  const releases = tree.children.filter(node => ['heading', 'list'].includes(node.type) && node.depth !== 1);
 
-  const headingReleases = releases.filter(
-    node => node.type === 'heading' && node.depth === 2
-  );
+  const headingReleases = releases.filter(node => node.type === 'heading' && node.depth === 2);
 
   return headingReleases.map(node => {
     const fromIdx = releases.indexOf(node);
@@ -89,9 +76,7 @@ function parseHeadingRelease(heading, definitions) {
     };
   }
 
-  const definition = definitions.find(
-    def => def.identifier === link.identifier
-  );
+  const definition = definitions.find(def => def.identifier === link.identifier);
 
   return {
     identifier: link.identifier,
@@ -119,10 +104,7 @@ function parseChanges(changes) {
     const groupList = select(':root > list', change);
     if (groupList) {
       const name = select(':first-child > text', change).value;
-      return createGroup(
-        { name },
-        groupList.children.map(change => createChange(change.children))
-      );
+      return createGroup({ name }, groupList.children.map(change => createChange(change.children)));
     }
     return createChange(change.children);
   });
