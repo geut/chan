@@ -27,7 +27,6 @@
     "vfile-reporter": "^5.1.1"
   },
   "scripts": {
-    "lint": "eslint . --ignore-path ../../.eslintignore",
-    "test": "jest"
+    "lint": "eslint . --ignore-path ../../.eslintignore"
   }
 }

@@ -30,18 +30,10 @@ module.exports = function spaces() {
          */
         if (child.type === prev.type && prev.type === 'list') {
           values.push(prev.ordered === child.ordered ? GAP : BREAK);
-        } else if (
-          prev.type === 'list' &&
-          child.type === 'code' &&
-          !child.lang
-        ) {
+        } else if (prev.type === 'list' && child.type === 'code' && !child.lang) {
           values.push(GAP);
         } else if (prev.type === 'heading') {
-          if (
-            child.type === 'heading' &&
-            prev.depth === 2 &&
-            child.depth === 2
-          ) {
+          if (child.type === 'heading' && prev.depth === 2 && child.depth === 2) {
             values.push(BREAK);
           } else {
             values.push(LINE);
