@@ -1,6 +1,6 @@
 const vfile = require('to-vfile');
 const report = require('vfile-reporter');
-const { initialize, addChanges, addRelease } = require('..');
+const { initialize, addChanges, addRelease, getLastVersionRelease } = require('..');
 
 (async () => {
   try {
@@ -37,6 +37,8 @@ const { initialize, addChanges, addRelease } = require('..');
 
     console.error(report(file, { quiet: true }));
     console.log(file.contents);
+
+    console.log(getLastVersionRelease(file));
   } catch (err) {
     console.log(err);
   }

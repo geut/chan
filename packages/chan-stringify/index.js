@@ -17,25 +17,24 @@ function stringify() {
     })
     .use(spaces);
 
-  const parse = value =>
-    removePosition(processor.parse(value), true).children[0];
+  const parse = value => removePosition(processor.parse(value), true).children[0];
 
-  function compiler(tree) {
+  function compiler(tree, file) {
     return processor.stringify(
       u('root', [
-        ...compilePreface({ tree, parse }),
-        ...compileReleases({ tree, parse }),
-        ...compileLinks({ tree, parse })
+        ...compilePreface({ tree, parse, file }),
+        ...compileReleases({ tree, parse, file }),
+        ...compileLinks({ tree, parse, file })
       ])
     );
   }
 }
 
-function compilePreface({ tree }) {
+function compilePreface({ tree, file }) {
   const preface = select('preface', tree);
 
   if (!preface) {
-    throw new Error('keep a changelog preface missing');
+    file.fail(new Error('Keep a changelog preface missing.'), tree, 'compilePreface');
   }
 
   return preface.children;
@@ -57,10 +56,7 @@ function compileReleases({ tree, parse }) {
 
 function tplHeadingRelease(release) {
   const date = release.unreleased ? '' : `- ${release.date}`;
-  const version =
-    !release.unreleased && (release.yanked || !release.url)
-      ? release.version
-      : `[${release.version}]`;
+  const version = !release.unreleased && (release.yanked || !release.url) ? release.version : `[${release.version}]`;
   const yanked = release.yanked ? '[YANKED]' : '';
 
   return `## ${version} ${date} ${yanked}`.trim();
@@ -82,10 +78,7 @@ function compileChanges({ changes, parse }) {
   return parseList(
     changes.map(change => {
       if (change.type === 'group') {
-        return parseListItem([
-          parse(change.name),
-          compileChanges({ changes: change.children, parse })
-        ]);
+        return parseListItem([parse(change.name), compileChanges({ changes: change.children, parse })]);
       }
 
       return parseListItem(change.children);
@@ -95,19 +88,11 @@ function compileChanges({ changes, parse }) {
 
 function compileLinks({ tree, parse }) {
   const releases = selectAll('release', tree);
-  return releases
-    .filter(release => release.url)
-    .map(release => parse(`[${release.version}]: ${release.url}`));
+  return releases.filter(release => release.url).map(release => parse(`[${release.version}]: ${release.url}`));
 }
 
-const parseList = value =>
-  u(
-    'list',
-    { ordered: false, spread: false },
-    Array.isArray(value) ? value : [value]
-  );
+const parseList = value => u('list', { ordered: false, spread: false }, Array.isArray(value) ? value : [value]);
 
-const parseListItem = value =>
-  u('listItem', { spread: false }, Array.isArray(value) ? value : [value]);
+const parseListItem = value => u('listItem', { spread: false }, Array.isArray(value) ? value : [value]);
 
 module.exports = stringify;

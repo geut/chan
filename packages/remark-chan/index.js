@@ -5,7 +5,7 @@ const { createRoot, createPreface, createRelease, createAction, createGroup, cre
 function remarkToChan() {
   return tree => {
     const newTree = removePosition(tree, true);
-    return createRoot([parsePreface(newTree), ...parseReleases(newTree)].filter(Boolean));
+    return createRoot([parsePreface(newTree), ...parseReleases(newTree)]);
   };
 }
 

@@ -1,7 +1,7 @@
 {
-  "name": "@geut/chast",
+  "name": "@geut/git-compare-url",
   "version": "2.0.0-beta.2",
-  "description": "Chast nodes creation",
+  "description": "Git compare url.",
   "homepage": "http://geutstudio.com",
   "main": "index.js",
   "author": {
@@ -9,13 +9,14 @@
     "email": "contact@geutstudio.com"
   },
   "license": "ISC",
-  "repository": "https://github.com/geut/chan/tree/master/packages/chast",
+  "repository": "https://github.com/geut/chan/tree/master/packages/git-compare-url",
   "publishConfig": {
     "access": "public"
   },
   "dependencies": {
-    "semver": "^5.6.0",
-    "unist-builder": "^1.0.3"
+    "find-up": "^3.0.0",
+    "git-url-parse": "^11.1.2",
+    "gitconfiglocal": "^2.0.2"
   },
   "scripts": {
     "lint": "eslint . --ignore-path ../../.eslintignore"

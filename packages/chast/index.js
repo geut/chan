@@ -9,7 +9,10 @@ const validValue = (value = []) => assert(Array.isArray(value), 'Value must be a
 exports.createRoot = (value = []) => {
   validValue(value);
 
-  return u('root', value);
+  const nodes = value.filter(Boolean);
+  const preface = nodes.find(n => n.type === 'preface');
+  const releases = nodes.filter(n => n.type === 'release').sort(sortReleases);
+  return u('root', [preface, ...releases].filter(Boolean));
 };
 
 exports.createPreface = (value = []) => {
@@ -19,22 +22,25 @@ exports.createPreface = (value = []) => {
 };
 
 exports.createRelease = (props, value = []) => {
-  assert(props.identifier, '`identifier` is required');
-  assert(props.version === 'Unreleased' || semver.valid(props.version), '`version` is not valid');
+  assert(props.identifier, 'The `identifier` of the release is required.');
+  assert(
+    props.version === 'Unreleased' || semver.valid(props.version),
+    'The `version` prop to do a release is not valid.'
+  );
   validValue(value);
 
   return u('release', props, value);
 };
 
 exports.createAction = ({ name }, value = []) => {
-  assert(Object.values(actions).includes(name), 'the `name` for the action is not valid.');
+  assert(Object.values(actions).includes(name), 'The `name` prop to create an action is not valid.');
   validValue(value);
 
   return u('action', { name }, value);
 };
 
 exports.createGroup = ({ name }, value = []) => {
-  assert(name, '`name` is required');
+  assert(name, 'The `name` prop is required to create a group.');
   validValue(value);
 
   return u('group', { name }, value);
@@ -45,3 +51,15 @@ exports.createChange = (value = []) => {
 
   return u('change', value);
 };
+
+function sortReleases(a, b) {
+  if (a.version === 'Unreleased') {
+    return 0;
+  }
+
+  if (semver.lt(a.version, b.version)) {
+    return 1;
+  }
+
+  return -1;
+}
