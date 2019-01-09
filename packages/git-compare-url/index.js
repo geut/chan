@@ -10,25 +10,29 @@ const providers = {
   gitlab: 'https://gitlab.com/[user]/[repo]/compare?from=[prev]&to=[next]'
 };
 
-module.exports = async function gitCompareUrl({ prevTag, nextTag }) {
+module.exports = async function gitCompareUrl({ provider, user, repo, prevTag, nextTag }) {
   assert(prevTag, 'prevTag is required.');
   assert(nextTag, 'nextTag is required.');
 
-  let tpl;
+  let tpl, remote;
 
-  const info = await gitconfig(await findUp('.git'));
+  if (provider && user && repo) {
+    tpl = providers[provider];
+  } else {
+    const info = await gitconfig(await findUp('.git'));
 
-  const remote = GitUrlParse(info.remote.origin.url);
+    remote = GitUrlParse(info.remote.origin.url);
 
-  tpl = providers[Object.keys(providers).find(p => remote.source.includes(p))];
+    tpl = providers[Object.keys(providers).find(p => remote.source.includes(p))];
+  }
 
   if (!tpl) {
     return null;
   }
 
   return tpl
-    .replace('[user]', remote.owner)
-    .replace('[repo]', remote.name)
+    .replace('[user]', user || remote.owner)
+    .replace('[repo]', repo || remote.name)
     .replace('[prev]', prevTag)
     .replace('[next]', nextTag);
 };
