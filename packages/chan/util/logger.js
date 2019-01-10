@@ -7,7 +7,8 @@ function report({ logger, file, verbose }) {
 
   if (file instanceof Error) {
     if (file.reason) {
-      file.name = 'VFileError';
+      // vfile error
+      file.name = 'Error';
     }
 
     if (!verbose) {
@@ -18,13 +19,13 @@ function report({ logger, file, verbose }) {
 
   file.messages.forEach(m => {
     if (m.fatal) {
-      m.name = 'VFileError';
+      m.name = 'Error';
       if (!verbose) {
         m.stack = null;
       }
       logger.fatal(m);
     } else {
-      logger.info({ message: m.message, suffix: `(${m.ruleId})` });
+      logger.info({ message: m.message, suffix: m.ruleId ? `(${m.ruleId})` : null });
     }
   });
 }
