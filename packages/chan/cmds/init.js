@@ -7,10 +7,11 @@ const access = promisify(require('fs').access);
 const { initialize } = require('@geut/chan-core');
 
 const { createLogger } = require('../util/logger');
+const write = require('../util/write');
 
 exports.command = 'init [dir]';
 
-exports.desc = 'Creates a CHANGELOG.md if it does not exists. Chan will work with this file.';
+exports.desc = 'Creates a CHANGELOG.md if it does not exists';
 
 exports.builder = {
   dir: {
@@ -24,19 +25,23 @@ exports.builder = {
   }
 };
 
-exports.handler = async function({ dir, overwrite, verbose }) {
-  const { report, success, info } = createLogger({ scope: 'init', verbose });
+exports.handler = async function({ dir, overwrite, verbose, stdout }) {
+  const { report, success, info } = createLogger({ scope: 'init', verbose, stdout });
 
   try {
     const file = await readFile(resolve(dir, 'CHANGELOG.md'));
-    await initialize(file, { overwrite: overwrite });
-    await toVFile.write(file);
+
+    await initialize(file, { overwrite: overwrite || stdout });
+
+    await write({ file, stdout });
+
     report(file);
   } catch (err) {
     return report(err);
   }
 
   success('CHANGELOG.md created.');
+
   try {
     await access(resolve(dir, 'package.json'));
     info('Update the npm script `version` in your package.json to release automatically:');

@@ -4,19 +4,20 @@ const toVFile = require('to-vfile');
 const { addChanges } = require('@geut/chan-core');
 
 const { createLogger } = require('../util/logger');
+const write = require('../util/write');
 const openInEditor = require('../util/open-in-editor');
 
 const actions = [
-  { command: 'added', description: 'Added for new features.' },
-  { command: 'changed', description: 'Changed for changes in existing functionality.' },
-  { command: 'deprecated', description: 'Deprecated for soon-to-be removed features.' },
-  { command: 'removed', description: 'Removed for now removed features.' },
-  { command: 'fixed', description: 'Fixed for any bug fixes.' },
-  { command: 'security', description: 'Security in case of vulnerabilities.' }
+  { command: 'added', description: 'Added for new features' },
+  { command: 'changed', description: 'Changed for changes in existing functionality' },
+  { command: 'deprecated', description: 'Deprecated for soon-to-be removed features' },
+  { command: 'removed', description: 'Removed for now removed features' },
+  { command: 'fixed', description: 'Fixed for any bug fixes' },
+  { command: 'security', description: 'Security in case of vulnerabilities' }
 ];
 
-const createHandler = action => async ({ message, path, group, verbose }) => {
-  const { report, success, info } = createLogger({ scope: action, verbose });
+const createHandler = action => async ({ message, path, group, verbose, stdout }) => {
+  const { report, success, info } = createLogger({ scope: action, verbose, stdout });
 
   try {
     const file = await toVFile.read(resolve(path, 'CHANGELOG.md'));
@@ -29,10 +30,12 @@ const createHandler = action => async ({ message, path, group, verbose }) => {
     }
 
     await addChanges(file, { changes: [{ action, group, value: message }] });
-    await toVFile.write(file);
+
+    await write({ file, stdout });
+
     report(file);
   } catch (err) {
-    report(err);
+    return report(err);
   }
 
   success('Added new changes on your changelog.');

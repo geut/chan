@@ -7,11 +7,16 @@ commands.forEach(command => {
 });
 
 yargs
+  .demandCommand()
   .options({
     verbose: {
       describe: 'Show more info on error',
       type: 'boolean',
       global: true
+    },
+    stdout: {
+      describe: 'Show the output to the stdout',
+      type: 'boolean'
     }
   })
   .help()

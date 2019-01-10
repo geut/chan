@@ -29,8 +29,11 @@ function report({ logger, file, verbose }) {
   });
 }
 
-exports.createLogger = function createLogger({ scope, verbose }) {
-  const logger = new Signale({ scope: ['chan', scope].filter(Boolean) });
+exports.createLogger = function createLogger({ scope, verbose, stdout }) {
+  const logger = new Signale({
+    stream: stdout ? process.stderr : process.stdout,
+    scope: ['chan', scope].filter(Boolean)
+  });
 
   logger.report = file => report({ logger, file, verbose });
 

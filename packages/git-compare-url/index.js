@@ -19,7 +19,13 @@ module.exports = async function gitCompareUrl({ provider, user, repo, prevTag, n
   if (provider && user && repo) {
     tpl = providers[provider];
   } else {
-    const info = await gitconfig(await findUp('.git'));
+    const path = await findUp('.git');
+
+    if (!path) {
+      throw new Error('Git repository missing, we can not to generate the compare url.');
+    }
+
+    const info = await gitconfig(path);
 
     remote = GitUrlParse(info.remote.origin.url);
 

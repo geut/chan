@@ -5,6 +5,7 @@ const { addRelease, getLastVersionRelease } = require('@geut/chan-core');
 const gitCompareUrl = require('@geut/git-compare-url');
 
 const { createLogger } = require('../util/logger');
+const write = require('../util/write');
 
 exports.command = 'release <semver>';
 
@@ -21,28 +22,30 @@ exports.builder = {
     default: '.'
   },
   'git-compare': {
-    describe: 'Overwrite the git url compare by default.\n e.g.: https://bitbucket.org/project/compare/<from>..<to>',
+    describe: 'Overwrite the git url compare by default.\n e.g.: https://bitbucket.org/project/compare/[prev]..[next]',
     type: 'string'
   },
   yanked: {
-    describe: 'Define the release as yanked.',
+    describe: 'Define the release as yanked',
     type: 'boolean'
   }
 };
 
-exports.handler = async function({ semver, path, yanked, verbose, gitCompare }) {
-  const { report, success } = createLogger({ scope: 'release', verbose });
+exports.handler = async function({ semver, path, yanked, verbose, gitCompare, stdout }) {
+  const { report, success } = createLogger({ scope: 'release', verbose, stdout });
 
   try {
     const file = await toVFile.read(resolve(path, 'CHANGELOG.md'));
 
     let url = await getReleaseUrl(file, { gitCompare, semver });
+
     await addRelease(file, { version: semver, url, yanked });
 
-    await toVFile.write(file);
+    await write({ file, stdout });
+
     report(file);
   } catch (err) {
-    report(err);
+    return report(err);
   }
 
   success(`New release created: v${semver}`);
