@@ -1,9 +1,10 @@
 const { resolve } = require('path');
 const toVFile = require('to-vfile');
-const { createLogger } = require('../util/logger');
 
 const { addRelease, getLastVersionRelease } = require('@geut/chan-core');
 const gitCompareUrl = require('@geut/git-compare-url');
+
+const { createLogger } = require('../util/logger');
 
 exports.command = 'release <semver>';
 
