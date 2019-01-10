@@ -1,6 +1,6 @@
 const { resolve } = require('path');
 const toVFile = require('to-vfile');
-const report = require('../util/report');
+const { createLogger } = require('../util/logger');
 
 const { initialize } = require('@geut/chan-core');
 
@@ -20,18 +20,19 @@ exports.builder = {
   }
 };
 
-exports.handler = async function(argv) {
-  let file = toVFile();
+exports.handler = async function({ dir, overwrite, verbose }) {
+  const { report, success } = createLogger({ scope: 'init', verbose });
 
   try {
-    file = await readFile(resolve(argv.dir, 'CHANGELOG.md'));
-    await initialize(file, { overwrite: argv.overwrite });
+    const file = await readFile(resolve(dir, 'CHANGELOG.md'));
+    await initialize(file, { overwrite: overwrite });
     await toVFile.write(file);
-    file.info('Changelog created.');
-    report({ file, argv });
+    report(file);
   } catch (err) {
-    report({ file, argv, err });
+    return report(err);
   }
+
+  success('CHANGELOG.md created.');
 };
 
 async function readFile(path) {

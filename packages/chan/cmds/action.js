@@ -2,7 +2,7 @@ const { resolve } = require('path');
 const toVFile = require('to-vfile');
 const { addChanges } = require('@geut/chan-core');
 
-const report = require('../util/report');
+const { createLogger } = require('../util/logger');
 const openInEditor = require('../util/open-in-editor');
 
 const actions = [
@@ -14,28 +14,27 @@ const actions = [
   { command: 'security', description: 'Security in case of vulnerabilities.' }
 ];
 
-const createHandler = action => async argv => {
-  let { message, path, group } = argv;
-  let file = toVFile();
+const createHandler = action => async ({ message, path, group, verbose }) => {
+  const { report, success, info } = createLogger({ scope: action, verbose });
 
   try {
-    file = await toVFile.read(resolve(path, 'CHANGELOG.md'));
+    const file = await toVFile.read(resolve(path, 'CHANGELOG.md'));
     if (!message) {
       message = await openInEditor();
 
       if (!message || message.length === 0) {
-        file.info('Nothing to change.', null, action);
-        return report({ file, argv });
+        return info('Nothing to change.');
       }
     }
 
     await addChanges(file, { changes: [{ action, group, value: message }] });
     await toVFile.write(file);
-    file.info('Added new changes on your changelog.', null, action);
-    report({ file, argv });
+    report(file);
   } catch (err) {
-    report({ file, argv, err });
+    report(err);
   }
+
+  success('Added new changes on your changelog.');
 };
 
 module.exports = Object.values(actions).map(action => {

@@ -1,6 +1,6 @@
 const { resolve } = require('path');
 const toVFile = require('to-vfile');
-const report = require('../util/report');
+const { createLogger } = require('../util/logger');
 
 const { addRelease, getLastVersionRelease } = require('@geut/chan-core');
 const gitCompareUrl = require('@geut/git-compare-url');
@@ -29,22 +29,22 @@ exports.builder = {
   }
 };
 
-exports.handler = async function(argv) {
-  let { semver, path, yanked } = argv;
-  let file = toVFile();
+exports.handler = async function({ semver, path, yanked, verbose, gitCompare }) {
+  const { report, success } = createLogger({ scope: 'release', verbose });
 
   try {
-    file = await toVFile.read(resolve(path, 'CHANGELOG.md'));
+    const file = await toVFile.read(resolve(path, 'CHANGELOG.md'));
 
-    let url = await getReleaseUrl(file, argv);
+    let url = await getReleaseUrl(file, { gitCompare, semver });
     await addRelease(file, { version: semver, url, yanked });
 
     await toVFile.write(file);
-    file.info('New release created.', null, 'release');
-    report({ file, argv });
+    report(file);
   } catch (err) {
-    report({ file, argv, err });
+    report(err);
   }
+
+  success(`New release created: v${semver}`);
 };
 
 async function getReleaseUrl(file, { gitCompare, semver }) {
