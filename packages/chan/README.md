@@ -125,7 +125,7 @@ will add to you changelog unreleased changes:
   - New stuff added.
 ```
 
-|> Note: this could be a good option to work with a monorepo and root changelog.
+> This could be a good option to work with a monorepo and root changelog.
 
 ## <a name="command-release"></a>`chan release <semver>`
 
@@ -158,7 +158,7 @@ Example:
 will generate releases with the url:
 `https://github.com/geut/chan/compare/v0.0.1..HEAD`
 
-|> Note: Also, this kind of configurations can be defined in the [package.json](#config-package-json).
+> Also, this kind of configurations can be defined in the [package.json](#config-package-json).
 
 #### `--git-template` (`string`)
 
