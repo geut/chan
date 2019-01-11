@@ -5,21 +5,16 @@
   "scripts": {
     "bootstrap": "lerna clean && lerna bootstrap",
     "test": "lerna run test",
+    "posttest": "npm run lint",
     "lint": "lerna run lint",
-    "lint:fix": "lerna run lint -- -- --fix",
-    "coverage": "nyc report --reporter=text-lcov | coveralls"
+    "lint:fix": "lerna run lint -- -- --fix"
   },
   "devDependencies": {
-    "eslint": "^5.11.1",
     "eslint-config-prettier": "^3.3.0",
-    "eslint-plugin-ie11": "^1.0.0",
     "eslint-plugin-jest": "^22.0.0",
     "eslint-plugin-prettier": "^3.0.0",
-    "jest": "^23.6.0",
     "lerna": "^3.4.3",
-    "nyc": "^13.1.0",
-    "prettier": "^1.15.2",
-    "regenerator-runtime": "^0.13.1"
+    "prettier": "^1.15.2"
   },
   "keywords": [
     "cli",

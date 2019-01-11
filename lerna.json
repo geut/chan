@@ -4,6 +4,9 @@
     "packages/*"
   ],
   "command": {
+    "bootstrap": {
+      "hoist": true
+    },
     "clean": {
       "yes": true
     }

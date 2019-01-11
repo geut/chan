@@ -9,7 +9,7 @@ unified()
   .use(markdown)
   .use(remarkToChan)
   .use(stringify)
-  .process(vfile.readSync(`${__dirname}/example.md`), function(err, file) {
+  .process(vfile.readSync(`${__dirname}/../__tests__/CHANGELOG.md`), function(err, file) {
     if (err) throw err;
     console.error(report(file, { quiet: true }));
     console.log(file.contents);

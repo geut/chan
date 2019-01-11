@@ -4,12 +4,12 @@ const { initialize, addChanges, addRelease } = require('..');
 
 (async () => {
   try {
-    let file = await initialize(vfile.readSync(`${__dirname}/empty.md`));
+    let file = await initialize(vfile.readSync(`${__dirname}/../__tests__/empty.md`));
 
     console.error(report(file, { quiet: true }));
     console.log(file.contents);
 
-    file = await addChanges(vfile.readSync(`${__dirname}/used.md`), {
+    file = await addChanges(vfile.readSync(`${__dirname}/../__tests__/used.md`), {
       changes: [
         { action: 'Security', value: 'alguna cosa' },
         {
@@ -29,7 +29,7 @@ const { initialize, addChanges, addRelease } = require('..');
     console.error(report(file, { quiet: true }));
     console.log(file.contents);
 
-    file = await addRelease(vfile.readSync(`${__dirname}/used.md`), {
+    file = await addRelease(vfile.readSync(`${__dirname}/../__tests__/used.md`), {
       version: '0.0.5',
       gitTemplate: 'https://github.com/geut/chan/compare/[prev]...[next]',
       gitBranch: 'HEAD',

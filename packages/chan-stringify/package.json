@@ -22,10 +22,13 @@
     "unist-util-select": "^2.0.0"
   },
   "scripts": {
+    "test": "jest",
     "lint": "eslint . --ignore-path ../../.eslintignore"
   },
   "devDependencies": {
     "@geut/remark-chan": "^2.0.0-beta.2",
+    "eslint": "^5.12.0",
+    "jest": "^23.6.0",
     "to-vfile": "^5.0.2",
     "vfile-reporter": "^5.1.1"
   }

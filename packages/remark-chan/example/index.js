@@ -6,6 +6,6 @@ const remarkToChan = require('../index.js');
 
 const tree = unified()
   .use(markdown)
-  .parse(vfile.readSync(`${__dirname}/example.md`));
+  .parse(vfile.readSync(`${__dirname}/../__tests__/CHANGELOG.md`));
 
 console.log(inspect(remarkToChan()(tree)));
