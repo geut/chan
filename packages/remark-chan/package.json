@@ -1,7 +1,7 @@
 {
-  "name": "@geut/chan-core",
+  "name": "@geut/remark-chan",
   "version": "2.0.0-beta.2",
-  "description": "API and transforms to work with chast",
+  "description": "Parser mdast to chast",
   "homepage": "http://geutstudio.com",
   "main": "index.js",
   "author": {
@@ -9,24 +9,22 @@
     "email": "contact@geutstudio.com"
   },
   "license": "ISC",
-  "repository": "https://github.com/geut/chan/tree/master/packages/chan-core",
+  "repository": "https://github.com/geut/chan/tree/master/packages/remark-chan",
   "publishConfig": {
     "access": "public"
   },
   "dependencies": {
-    "@geut/chan-stringify": "^2.0.0-beta.2",
     "@geut/chast": "^2.0.0-beta.2",
-    "@geut/remark-chan": "^2.0.0-beta.2",
-    "remark-parse": "^6.0.3",
-    "unified": "^7.1.0",
     "unist-util-remove-position": "^1.1.2",
     "unist-util-select": "^2.0.0"
   },
-  "devDependencies": {
-    "to-vfile": "^5.0.2",
-    "vfile-reporter": "^5.1.1"
-  },
   "scripts": {
     "lint": "eslint . --ignore-path ../../.eslintignore"
+  },
+  "devDependencies": {
+    "remark-parse": "^6.0.3",
+    "to-vfile": "^5.0.2",
+    "unified": "^7.1.0",
+    "unist-util-inspect": "^4.1.3"
   }
 }

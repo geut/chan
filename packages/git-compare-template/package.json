@@ -1,0 +1,24 @@
+{
+  "name": "@geut/git-compare-template",
+  "version": "2.0.0-beta.2",
+  "description": "Function to define template url for the git compare preview.",
+  "homepage": "http://geutstudio.com",
+  "main": "index.js",
+  "author": {
+    "name": "GEUT",
+    "email": "contact@geutstudio.com"
+  },
+  "license": "ISC",
+  "repository": "https://github.com/geut/chan/tree/master/packages/git-compare-template",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "find-up": "^3.0.0",
+    "git-url-parse": "^11.1.2",
+    "gitconfiglocal": "^2.0.2"
+  },
+  "scripts": {
+    "lint": "eslint . --ignore-path ../../.eslintignore"
+  }
+}

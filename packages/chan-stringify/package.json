@@ -1,7 +1,7 @@
 {
-  "name": "@geut/chan-core",
+  "name": "@geut/chan-stringify",
   "version": "2.0.0-beta.2",
-  "description": "API and transforms to work with chast",
+  "description": "Stringify chast to keepachangelog markdown",
   "homepage": "http://geutstudio.com",
   "main": "index.js",
   "author": {
@@ -9,24 +9,24 @@
     "email": "contact@geutstudio.com"
   },
   "license": "ISC",
-  "repository": "https://github.com/geut/chan/tree/master/packages/chan-core",
+  "repository": "https://github.com/geut/chan/tree/master/packages/chan-stringify",
   "publishConfig": {
     "access": "public"
   },
   "dependencies": {
-    "@geut/chan-stringify": "^2.0.0-beta.2",
-    "@geut/chast": "^2.0.0-beta.2",
-    "@geut/remark-chan": "^2.0.0-beta.2",
     "remark-parse": "^6.0.3",
+    "remark-stringify": "^6.0.4",
     "unified": "^7.1.0",
+    "unist-builder": "^1.0.3",
     "unist-util-remove-position": "^1.1.2",
     "unist-util-select": "^2.0.0"
   },
-  "devDependencies": {
-    "to-vfile": "^5.0.2",
-    "vfile-reporter": "^5.1.1"
-  },
   "scripts": {
     "lint": "eslint . --ignore-path ../../.eslintignore"
+  },
+  "devDependencies": {
+    "@geut/remark-chan": "^2.0.0-beta.2",
+    "to-vfile": "^5.0.2",
+    "vfile-reporter": "^5.1.1"
   }
 }

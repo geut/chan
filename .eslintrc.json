@@ -6,18 +6,21 @@
       "error",
       {
         "singleQuote": true,
-        "tabWidth": 2
+        "semi": true,
+        "bracketSpacing": true,
+        "printWidth": 120
       }
-    ]
+    ],
+    "no-console": "off"
   },
   "env": {
     "node": true,
-    "jest": true
+    "jest": true,
+    "es6": true
   },
   "parserOptions": {
     "ecmaVersion": 9,
     "sourceType": "module",
     "ecmaFeatures": {}
-  },
-  "parser": "babel-eslint"
+  }
 }

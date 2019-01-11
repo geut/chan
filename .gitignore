@@ -42,3 +42,5 @@ packages/**/dist
 .nyc_output
 
 .vscode
+
+lerna-debug.log
