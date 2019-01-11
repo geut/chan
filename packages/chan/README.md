@@ -103,12 +103,9 @@ Create new entries with the `<msg>` in your changelog under the release: *Unrele
   - **deprecated**
     Writes your changelog indicating deprecated stuff.
 
-  - **release \<semver\>**
-    Marks a new release on your `CHANGELOG.md`.
-
 ### Options
 
-####  `-p, --path` (`string`)
+#### `-p, --path` (`string`)
 
 Define the path of the CHANGELOG.md (cwd by default).
 
