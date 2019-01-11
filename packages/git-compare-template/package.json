@@ -1,6 +1,6 @@
 {
   "name": "@geut/git-compare-template",
-  "version": "2.0.0-beta.3",
+  "version": "2.0.0-beta.4",
   "description": "Function to define template url for the git compare preview.",
   "homepage": "http://geutstudio.com",
   "main": "index.js",
