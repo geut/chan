@@ -1,6 +1,6 @@
 {
   "name": "@geut/chan-core",
-  "version": "2.0.0-beta.2",
+  "version": "2.0.0-beta.3",
   "description": "API and transforms to work with chast",
   "homepage": "http://geutstudio.com",
   "main": "index.js",
@@ -14,9 +14,9 @@
     "access": "public"
   },
   "dependencies": {
-    "@geut/chan-stringify": "^2.0.0-beta.2",
-    "@geut/chast": "^2.0.0-beta.2",
-    "@geut/remark-chan": "^2.0.0-beta.2",
+    "@geut/chan-stringify": "^2.0.0-beta.3",
+    "@geut/chast": "^2.0.0-beta.3",
+    "@geut/remark-chan": "^2.0.0-beta.3",
     "remark-parse": "^6.0.3",
     "unified": "^7.1.0",
     "unist-util-remove-position": "^1.1.2",
