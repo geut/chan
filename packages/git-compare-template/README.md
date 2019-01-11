@@ -1,11 +1,2 @@
-# `chan`
-
-> TODO: description
-
-## Usage
-
-```
-const chan = require('chan');
-
-// TODO: DEMONSTRATE API
-```
+# git-compare-template
+> Function to define template url for the git compare preview

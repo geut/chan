@@ -1,11 +1,48 @@
-# `chan`
+# chast
+> Unist compatible spec for changelogs and helpers to nodes creation
 
-> TODO: description
+## Structure
 
-## Usage
-
+```idl
+interface Root <: Node {
+  children: [Preface, Release*]
+}
 ```
-const chan = require('chan');
 
-// TODO: DEMONSTRATE API
+```idl
+interface Preface <: Node {
+  children: [Node]
+}
 ```
+
+```idl
+interface Release <: Node {
+  identifier: string,
+  version: string,
+  url: string?
+  yanked: boolean?
+  unreleased: boolean?
+  children: [Action]
+}
+```
+
+```idl
+interface Action <: Node {
+  name: string
+  children: [Change*, Group*]
+}
+```
+
+```idl
+interface Group <: Node {
+  name: string,
+  children: [Change]
+}
+```
+
+```idl
+interface Change <: Node {
+  children: [Node]
+}
+```
+

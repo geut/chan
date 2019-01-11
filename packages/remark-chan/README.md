@@ -1,11 +1,2 @@
-# `chan`
-
-> TODO: description
-
-## Usage
-
-```
-const chan = require('chan');
-
-// TODO: DEMONSTRATE API
-```
+# remark-chan
+> Parser mdast to chast

@@ -1,7 +1,7 @@
 {
   "name": "@geut/chast",
   "version": "2.0.0-beta.2",
-  "description": "Chast nodes creation",
+  "description": "Unist compatible spec for changelogs and helpers to nodes creation",
   "homepage": "http://geutstudio.com",
   "main": "index.js",
   "author": {
