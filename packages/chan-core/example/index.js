@@ -1,6 +1,6 @@
 const vfile = require('to-vfile');
 const report = require('vfile-reporter');
-const { initialize, addChanges, addRelease, getLastVersionRelease } = require('..');
+const { initialize, addChanges, addRelease } = require('..');
 
 (async () => {
   try {
@@ -31,14 +31,13 @@ const { initialize, addChanges, addRelease, getLastVersionRelease } = require('.
 
     file = await addRelease(vfile.readSync(`${__dirname}/used.md`), {
       version: '0.0.5',
-      url: 'someurl',
+      gitTemplate: 'https://github.com/geut/chan/compare/[prev]...[next]',
+      gitBranch: 'HEAD',
       yanked: false
     });
 
     console.error(report(file, { quiet: true }));
     console.log(file.contents);
-
-    console.log(getLastVersionRelease(file));
   } catch (err) {
     console.log(err);
   }

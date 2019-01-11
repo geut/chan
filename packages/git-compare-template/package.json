@@ -1,7 +1,7 @@
 {
-  "name": "@geut/git-compare-url",
+  "name": "@geut/git-compare-template",
   "version": "2.0.0-beta.2",
-  "description": "Git compare url.",
+  "description": "Git compare template url.",
   "homepage": "http://geutstudio.com",
   "main": "index.js",
   "author": {
@@ -9,7 +9,7 @@
     "email": "contact@geutstudio.com"
   },
   "license": "ISC",
-  "repository": "https://github.com/geut/chan/tree/master/packages/git-compare-url",
+  "repository": "https://github.com/geut/chan/tree/master/packages/git-compare-template",
   "publishConfig": {
     "access": "public"
   },

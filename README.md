@@ -15,12 +15,6 @@ Sections |
 [Getting started](#install) |
 [Usage](#usage) |
 [CLI](#cli) |
-[Configuration](#configuration) |
-[Plugins](#plugins) |
-[API](#api) |
-[- chan](#api.chan) |
-[- cli](#api.cli) |
-[- parser](#api.parser) |
 [Issues](#issues) |
 [Contribute](#contribute) |
 
@@ -60,60 +54,48 @@ $ chan added # this will open your $EDITOR
 
 #### Available commands:
 
-  - **init**                
+  - **init**
     Creates a `CHANGELOG.md` if it does not exists. Chan will work with this file.
-    
-  - **added [msg]**         
+
+  - **added [msg]**
     Writes your changelog indicating new stuff.
-    
-  - **fixed [msg]**         
+
+  - **fixed [msg]**
     Writes your changelog indicating fixed stuff.
-    
-  - **changed [msg]**       
+
+  - **changed [msg]**
     Writes your changelog indicating updated stuff.
-    
-  - **security [msg]**      
+
+  - **security [msg]**
     Writes your changelog indicating security upgrades.
-    
-  - **removed [msg]**       
+
+  - **removed [msg]**
     Writes your changelog indicating removed stuff.
-    
-  - **deprecated [msg]**    
+
+  - **deprecated [msg]**
     Writes your changelog indicating deprecated stuff.
-    
-  - **release \<semver\>**  
-    Groups all your new features and marks a new release on your `CHANGELOG.md`.
-    
+
+  - **release \<semver\>**
+    Marks a new release on your `CHANGELOG.md`.
+
 
 #### Options
 Global options to `chan` command:
 
-  - **-p, --path** (`string`)
-
-    Define the path of the CHANGELOG.md (cwd by default)
-  
   - **--stdout** (`boolean`)
 
     Define the output as STDOUT
-  
-  - **--silence** (`boolean`)
-  
-    Disable the console messages
-  
-  - **-u, --use** (`array`, default: `[]`)
-  
-    Extend chan with your own commands
-  
-  - **--config** (`string`)
-  
-    Path to your JSON config file
-  
+
+  - **--verbose** (`boolean`)
+
+    Show more info on error
+
   - **-h, --help** (`boolean`)
-    
+
     Show help
-  
+
   - **-v, --version** (`boolean`)
-  
+
     Show version number
 
 ##### Init options
@@ -126,276 +108,38 @@ Global options to `chan` command:
 ##### Change options
 Following options applies to `added`, `fixed`, `changed`, `security`, `removed` and `deprecated` commands:
 
+  - **-p, --path** (`string`)
+
+    Define the path of the CHANGELOG.md (cwd by default)
+
   - **-g, --group** (`string`)
-    
+
     Prefix change with provided group value
-    
+
     Example:
     ```bash
     chan added --group=chan/sub-repo 'New stuff added'
     ```
-    will add 
+    will add
     ```markdown
-    - [chan/sub-repo] New stuff added.
+    - chan/sub-repo
+      - New stuff added.
     ```
     to your changelog unreleased changes.
 
 
 ##### Release options
+  - **-p, --path** (`string`)
+
+    Define the path of the CHANGELOG.md (cwd by default)
 
   - **--git-compare** (string)
-    
+
     Overwrite the git compare by default
-  
-  - **--group-changes** (string):
-    
-    Group changes based on the `group prefix` found on each
-    unreleased change item. If no group prefix is found, the changed item will be 
-    grouped under **Core**, as first group.
-  
-    Example:
-    Suppose you make the next changes to your changelog:
-    ```bash
-    $ chan fixed 'Something on geut/cool-repo group' -g geut/cool-repo
-    $ chan added 'New thing on geut/cool-repo group' -g geut/cool-repo
-    $ chan changed 'change something on root level repo'
-    ```
-
-    Now, your changelog should be:
-    ```markdown
-    ## [Unreleased]
-    ### Added
-    - [geut/cool-repo] New thing on geut/cool-repo group
-
-    ### Changed
-    - change something on root level repo
-
-    ### Fixed
-    - [geut/cool-repo] Something on geut/cool-repo group
-    ```
-
-    Release time:
-    ```bash
-    chan release --group-changes 1.0.0
-    ```
-
-    Grouped changelog:
-    ```markdown
-    ## [Unreleased]
-
-    ## 1.0.0 - 2018-10-22
-    ### Core
-    #### Changed
-    - change something on root level repo
-
-    ### geut/cool-repo
-    #### Added
-    - New thing on geut/cool-repo group
-
-    #### Fixed
-    - Something on geut/cool-repo group
-    ```
 
 > Notes:
 > - [_OPTIONAL_]
 > - <_REQUIRED_>
-
-### <a name="configuration"></a> Configuration
-
-You can use a `config JSON file` or your `package.json` to set a static configuration (global arguments, command arguments and plugins).
-
-**config.json**
-```json
-{
-    "global-argv": [
-        "stdout": true
-    ],
-    "command-argv": [
-        "init": {
-           "overwrite": true
-        }
-    ]
-}
-```
-```bash
-$ chan --config=./config.json
-```
-
-**package.json**
-```json
-{
-    "chan": {
-        "global-argv": [
-            "stdout": true
-        ],
-        "command-argv": [
-            "init": {
-               "overwrite": true
-            }
-        ]
-    }
-}
-```
-
-### <a name="plugins"></a> Plugins
-
-You can extend `chan` quite easily by adding your own commands as plugins.
-
-> chan-command-hello.js
-
-```javascript
-module.exports = function () {
-    return {
-        command: 'hello <name>',
-        describe: 'A command that say hello',
-        handler: function (parser, argv, write) {
-            this.log().info('hello ' + argv.name);
-        }
-    }
-}
-```
-
-You can consume local commands by using a local path (e.g.: ./chan-command-hello.js) or you can pick a name prefixed by **"chan-command-"** if the command is available on NPM.
-
-New commands can be added by three different ways.
-
-1. Using the argument `--use`:
-
-```bash
-$ chan hello 'geut' --use=chan-command-hello
-$ hello geut
-```
-
-2. Using `--config` pointing to a json file:
-
-**config.json**
-```json
-{
-    "use": [
-        "chan-command-hello"
-    ]
-}
-```
-
-```bash
-$ chan hello 'geut' --config=./config.json
-$ hello geut
-```
-
-3. Using the `package.json`:
-
-**package.json**
-```json
-{
-    "chan": {
-        "use": [
-            "chan-command-hello"
-        ]
-    }
-}
-```
-
-```bash
-$ chan hello 'geut'
-$ hello geut
-```
-
-### <a name="api"></a> API
-
-Chan is created above two excellent projects. 
-We use [yargs](http://yargs.js.org/) for the CLI and [remark](http://remark.js.org/) to parse the `CHANGELOG.md`
-
-```javascript
-
-import chan, { cli, parser } from '@geut/chan';
-
-```
-
-####  <a name="api.chan"></a> chan
-
-`chan` exposes the main api:
-
-- `init({ overwrite = false,  cwd })`:  The init method will create a CHANGELOG.md file in `cwd` directory.
-    - overwrite {Boolean}: True to overwrite an exisiting CHANGELOG file. Default to `false`.
-    - cwd {String}: The directory to create the CHANGELOG. If not provided the `process.cwd()` is used.
-- `change({ type, msg, cwd })`: Adds the message `msg` as part of the section `type`.
-    - type {String}: One of the `chan.CHANGE_TYPE`
-    - msg {String}: The message text to be added.
-    - cwd {String}: The directory of CHANGELOG. If not provided the `process.cwd()` is used.
-- `CHANGE_TYPE`
-    - `ADDED`
-    - `CHANGED`
-    - `FIXED`
-    - `SECURITY`
-    - `DEPRECATED`
-    - `REMOVED`
-- `release({ version, cwd })`: Generates a new release section. Moves the current `Unrelasead` changes list to the provided version.
-    - version {String}: The version number.
-    - cwd {String}: The directory of CHANGELOG. If not provided the `process.cwd()` is used.
-
-#### <a name="api.cli"></a> cli
-
-`cli` retruns a command line interface instance.
-
-- `run()`: Executes the cli.
-- `yargs()`: Returns the `yargs` instance.
-
-#### <a name="api.parser"></a> parser
-
-The `parser` is a wrapper instance of an excellent project called [remark](https://github.com/wooorm/remark).
-
-To instantiate a parser supply the working directory where the CHANGELOG file is located:
-
-```javascript
-import { parser } from '@geut/chan';
-
-//....
-
-const myParser = parser(cwd);
-
-```
-If `cwd` is not passed, the `process.cwd()` is used.
-
-The parser instance exposes the following methods and properties:
-
-- `remark`: The remark instance.
-- `exists()`: Returns true if the CHANGELOG file exists.
-- `write(content)`: Writes the content to the CHANGELOG file.
-    - content {String}: If not supplied, the `remark.stringify` content.
-- `findRelease(version)`: Returns the sub-tree corresponding to the provided version.
-    - version {String}: Release version.
-- `getMTREE()`: Returns the CHANGELOG representation. 
-
-Internally, `chan` maintains its own CHANGELOG representation using a simple tree structure which looks like this:
-
-```javascript
-{
-    releases: [{
-        text: '## [Unreleased]',
-        start: Number,
-        len: Number,
-        children: [{
-            text: 'Added',
-            children: [{
-                text: 'some new feature'
-            }, {
-                text: 'other feature'
-            }]
-        }]
-    }, {
-        text: '## [0.3.0] - 2015-12-03',
-        start: Number,
-        len: Number,
-        children: [Object]
-    }],
-    definitions: {
-        start: Number,
-        children: [{
-            text: '[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v0.3.0...HEAD'
-        }]
-    }
-}
-```
 
 ## <a name="issues"></a> ISSUES
 

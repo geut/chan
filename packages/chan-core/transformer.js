@@ -2,7 +2,7 @@ const assert = require('assert');
 const unified = require('unified');
 const markdown = require('remark-parse');
 const removePosition = require('unist-util-remove-position');
-const { select } = require('unist-util-select');
+const { select, selectAll } = require('unist-util-select');
 const { createPreface, createRelease, createAction, createGroup, createChange } = require('@geut/chast');
 const tplPreface = require('./templates/preface');
 
@@ -64,13 +64,13 @@ exports.addChanges = function addChanges({ changes }) {
   return compile;
 };
 
-exports.addRelease = function addRelease({ version, url, date = now(), yanked = false }) {
+exports.addRelease = function addRelease({ version, date = now(), yanked = false, gitTemplate, gitBranch }) {
   function compile(tree, file) {
     const { children } = tree;
     const unreleased = select('release[identifier=unreleased]', tree);
     const unreleasedIdx = children.indexOf(unreleased);
 
-    if (!unreleased || unreleased.children.length === 0) {
+    if (!unreleased || (!yanked && unreleased.children.length === 0)) {
       file.fail(new Error('There are not new changes to release.'));
     }
 
@@ -78,18 +78,38 @@ exports.addRelease = function addRelease({ version, url, date = now(), yanked = 
       file.fail(new Error(`The release ${version} already exists.`));
     }
 
+    // define the urls
+    let releaseUrl;
+    if (gitTemplate && gitBranch) {
+      const lastRelease = selectAll('release', tree).filter(r => !r.unreleased)[0];
+
+      if (lastRelease) {
+        releaseUrl = gitTemplate.replace('[prev]', `v${lastRelease.version}`).replace('[next]', `v${version}`);
+      }
+
+      // in the future the template v[version] could be defined by the user, maybe?
+      unreleased.url = gitTemplate.replace('[prev]', `v${version}`).replace('[next]', gitBranch);
+    }
+
+    // if it's a yanked release we don't want to add the unreleased changes
+    let changes;
+    if (yanked) {
+      changes = [];
+    } else {
+      changes = unreleased.children;
+      unreleased.children = [];
+    }
+
     const newRelease = createRelease(
       {
         identifier: version.toLowerCase(),
         version,
-        url,
+        url: releaseUrl,
         yanked,
         date
       },
-      unreleased.children
+      changes
     );
-
-    unreleased.children = [];
 
     tree.children = [...children.slice(0, unreleasedIdx + 1), newRelease, ...children.slice(unreleasedIdx + 1)];
     return tree;

@@ -1,8 +1,8 @@
 const { resolve } = require('path');
 const toVFile = require('to-vfile');
 
-const { addRelease, getLastVersionRelease } = require('@geut/chan-core');
-const gitCompareUrl = require('@geut/git-compare-url');
+const { addRelease } = require('@geut/chan-core');
+const gitCompareTemplate = require('@geut/git-compare-template');
 
 const { createLogger } = require('../util/logger');
 const write = require('../util/write');
@@ -21,25 +21,44 @@ exports.builder = {
     type: 'string',
     default: '.'
   },
-  'git-compare': {
-    describe: 'Overwrite the git url compare by default.\n e.g.: https://bitbucket.org/project/compare/[prev]..[next]',
-    type: 'string'
-  },
   yanked: {
     describe: 'Define the release as yanked',
     type: 'boolean'
+  },
+  'git-template': {
+    describe: 'Define the template url to compare your releases: https://github.com/geut/chan/compare/[prev]...[next]',
+    type: 'string'
+  },
+  'git-url': {
+    describe: 'Define the url of the repository project',
+    type: 'string'
+  },
+  'git-branch': {
+    describe: 'Define the branch which chan uses to compare the unreleased version',
+    type: 'string'
   }
 };
 
-exports.handler = async function({ semver, path, yanked, verbose, gitCompare, stdout }) {
+exports.handler = async function({ semver, path, yanked, gitTemplate, gitUrl, gitBranch, verbose, stdout }) {
   const { report, success } = createLogger({ scope: 'release', verbose, stdout });
 
   try {
     const file = await toVFile.read(resolve(path, 'CHANGELOG.md'));
 
-    let url = await getReleaseUrl(file, { gitCompare, semver });
+    if (!gitTemplate) {
+      const compare = await getTemplate({ file, url: gitUrl });
+      if (compare) {
+        gitTemplate = compare.template;
+        gitBranch = gitBranch || compare.branch;
+      }
+    }
 
-    await addRelease(file, { version: semver, url, yanked });
+    if (!gitBranch) {
+      // default to
+      gitBranch = 'HEAD';
+    }
+
+    await addRelease(file, { version: semver, yanked, gitTemplate, gitBranch });
 
     await write({ file, stdout });
 
@@ -51,24 +70,17 @@ exports.handler = async function({ semver, path, yanked, verbose, gitCompare, st
   success(`New release created: v${semver}`);
 };
 
-async function getReleaseUrl(file, { gitCompare, semver }) {
+async function getTemplate({ file, url }) {
   try {
-    const lastVersion = await getLastVersionRelease(file);
+    const template = await gitCompareTemplate({ file, url });
 
-    if (!lastVersion) {
-      return null;
+    if (!template) {
+      throw new Error('template null');
     }
 
-    let url;
-    if (gitCompare) {
-      url = gitCompare.replace('[prev]', `v${lastVersion}`).replace('[next]', `v${semver}`);
-    } else {
-      url = await gitCompareUrl({ prevTag: `v${lastVersion}`, nextTag: `v${semver}` });
-    }
-
-    return url;
+    return template;
   } catch (err) {
-    file.message(err.message);
+    file.message(`Missing url to compare releases.`);
     return null;
   }
 }
