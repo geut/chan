@@ -8,6 +8,7 @@ commands.forEach(command => {
 
 yargs
   .demandCommand()
+  .pkgConf('chan')
   .options({
     verbose: {
       describe: 'Show more info on error',

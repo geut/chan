@@ -13,6 +13,7 @@ See more here: [keepachangelog.com](http://keepachangelog.com/)
   - [`chan <action>`](#command-action)
   - [`chan release`](#command-release)
 - [Global options](#global-options)
+  - [Configure with `package.json`](#config-package-json)
 - [Issues](#issues)
 - [Contribute](#contribute)
 
@@ -124,7 +125,7 @@ will add to you changelog unreleased changes:
   - New stuff added.
 ```
 
-Note: this could be a good option to work with a monorepo and root changelog.
+|> Note: this could be a good option to work with a monorepo and root changelog.
 
 ## <a name="command-release"></a>`chan release <semver>`
 
@@ -156,6 +157,8 @@ Example:
 `https://github.com/geut/chan`
 will generate releases with the url:
 `https://github.com/geut/chan/compare/v0.0.1..HEAD`
+
+|> Note: Also, this kind of configurations can be defined in the [package.json](#config-package-json).
 
 #### `--git-template` (`string`)
 
@@ -192,6 +195,18 @@ Show help
 ### `--version` (`boolean`)
 
 Show version number
+
+### <a name="config-package-json"></a> Configure chan
+
+You can configure the chan options using your package.json:
+
+```json
+{
+  "chan": {
+    "git-url": "https://github.com/geut/chan"
+  }
+}
+```
 
 ## <a name="issues"></a> ISSUES
 
