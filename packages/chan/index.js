@@ -1,6 +1,11 @@
 const yargs = require('yargs');
+const fs = require('fs');
+const findUp = require('find-up');
 const packageJSON = require('./package.json');
 const commands = require('./cmds');
+
+const configPath = findUp.sync(['.chanrc', '.chanrc.json']);
+const config = configPath ? JSON.parse(fs.readFileSync(configPath)) : {};
 
 commands.forEach(command => {
   yargs.command(command);
@@ -8,6 +13,7 @@ commands.forEach(command => {
 
 yargs
   .demandCommand()
+  .config(config)
   .pkgConf('chan')
   .options({
     verbose: {

@@ -196,9 +196,19 @@ Show help
 
 Show version number
 
-### <a name="config-package-json"></a> Configure chan
+## <a name="config"></a> Configuration
 
-You can configure the chan options using your package.json:
+You can configure the chan options using the `package.json` or a rc file (`.chanrc`, `.chanrc.json`):
+
+.chanrc
+
+```json
+{
+  "git-url": "https://github.com/geut/chan"
+}
+```
+
+package.json
 
 ```json
 {
