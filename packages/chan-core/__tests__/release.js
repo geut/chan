@@ -1,5 +1,10 @@
 const vfile = require('to-vfile');
+const { advanceTo } = require('jest-date-mock');
 const { addRelease } = require('..');
+
+beforeEach(() => {
+  advanceTo(new Date(2019, 0, 11));
+});
 
 test('add release with url', async () => {
   const file = await addRelease(vfile.readSync(`${__dirname}/used.md`), {
