@@ -22,12 +22,17 @@ exports.createPreface = (value = []) => {
 };
 
 exports.createRelease = (props, value = []) => {
-  assert(props.identifier, 'The `identifier` of the release is required.');
-  assert(
-    props.version === 'Unreleased' || semver.valid(props.version),
-    'The `version` prop to do a release is not valid.'
-  );
+  const { identifier, version, yanked, url } = props;
+
+  assert(identifier, 'The `identifier` of the release is required.');
+  assert(version === 'Unreleased' || semver.valid(version), 'The `version` prop to do a release is not valid.');
   validValue(value);
+
+  // sanitize
+  if (yanked && url) {
+    // yanked versions can not have compare urls
+    props.url = null;
+  }
 
   return u('release', props, value);
 };
