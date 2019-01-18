@@ -25,7 +25,7 @@ exports.createRelease = (props, value = []) => {
   const { identifier, version, yanked, url } = props;
 
   assert(identifier, 'The `identifier` of the release is required.');
-  assert(version === 'Unreleased' || semver.valid(version), 'The `version` prop to do a release is not valid.');
+  assert(version === 'Unreleased' || !!semver.valid(version), 'The `version` prop to do a release is not valid.');
   validValue(value);
 
   // sanitize
@@ -59,7 +59,11 @@ exports.createChange = (value = []) => {
 
 function sortReleases(a, b) {
   if (a.version === 'Unreleased') {
-    return 0;
+    return -1;
+  }
+
+  if (b.version === 'Unreleased') {
+    return 1;
   }
 
   if (semver.lt(a.version, b.version)) {

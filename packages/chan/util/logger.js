@@ -25,10 +25,18 @@ function report({ logger, file, verbose }) {
       }
       logger.fatal(m);
     } else {
-      logger.info({ message: m.message, suffix: m.ruleId ? `(${m.ruleId})` : null });
+      logger[m.fatal === false ? 'warn' : 'info']({ message: m.message });
     }
   });
 }
+
+exports.hasWarnings = file => {
+  if (!file) {
+    return false;
+  }
+
+  return !!file.messages.find(m => m.fatal === false);
+};
 
 exports.createLogger = function createLogger({ scope, verbose, stdout }) {
   const logger = new Signale({

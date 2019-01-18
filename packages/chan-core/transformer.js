@@ -3,6 +3,8 @@ const unified = require('unified');
 const markdown = require('remark-parse');
 const removePosition = require('unist-util-remove-position');
 const { select, selectAll } = require('unist-util-select');
+const semver = require('semver');
+
 const { createPreface, createRelease, createAction, createGroup, createChange } = require('@geut/chast');
 const tplPreface = require('./templates/preface');
 
@@ -64,14 +66,42 @@ exports.addChanges = function addChanges({ changes }) {
   return compile;
 };
 
-exports.addRelease = function addRelease({ version, date = now(), yanked = false, gitTemplate, gitBranch }) {
+exports.addRelease = function addRelease({
+  version: userVersion,
+  date = now(),
+  yanked = false,
+  gitTemplate,
+  gitBranch,
+  allowYanked,
+  allowPrerelease,
+  mergePrerelease
+}) {
   function compile(tree, file) {
     const { children } = tree;
     const unreleased = select('release[identifier=unreleased]', tree);
     const unreleasedIdx = children.indexOf(unreleased);
+    const version = semver.valid(userVersion);
+    let isYanked = yanked;
 
-    if (!unreleased || (!yanked && unreleased.children.length === 0)) {
-      file.fail(new Error('There are not new changes to release.'));
+    if (!version) {
+      file.fail('Version release is not valid.');
+    }
+
+    const isPrerelease = !!semver.prerelease(version);
+
+    if (isPrerelease && !allowPrerelease && !mergePrerelease) {
+      // ignore prerelease
+      file.message('Ignoring release.', null, 'release:ignoring-prerelease');
+      return tree;
+    }
+
+    if (!unreleased || (!isYanked && unreleased.children.length === 0)) {
+      if (!allowYanked) {
+        file.fail('There are not new changes to release.', null, 'release:no-changes');
+      }
+
+      file.info('There are not new changes to release. Detecting yanked release.', null, 'release:allow-yanked');
+      isYanked = true;
     }
 
     if (select(`release[identifier=${version}]`, tree)) {
@@ -93,7 +123,7 @@ exports.addRelease = function addRelease({ version, date = now(), yanked = false
 
     // if it's a yanked release we don't want to add the unreleased changes
     let changes;
-    if (yanked) {
+    if (isYanked) {
       changes = [];
     } else {
       changes = unreleased.children;
@@ -105,7 +135,7 @@ exports.addRelease = function addRelease({ version, date = now(), yanked = false
         identifier: version.toLowerCase(),
         version,
         url: releaseUrl,
-        yanked,
+        yanked: isYanked,
         date
       },
       changes
