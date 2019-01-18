@@ -34,3 +34,25 @@ test('add release yanked', async () => {
 
   expect(file.toString()).toMatchSnapshot();
 });
+
+test('add release allowing prereleases', async () => {
+  const file = await addRelease(vfile.readSync(`${__dirname}/prereleases.md`), {
+    version: '0.0.2-beta.3',
+    gitTemplate: 'https://github.com/geut/chan/compare/[prev]...[next]',
+    gitBranch: 'HEAD',
+    allowPrerelease: true
+  });
+
+  expect(file.toString()).toMatchSnapshot();
+});
+
+test('add release merged with prereleases', async () => {
+  const file = await addRelease(vfile.readSync(`${__dirname}/prereleases.md`), {
+    version: '0.0.2',
+    gitTemplate: 'https://github.com/geut/chan/compare/[prev]...[next]',
+    gitBranch: 'HEAD',
+    mergePrerelease: true
+  });
+
+  expect(file.toString()).toMatchSnapshot();
+});

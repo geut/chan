@@ -38,6 +38,16 @@ const { initialize, addChanges, addRelease } = require('..');
 
     console.error(report(file, { quiet: true }));
     console.log(file.contents);
+
+    file = await addRelease(vfile.readSync(`${__dirname}/../__tests__/prereleases.md`), {
+      version: '0.0.2',
+      gitTemplate: 'https://github.com/olivierlacan/keep-a-changelog/compare/[prev]...[next]',
+      gitBranch: 'master',
+      mergePrerelease: true
+    });
+
+    console.error(report(file, { quiet: true }));
+    console.log(file.contents);
   } catch (err) {
     console.log(err);
   }
