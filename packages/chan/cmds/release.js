@@ -1,7 +1,7 @@
 const { resolve } = require('path');
 const toVFile = require('to-vfile');
 const semver = require('semver');
-const { create as createGhRelease } = require('ghreleases');
+const { create: createGhRelease } = require('ghreleases');
 
 const { addRelease } = require('@geut/chan-core');
 const gitCompareTemplate = require('@geut/git-compare-template');
