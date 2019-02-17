@@ -13,7 +13,7 @@
     "eslint-config-prettier": "^3.3.0",
     "eslint-plugin-jest": "^22.0.0",
     "eslint-plugin-prettier": "^3.0.0",
-    "lerna": "^3.4.3",
+    "lerna": "^3.13.0",
     "prettier": "^1.15.2"
   },
   "keywords": [
