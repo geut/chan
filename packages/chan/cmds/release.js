@@ -54,7 +54,7 @@ exports.builder = {
     type: 'boolean',
     default: false
   },
-  'ghrelease': {
+  ghrelease: {
     describe: 'Uploads a github release based on your CHANGELOG',
     type: 'boolean',
     default: false
@@ -137,7 +137,7 @@ exports.handler = async function({
       body: file.contents
     };
 
-    await createGhRelease(ghAuth, process.env.GITHUB_ORG || '', process.env.GITHUB_REPO, ghData, (err, release) => {
+    await createGhRelease(ghAuth, process.env.GITHUB_ORG || '', process.env.GITHUB_REPO, ghData, err => {
       return new Promise((resolve, reject) => {
         if (err) {
           report(err);
