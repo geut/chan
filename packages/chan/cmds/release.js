@@ -1,6 +1,7 @@
 const { resolve } = require('path');
 const toVFile = require('to-vfile');
 const semver = require('semver');
+const { create as createGhRelease } = require('ghreleases');
 
 const { addRelease } = require('@geut/chan-core');
 const gitCompareTemplate = require('@geut/git-compare-template');
@@ -52,6 +53,11 @@ exports.builder = {
     describe: 'Merge the prerelease versions into the next stable version',
     type: 'boolean',
     default: false
+  },
+  'ghrelease': {
+    describe: 'Uploads a github release based on your CHANGELOG',
+    type: 'boolean',
+    default: false
   }
 };
 
@@ -65,6 +71,7 @@ exports.handler = async function({
   allowYanked,
   allowPrerelease,
   mergePrerelease,
+  ghrelease,
   verbose,
   stdout
 }) {
@@ -74,6 +81,20 @@ exports.handler = async function({
   try {
     if (!version) {
       throw new Error('Version release is not valid.');
+    }
+
+    // check if we have permissions, if we dont, fail early
+    if (ghrelease) {
+      if (!process.env.GITHUB_TOKEN) {
+        return report(new Error(`AUTH ERROR: ghrelease option is enabled but there is no GITHUB_TOKEN.`));
+      }
+      if (!process.env.GITHUB_USERNAME) {
+        return report(new Error(`AUTH ERROR: ghrelease option is enabled but there is no GITHUB_USERNAME.`));
+      }
+      if (!process.env.GITHUB_REPO) {
+        return report(new Error(`AUTH ERROR: ghrelease option is enabled but there is no GITHUB_REPO.`));
+      }
+      // NOTE(dk): GITHUB_ORG is optional
     }
 
     const file = await toVFile.read(resolve(path, 'CHANGELOG.md'));
@@ -102,6 +123,31 @@ exports.handler = async function({
     });
 
     await write({ file, stdout });
+
+    // upload ghrelease. Add message to the user
+    report({ message: 'Uploading GitHub release...' });
+    const ghAuth = {
+      token: process.env.GITHUB_TOKEN,
+      user: process.env.GITHUB_USERNAME
+    };
+
+    const ghData = {
+      tag_name: version,
+      name: version,
+      body: file.contents
+    };
+
+    await createGhRelease(ghAuth, process.env.GITHUB_ORG || '', process.env.GITHUB_REPO, ghData, (err, release) => {
+      return new Promise((resolve, reject) => {
+        if (err) {
+          report(err);
+          reject(err);
+        }
+
+        report({ message: 'GitHub release uploaded succesfully' });
+        resolve();
+      });
+    });
 
     report(file);
 
