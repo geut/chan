@@ -1,6 +1,6 @@
 {
   "name": "@geut/chan",
-  "version": "2.0.0-beta.6",
+  "version": "2.0.0",
   "description": "Chan CLI used for writing and maintaining a CHANGELOG",
   "homepage": "http://geutstudio.com",
   "main": "index.js",
@@ -20,8 +20,8 @@
     "access": "public"
   },
   "dependencies": {
-    "@geut/chan-core": "^2.0.0-beta.6",
-    "@geut/git-url-parse": "^2.0.0-beta.6",
+    "@geut/chan-core": "^2.0.0",
+    "@geut/git-url-parse": "^2.0.0",
     "boxen": "^2.1.0",
     "editor": "^1.0.0",
     "find-up": "^3.0.0",
