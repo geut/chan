@@ -183,7 +183,7 @@ will generate releases with the url:
 
 #### `--allow-yanked` (`boolean`)
 
-Allow yanked releases.
+Allow yanked releases. When this option is true and the release doesn't have new changes it will released as a yanked version.
 
 #### `--allow-prerelease` (`boolean`)
 
