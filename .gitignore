@@ -26,12 +26,21 @@ build/Release
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
 node_modules
 
+# Eslint cache
+.eslintcache
+
 src/tests/dest
 
 es5/
 
 /dist
 
+packages/**/dist
+
 .tern-project
 
 .nyc_output
+
+.vscode
+
+lerna-debug.log

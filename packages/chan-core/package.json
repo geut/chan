@@ -1,0 +1,42 @@
+{
+  "name": "@geut/chan-core",
+  "version": "2.0.0-beta.6",
+  "description": "API and transforms to work with chast",
+  "homepage": "http://geutstudio.com",
+  "main": "index.js",
+  "author": {
+    "name": "GEUT",
+    "email": "contact@geutstudio.com"
+  },
+  "license": "ISC",
+  "repository": "https://github.com/geut/chan/tree/master/packages/chan-core",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@geut/chan-stringify": "^2.0.0-beta.6",
+    "@geut/chast": "^2.0.0-beta.6",
+    "@geut/remark-chan": "^2.0.0-beta.6",
+    "remark-parse": "^6.0.3",
+    "semver": "^5.6.0",
+    "unified": "^7.1.0",
+    "unist-util-remove-position": "^1.1.2",
+    "unist-util-select": "^2.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^5.12.0",
+    "jest": "^23.6.0",
+    "jest-date-mock": "^1.0.7",
+    "to-vfile": "^5.0.2",
+    "vfile-reporter": "^5.1.1"
+  },
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint . --ignore-path ../../.eslintignore"
+  },
+  "jest": {
+    "setupFiles": [
+      "jest-date-mock"
+    ]
+  }
+}

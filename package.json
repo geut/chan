@@ -1,75 +1,20 @@
 {
   "name": "@geut/chan",
   "version": "1.3.0",
-  "description": "Changelog CLI",
-  "main": "./es5/index.js",
-  "bin": {
-    "chan": "./es5/bin/cmd.js"
-  },
+  "description": "Chan monorepo",
   "scripts": {
-    "test": "ava --verbose",
-    "posttest": "eslint src",
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "build": "del-cli es5 && babel src --out-dir es5",
-    "watch": "npm run build -- --watch",
-    "version": "chan release ${npm_package_version} && git add .",
-    "prepublish": "npm test && npm run build"
-  },
-  "ava": {
-    "require": "babel-register",
-    "files": [
-      "test/commands/*.js"
-    ]
-  },
-  "files": [
-    "es5"
-  ],
-  "dependencies": {
-    "chalk": "^1.1.3",
-    "editor": "^1.0.0",
-    "git-url-parse": "^6.0.5",
-    "gitconfiglocal": "^2.0.1",
-    "load-json-file": "^2.0.0",
-    "pify": "^2.3.0",
-    "pkg-conf": "^1.1.3",
-    "remark": "^6.0.0",
-    "req-cwd": "^1.0.1",
-    "tempfile": "^1.1.1",
-    "unist-util-remove-position": "^1.1.0",
-    "yargs": "^5.0.0"
+    "bootstrap": "lerna clean && lerna bootstrap",
+    "test": "lerna run test",
+    "posttest": "npm run lint",
+    "lint": "lerna run lint",
+    "lint:fix": "lerna run lint -- -- --fix"
   },
   "devDependencies": {
-    "ava": "^0.16.0",
-    "babel-cli": "^6.14.0",
-    "babel-plugin-add-module-exports": "^0.2.1",
-    "babel-plugin-transform-object-assign": "^6.8.0",
-    "babel-preset-es2015": "^6.14.0",
-    "babel-register": "^6.14.0",
-    "cp-file": "^3.2.0",
-    "del": "^2.2.2",
-    "del-cli": "^0.2.0",
-    "eslint": "^3.4.0",
-    "eslint-config-postcss": "^2.0.2",
-    "mkdirp": "^0.5.1",
-    "nyc": "^8.1.0",
-    "os-tmpdir": "^1.0.1",
-    "proxyquire": "^1.7.10",
-    "uid2": "0.0.3"
-  },
-  "eslintConfig": {
-    "extends": "postcss",
-    "rules": {
-      "max-len": 0
-    }
-  },
-  "babel": {
-    "presets": [
-      "es2015"
-    ],
-    "plugins": [
-      "transform-object-assign",
-      "add-module-exports"
-    ]
+    "eslint-config-prettier": "^3.3.0",
+    "eslint-plugin-jest": "^22.0.0",
+    "eslint-plugin-prettier": "^3.0.0",
+    "lerna": "^3.13.0",
+    "prettier": "^1.15.2"
   },
   "keywords": [
     "cli",

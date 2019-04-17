@@ -1,0 +1,33 @@
+{
+  "name": "@geut/remark-chan",
+  "version": "2.0.0-beta.6",
+  "description": "Parser mdast to chast",
+  "homepage": "http://geutstudio.com",
+  "main": "index.js",
+  "author": {
+    "name": "GEUT",
+    "email": "contact@geutstudio.com"
+  },
+  "license": "ISC",
+  "repository": "https://github.com/geut/chan/tree/master/packages/remark-chan",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@geut/chast": "^2.0.0-beta.6",
+    "unist-util-remove-position": "^1.1.2",
+    "unist-util-select": "^2.0.0"
+  },
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint . --ignore-path ../../.eslintignore"
+  },
+  "devDependencies": {
+    "eslint": "^5.12.0",
+    "jest": "^23.6.0",
+    "remark-parse": "^6.0.3",
+    "to-vfile": "^5.0.2",
+    "unified": "^7.1.0",
+    "unist-util-inspect": "^4.1.3"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "@geut/git-url-parse",
+  "version": "2.0.0-beta.6",
+  "description": "Function to parse a git url and generates template url for the git compare preview.",
+  "homepage": "http://geutstudio.com",
+  "main": "index.js",
+  "author": {
+    "name": "GEUT",
+    "email": "contact@geutstudio.com"
+  },
+  "license": "ISC",
+  "repository": "https://github.com/geut/chan/tree/master/packages/git-url-parse",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "find-up": "^3.0.0",
+    "git-url-parse": "^11.1.2",
+    "gitconfiglocal": "^2.0.2"
+  },
+  "scripts": {
+    "lint": "eslint . --ignore-path ../../.eslintignore"
+  },
+  "devDependencies": {
+    "eslint": "^5.12.0",
+    "jest": "^23.6.0"
+  }
+}
