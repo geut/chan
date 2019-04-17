@@ -27,10 +27,6 @@ exports.builder = {
   'git-url': {
     describe: 'Define the url of the repository project.',
     type: 'string'
-  },
-  token: {
-    describe: 'Define a GitHub token.',
-    type: 'string'
   }
 };
 
