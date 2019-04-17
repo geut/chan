@@ -75,7 +75,7 @@ exports.handler = async function({
   verbose,
   stdout
 }) {
-  const { report, success } = createLogger({ scope: 'release', verbose, stdout });
+  const { report, success, info, warn } = createLogger({ scope: 'release', verbose, stdout });
   const version = semver.valid(userVersion);
 
   try {
@@ -125,7 +125,8 @@ exports.handler = async function({
     await write({ file, stdout });
 
     // upload ghrelease. Add message to the user
-    report({ message: 'Uploading GitHub release...' });
+    info('Uploading GitHub release...');
+
     const ghAuth = {
       token: process.env.GITHUB_TOKEN,
       user: process.env.GITHUB_USERNAME
@@ -137,14 +138,14 @@ exports.handler = async function({
       body: file.contents
     };
 
-    await createGhRelease(ghAuth, process.env.GITHUB_ORG || '', process.env.GITHUB_REPO, ghData, err => {
-      return new Promise((resolve, reject) => {
+    await new Promise(resolve => {
+      createGhRelease(ghAuth, process.env.GITHUB_ORG || '', process.env.GITHUB_REPO, ghData, err => {
         if (err) {
-          report(err);
-          reject(err);
+          warn(err);
+          resolve();
         }
 
-        report({ message: 'GitHub release uploaded succesfully' });
+        info('GitHub release uploaded succesfully');
         resolve();
       });
     });

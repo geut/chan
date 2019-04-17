@@ -171,9 +171,20 @@ Example:
 will generate releases with the url:
 `https://otherhost.com/geut/chan/compare/v0.0.1..HEAD`
 
+#### `--ghrelease` (`boolean`)
+
+Uploads a github release based on your CHANGELOG.
+
 #### `--git-branch` (`string`)
 
 Defines which branch chan is going to use to compare the unreleased version.
+
+In order to use this feature you need to set the next environment variables:
+
+- GITHUB_TOKEN
+- GITHUB_USERNAME
+- GITHUB_ORG
+- GITHUB_REPO
 
 Example:
 `chan release 0.0.1 --git-branch master`
