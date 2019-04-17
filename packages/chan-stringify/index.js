@@ -7,7 +7,7 @@ const removePosition = require('unist-util-remove-position');
 
 const spaces = require('./spaces');
 
-function stringify() {
+function stringify({ withPreface = true } = {}) {
   this.Compiler = compiler;
 
   const processor = unified()
@@ -22,7 +22,7 @@ function stringify() {
   function compiler(tree, file) {
     return processor.stringify(
       u('root', [
-        ...compilePreface({ tree, parse, file }),
+        ...(withPreface ? compilePreface({ tree, parse, file }) : []),
         ...compileReleases({ tree, parse, file }),
         ...compileLinks({ tree, parse, file })
       ])

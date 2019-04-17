@@ -1,7 +1,7 @@
 const { promisify } = require('util');
 const gitconfig = promisify(require('gitconfiglocal'));
 const findUp = require('find-up');
-const GitUrlParse = require('git-url-parse');
+const _gitUrlParse = require('git-url-parse');
 
 const providers = {
   github: {
@@ -18,25 +18,32 @@ const providers = {
   }
 };
 
-module.exports = async function gitCompareTemplate({ url }) {
-  let remote;
+module.exports = async function gitUrlParse({ url }) {
+  let result;
 
   if (url) {
-    remote = GitUrlParse(url);
+    result = _gitUrlParse(url);
   } else {
     const path = await findUp('.git');
 
     if (!path) {
-      throw new Error('Git repository missing, we can not to generate the compare url.');
+      return null;
     }
 
     const info = await gitconfig(path);
 
-    remote = GitUrlParse(info.remote.origin.url);
+    result = _gitUrlParse(info.remote.origin.url);
   }
 
-  let { template, branch } = providers[Object.keys(providers).find(p => remote.source.includes(p))];
-  template = template.replace('[full_name]', remote.full_name);
+  if (result.source.length === 0) {
+    return null;
+  }
 
-  return { template, branch };
+  let { template, branch } = providers[Object.keys(providers).find(p => result.source.includes(p))];
+  template = template.replace('[full_name]', result.full_name);
+
+  result.template = template;
+  result.branch = branch;
+
+  return result;
 };

@@ -1,10 +1,10 @@
 const { resolve } = require('path');
 const toVFile = require('to-vfile');
 const semver = require('semver');
-const { create: createGhRelease } = require('ghreleases');
+const { createGithubRelease } = require('./gh-release');
 
 const { addRelease } = require('@geut/chan-core');
-const gitCompareTemplate = require('@geut/git-compare-template');
+const gitUrlParse = require('@geut/git-url-parse');
 
 const { createLogger, hasWarnings } = require('../util/logger');
 const write = require('../util/write');
@@ -75,7 +75,7 @@ exports.handler = async function({
   verbose,
   stdout
 }) {
-  const { report, success, info, warn } = createLogger({ scope: 'release', verbose, stdout });
+  const { report, success, info, warn, error } = createLogger({ scope: 'release', verbose, stdout });
   const version = semver.valid(userVersion);
 
   try {
@@ -83,27 +83,16 @@ exports.handler = async function({
       throw new Error('Version release is not valid.');
     }
 
-    // check if we have permissions, if we dont, fail early
-    if (ghrelease) {
-      if (!process.env.GITHUB_TOKEN) {
-        return report(new Error(`AUTH ERROR: ghrelease option is enabled but there is no GITHUB_TOKEN.`));
-      }
-      if (!process.env.GITHUB_USERNAME) {
-        return report(new Error(`AUTH ERROR: ghrelease option is enabled but there is no GITHUB_USERNAME.`));
-      }
-      if (!process.env.GITHUB_REPO) {
-        return report(new Error(`AUTH ERROR: ghrelease option is enabled but there is no GITHUB_REPO.`));
-      }
-      // NOTE(dk): GITHUB_ORG is optional
-    }
-
     const file = await toVFile.read(resolve(path, 'CHANGELOG.md'));
 
+    const gitParsed = await gitUrlParse({ url: gitUrl });
+
     if (!gitTemplate) {
-      const compare = await getTemplate({ file, url: gitUrl });
-      if (compare) {
-        gitTemplate = compare.template;
-        gitBranch = gitBranch || compare.branch;
+      if (gitParsed) {
+        gitTemplate = gitParsed.template;
+        gitBranch = gitBranch || gitParsed.branch;
+      } else {
+        file.message(`Missing url to compare releases.`);
       }
     }
 
@@ -124,31 +113,9 @@ exports.handler = async function({
 
     await write({ file, stdout });
 
-    // upload ghrelease. Add message to the user
-    info('Uploading GitHub release...');
-
-    const ghAuth = {
-      token: process.env.GITHUB_TOKEN,
-      user: process.env.GITHUB_USERNAME
-    };
-
-    const ghData = {
-      tag_name: version,
-      name: version,
-      body: file.contents
-    };
-
-    await new Promise(resolve => {
-      createGhRelease(ghAuth, process.env.GITHUB_ORG || '', process.env.GITHUB_REPO, ghData, err => {
-        if (err) {
-          warn(err);
-          resolve();
-        }
-
-        info('GitHub release uploaded succesfully');
-        resolve();
-      });
-    });
+    if (ghrelease) {
+      await createGithubRelease({ file, version, success, info, warn, error, gitParsed });
+    }
 
     report(file);
 
@@ -161,18 +128,3 @@ exports.handler = async function({
 
   success(`New release created. ${version}`);
 };
-
-async function getTemplate({ file, url }) {
-  try {
-    const template = await gitCompareTemplate({ file, url });
-
-    if (!template) {
-      throw new Error('template null');
-    }
-
-    return template;
-  } catch (err) {
-    file.message(`Missing url to compare releases.`);
-    return null;
-  }
-}

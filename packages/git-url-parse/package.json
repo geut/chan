@@ -1,7 +1,7 @@
 {
-  "name": "@geut/git-compare-template",
+  "name": "@geut/git-url-parse",
   "version": "2.0.0-beta.5",
-  "description": "Function to define template url for the git compare preview.",
+  "description": "Function to parse a git url and generates template url for the git compare preview.",
   "homepage": "http://geutstudio.com",
   "main": "index.js",
   "author": {
@@ -9,7 +9,7 @@
     "email": "contact@geutstudio.com"
   },
   "license": "ISC",
-  "repository": "https://github.com/geut/chan/tree/master/packages/git-compare-template",
+  "repository": "https://github.com/geut/chan/tree/master/packages/git-url-parse",
   "publishConfig": {
     "access": "public"
   },

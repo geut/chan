@@ -14,6 +14,7 @@ See more here: [keepachangelog.com](http://keepachangelog.com/)
   - [`chan init`](#command-init)
   - [`chan <action>`](#command-action)
   - [`chan release`](#command-release)
+  - [`chan gh-release`](#command-gh-release)
 - [Global options](#global-options)
   - [Configure with `package.json`](#config-package-json)
 - [Issues](#issues)
@@ -171,25 +172,30 @@ Example:
 will generate releases with the url:
 `https://otherhost.com/geut/chan/compare/v0.0.1..HEAD`
 
-#### `--ghrelease` (`boolean`)
-
-Uploads a github release based on your CHANGELOG.
-
 #### `--git-branch` (`string`)
 
 Defines which branch chan is going to use to compare the unreleased version.
-
-In order to use this feature you need to set the next environment variables:
-
-- GITHUB_TOKEN
-- GITHUB_USERNAME
-- GITHUB_ORG
-- GITHUB_REPO
 
 Example:
 `chan release 0.0.1 --git-branch master`
 will generate releases with the url:
 `https://github.com/geut/chan/compare/v0.0.1..master`
+
+#### `--gh-release` (`boolean`)
+
+Uploads a github release based on your CHANGELOG.
+
+## <a name="command-gh-release"></a>`chan gh-release <semver>`
+
+Uploads a github release based on your CHANGELOG.
+
+> If you don't want to generate a new token for github you can set the GITHUB_USER and GITHUB_TOKEN environment variables.
+
+### Options
+
+#### `--git-url` (`string`)
+
+Define the url of the repository project.
 
 ## <a name="global-options"></a> Global options
 
