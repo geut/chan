@@ -6,6 +6,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.0.0] - 2019-04-17
+### Added
+- Lerna and a new organization of packages.
+  - chast: Unist compatible spec for changelogs and helpers to nodes creation.
+  - remark-chan: Parser mdast to chast.
+  - chan-stringify: Stringify chast to keepachangelog markdown.
+  - chan-core: API and transforms to work with chast.
+  - chan: The original CLI but we new shiny features and using the new core modules.
+- Support for prereleases.
+- Support for gh-releases.
+
+### Removed
+- Plugins system.
+
 ## [1.3.0] - 2018-10-29
 ### Added
 - Added chan as default export to expose api (init, changes & release)
@@ -15,14 +29,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Updated Changelog head wording according to [Keep a Changelog](http://keepachangelog.com/) v1.0.0
 - Readme with better documentation for API and programmatic usage
 
-## [1.3.0-0] - 2017-02-10 [YANKED]
+## [1.3.0-0] - 2017-02-10
 
 ## [1.2.0] - 2016-09-24
 ### Changed
 - changed yargs config in favor of a custom config function
-
   We made a function that create a configuration for the CLI where you can set global arguments, command arguments and define plugins using a config JSON file or the package.json.
-
   Yargs has a similar functionality but is not working as we want.
 
 ## [1.1.0] - 2016-09-21
@@ -45,7 +57,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 - git-first-commit dependency
 
-[unreleased]: https://github.com/geut/chan/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/geut/chan/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/geut/chan/compare/v1.3.0...v2.0.0
 [1.3.0]: https://github.com/geut/chan/compare/v1.3.0-0...v1.3.0
 [1.3.0-0]: https://github.com/geut/chan/compare/v1.2.0...v1.3.0-0
 [1.2.0]: https://github.com/geut/chan/compare/v1.1.0...v1.2.0
