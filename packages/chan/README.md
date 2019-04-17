@@ -181,7 +181,19 @@ Example:
 will generate releases with the url:
 `https://github.com/geut/chan/compare/v0.0.1..master`
 
-#### `--gh-release` (`boolean`)
+#### `--allow-yanked` (`boolean`)
+
+Allow yanked releases.
+
+#### `--allow-prerelease` (`boolean`)
+
+Allow prerelease versions.
+
+#### `--merge-prerelease` (`boolean`)
+
+Merge the prerelease versions into the next stable version.
+
+#### `--ghrelease` (`boolean`)
 
 Uploads a github release based on your CHANGELOG.
 
