@@ -58,6 +58,11 @@ exports.builder = {
     describe: 'Uploads a github release based on your CHANGELOG',
     type: 'boolean',
     default: false
+  },
+  git: {
+    describe: 'Build a changelog with git support.',
+    type: 'boolean',
+    default: true
   }
 };
 
@@ -72,6 +77,7 @@ exports.handler = async function({
   allowPrerelease,
   mergePrerelease,
   ghrelease,
+  git,
   verbose,
   stdout
 }) {
@@ -85,9 +91,13 @@ exports.handler = async function({
 
     const file = await toVFile.read(resolve(path, 'CHANGELOG.md'));
 
-    const gitParsed = await gitUrlParse({ url: gitUrl });
+    let gitParsed = null;
 
-    if (!gitTemplate) {
+    if (git) {
+      gitParsed = await gitUrlParse({ url: gitUrl }).catch(() => null);
+    }
+
+    if (git && !gitTemplate) {
       if (gitParsed) {
         gitTemplate = gitParsed.template;
         gitBranch = gitBranch || gitParsed.branch;
@@ -113,7 +123,10 @@ exports.handler = async function({
 
     await write({ file, stdout });
 
-    if (ghrelease) {
+    if (git && ghrelease) {
+      if (!gitParsed) {
+        file.message(`Cannot create a Github Release without the git url.`);
+      }
       await createGithubRelease({ file, version, success, info, warn, error, gitParsed });
     }
 
