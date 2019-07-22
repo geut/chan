@@ -130,7 +130,7 @@ exports.addRelease = function addRelease({
       const prereleaseChanges = prereleases.reduce((prev, current) => {
         return mergeActionChanges([...prev, ...current.children]);
       }, []);
-      changes = [...changes, ...prereleaseChanges];
+      changes = mergeActionChanges([...changes, ...prereleaseChanges]);
     }
 
     // define the urls
@@ -204,10 +204,9 @@ function mergeActionChanges(actions) {
 
     if (!currentAction) {
       return [...result, action];
-    } else {
-      currentAction.children = mergeChanges([...currentAction.children, ...action.children]);
     }
 
+    currentAction.children = mergeChanges([...currentAction.children, ...action.children]);
     return result;
   }, []);
 }
