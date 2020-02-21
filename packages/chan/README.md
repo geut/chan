@@ -195,13 +195,11 @@ Merge the prerelease versions into the next stable version.
 
 #### `--ghrelease` (`boolean`)
 
-Uploads a github release based on your CHANGELOG.
+It opens a url in the browser with the github release.
 
 ## <a name="command-gh-release"></a>`chan gh-release <semver>`
 
-Uploads a github release based on your CHANGELOG.
-
-> If you don't want to generate a new token for github you can set the GITHUB_USER and GITHUB_TOKEN environment variables.
+It opens a url in the browser with the github release.
 
 ### Options
 

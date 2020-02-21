@@ -1,8 +1,8 @@
 const { resolve } = require('path');
 const toVFile = require('to-vfile');
 const semver = require('semver');
-const { create: createGhRelease } = require('ghreleases');
-const ghauth = require('ghauth');
+const newGithubReleaseUrl = require('new-github-release-url');
+const open = require('open');
 const { promisify } = require('util');
 
 const gitUrlParse = require('@geut/git-url-parse');
@@ -60,34 +60,21 @@ async function createGithubRelease({ file, version, success, info, warn, error, 
     return;
   }
 
-  const authOptions = {
-    configName: 'chan',
-
-    scopes: ['repo'],
-
-    note: 'Token for github releases using @geut/chan',
-
-    userAgent: 'Chan'
-  };
-
-  let authData = { user: process.env.GITHUB_USER, token: process.env.GITHUB_TOKEN };
-
   try {
-    const ghData = {
-      tag_name: `v${version}`,
-      name: `v${version}`,
+    const url = newGithubReleaseUrl({
+      user: gitParsed.owner,
+      repo: gitParsed.name,
+      tag: `v${version}`,
+      title: `v${version}`,
+      isPrerelease: Boolean(semver.prerelease(version)),
       body: getMarkdownRelease(file, { version })
-    };
+    });
 
-    if (!authData.user || !authData.token) {
-      authData = await promisify(ghauth)(authOptions);
-    }
+    info('Preparing GitHub release...');
 
-    info('Uploading GitHub release...');
+    await open(url);
 
-    await promisify(createGhRelease)(authData, gitParsed.owner, gitParsed.name, ghData);
-
-    success('GitHub release uploaded succesfully.');
+    success('GitHub release created and pushed to the browser.');
   } catch (err) {
     error(err);
   }
