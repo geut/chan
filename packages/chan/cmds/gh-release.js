@@ -3,7 +3,6 @@ const toVFile = require('to-vfile');
 const semver = require('semver');
 const newGithubReleaseUrl = require('new-github-release-url');
 const open = require('open');
-const { promisify } = require('util');
 
 const gitUrlParse = require('@geut/git-url-parse');
 
