@@ -28,7 +28,7 @@
   "devDependencies": {
     "@geut/remark-chan": "^2.0.0",
     "eslint": "^5.12.0",
-    "jest": "^23.6.0",
+    "jest": "^24.8.0",
     "to-vfile": "^5.0.2",
     "vfile-reporter": "^5.1.1"
   }
