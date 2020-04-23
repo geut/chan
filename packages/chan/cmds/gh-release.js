@@ -3,6 +3,7 @@ const toVFile = require('to-vfile');
 const semver = require('semver');
 const newGithubReleaseUrl = require('new-github-release-url');
 const open = require('open');
+const { GitHub } = require('@actions/github');
 
 const gitUrlParse = require('@geut/git-url-parse');
 
@@ -29,7 +30,7 @@ exports.builder = {
   }
 };
 
-exports.handler = async function({ semver: userVersion, path, gitUrl, verbose, stdout }) {
+async function handler({ semver: userVersion, path, gitUrl, verbose, stdout }) {
   const { success, info, warn, error } = createLogger({ scope: 'gh-release', verbose, stdout });
 
   const version = semver.valid(userVersion);
@@ -46,7 +47,7 @@ exports.handler = async function({ semver: userVersion, path, gitUrl, verbose, s
   getMarkdownRelease(file, { version });
 
   await createGithubRelease({ file, version, success, info, warn, error, gitParsed });
-};
+}
 
 async function createGithubRelease({ file, version, success, info, warn, error, gitParsed }) {
   if (!gitParsed) {
@@ -60,23 +61,37 @@ async function createGithubRelease({ file, version, success, info, warn, error, 
   }
 
   try {
-    const url = newGithubReleaseUrl({
+    info('Uploading GitHub release...');
+
+    const data = {
       user: gitParsed.owner,
       repo: gitParsed.name,
       tag: `v${version}`,
       title: `v${version}`,
-      isPrerelease: Boolean(semver.prerelease(version)),
-      body: getMarkdownRelease(file, { version })
-    });
+      body: getMarkdownRelease(file, { version }),
+      isPrerelease: Boolean(semver.prerelease(version))
+    };
 
-    info('Preparing GitHub release...');
+    if (process.env.GITHUB_TOKEN) {
+      const github = new GitHub(process.env.GITHUB_TOKEN);
 
-    await open(url);
+      await github.repos.createRelease({
+        owner: data.user,
+        repo: data.repo,
+        tag_name: data.tag,
+        name: data.title,
+        body: data.body,
+        prerelease: data.isPrerelease
+      });
+    } else {
+      await open(newGithubReleaseUrl(data), { wait: true });
+    }
 
-    success('GitHub release created and pushed to the browser.');
+    success('GitHub release created.');
   } catch (err) {
     error(err);
   }
 }
 
+exports.handler = handler;
 exports.createGithubRelease = createGithubRelease;

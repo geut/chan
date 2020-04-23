@@ -195,11 +195,15 @@ Merge the prerelease versions into the next stable version.
 
 #### `--ghrelease` (`boolean`)
 
-It opens a url in the browser with the github release.
+Creates a github release.
+
+By default it opens the browser with the github release to edit and accept.
+
+If you define the env [GITHUB_TOKEN](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line) it will publish the release directly, *best option for CI*.
 
 ## <a name="command-gh-release"></a>`chan gh-release <semver>`
 
-It opens a url in the browser with the github release.
+Creates a github release.
 
 ### Options
 
