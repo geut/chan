@@ -59,11 +59,6 @@ exports.builder = {
     type: 'boolean',
     default: false
   },
-  'ghrelease-browser': {
-    describe: 'Use the browser to publish the release',
-    type: 'boolean',
-    default: true
-  },
   git: {
     describe: 'Build a changelog with git support.',
     type: 'boolean',
@@ -82,7 +77,6 @@ exports.handler = async function({
   allowPrerelease,
   mergePrerelease,
   ghrelease,
-  ghreleaseBrowser,
   git,
   verbose,
   stdout
@@ -133,7 +127,7 @@ exports.handler = async function({
       if (!gitParsed) {
         file.message(`Cannot create a Github Release without the git url.`);
       }
-      await createGithubRelease({ file, version, browser: ghreleaseBrowser, success, info, warn, error, gitParsed });
+      await createGithubRelease({ file, version, success, info, warn, error, gitParsed });
     }
 
     report(file);
