@@ -1,6 +1,6 @@
 {
   "name": "@geut/remark-chan",
-  "version": "2.0.0",
+  "version": "2.2.0",
   "description": "Parser mdast to chast",
   "homepage": "http://geutstudio.com",
   "main": "index.js",
@@ -14,7 +14,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@geut/chast": "^2.0.0",
+    "@geut/chast": "^2.2.0",
     "unist-util-remove-position": "^1.1.2",
     "unist-util-select": "^2.0.0"
   },
