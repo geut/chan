@@ -86,7 +86,8 @@ exports.handler = async function({
 
   try {
     if (!version) {
-      throw new Error('Version release is not valid.');
+      error('Version release is not valid.');
+      return;
     }
 
     const file = await toVFile.read(resolve(path, 'CHANGELOG.md'));

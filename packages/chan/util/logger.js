@@ -11,19 +11,20 @@ function report({ logger, file, verbose }) {
       file.name = 'Error';
     }
 
-    if (!verbose) {
-      file.stack = null;
+    if (verbose) {
+      return logger.error(file)
     }
-    return logger.error(file);
+
+    return logger.error(file.message);
   }
 
   file.messages.forEach(m => {
     if (m.fatal) {
       m.name = 'Error';
-      if (!verbose) {
-        m.stack = null;
+      if (verbose) {
+        return logger.fatal(m)
       }
-      logger.fatal(m);
+      logger.fatal(m.message);
     } else {
       logger[m.fatal === false ? 'warn' : 'info']({ message: m.message });
     }
