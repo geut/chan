@@ -12,7 +12,7 @@ function report({ logger, file, verbose }) {
     }
 
     if (verbose) {
-      return logger.error(file)
+      return logger.error(file);
     }
 
     return logger.error(file.message);
@@ -22,7 +22,7 @@ function report({ logger, file, verbose }) {
     if (m.fatal) {
       m.name = 'Error';
       if (verbose) {
-        return logger.fatal(m)
+        return logger.fatal(m);
       }
       logger.fatal(m.message);
     } else {
