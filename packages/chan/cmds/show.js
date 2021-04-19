@@ -23,7 +23,7 @@ exports.builder = {
 };
 
 async function handler({ semver: userVersion, path, verbose, stdout }) {
-  const { success, info, warn, error } = createLogger({ scope: 'view', verbose, stdout });
+  const { error } = createLogger({ scope: 'view', verbose, stdout });
 
   const version = semver.valid(userVersion);
 
