@@ -15,6 +15,7 @@ See more here: [keepachangelog.com](http://keepachangelog.com/)
   - [`chan <action>`](#command-action)
   - [`chan release`](#command-release)
   - [`chan gh-release`](#command-gh-release)
+  - [`chan show`](#command-show)
 - [Global options](#global-options)
   - [Configure with `package.json`](#config-package-json)
 - [Issues](#issues)
@@ -210,6 +211,10 @@ Creates a github release.
 #### `--git-url` (`string`)
 
 Define the url of the repository project.
+
+## <a name="command-show"></a>`chan show <semver>`
+
+Shows the release notes for a specific version.
 
 ## <a name="global-options"></a> Global options
 
