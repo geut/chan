@@ -1,6 +1,6 @@
 {
   "name": "@geut/chan-stringify",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Stringify chast to keepachangelog markdown",
   "homepage": "http://geutstudio.com",
   "main": "index.js",
@@ -26,7 +26,7 @@
     "lint": "eslint . --ignore-path ../../.eslintignore"
   },
   "devDependencies": {
-    "@geut/remark-chan": "^2.2.0",
+    "@geut/remark-chan": "^2.3.0",
     "eslint": "^5.12.0",
     "jest": "^24.8.0",
     "to-vfile": "^5.0.2",
