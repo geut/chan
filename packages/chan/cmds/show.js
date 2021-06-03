@@ -1,7 +1,6 @@
 const { resolve } = require('path');
 const toVFile = require('to-vfile');
 const semver = require('semver');
-const open = require('open');
 
 const { getMarkdownRelease } = require('@geut/chan-core');
 const { createLogger } = require('../util/logger');
