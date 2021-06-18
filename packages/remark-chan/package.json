@@ -1,6 +1,6 @@
 {
   "name": "@geut/remark-chan",
-  "version": "3.0.0",
+  "version": "3.0.0-beta.0",
   "description": "Parser mdast to chast",
   "type": "module",
   "main": "./src/index.js",
@@ -12,7 +12,7 @@
     "lint": "standard \"**/*.js\""
   },
   "dependencies": {
-    "@geut/chast": "^3.0.0",
+    "@geut/chast": "^3.0.0-beta.0",
     "unist-util-remove-position": "^4.0.0",
     "unist-util-select": "^4.0.0"
   },
@@ -45,5 +45,5 @@
   "repository": "https://github.com/geut/chan/tree/master/packages/remark-chan",
   "publishConfig": {
     "access": "public"
-  }  
+  }
 }
