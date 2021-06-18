@@ -2,6 +2,12 @@
   "name": "@geut/chan",
   "version": "2.0.0",
   "description": "Chan monorepo",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
+  },
   "scripts": {
     "bootstrap": "lerna clean && lerna bootstrap",
     "test": "lerna run test",
@@ -10,11 +16,7 @@
     "lint:fix": "lerna run lint -- -- --fix"
   },
   "devDependencies": {
-    "eslint-config-prettier": "^3.3.0",
-    "eslint-plugin-jest": "^22.0.0",
-    "eslint-plugin-prettier": "^3.0.0",
-    "lerna": "^3.20.2",
-    "prettier": "^1.15.2"
+    "lerna": "^4.0.0"
   },
   "keywords": [
     "cli",

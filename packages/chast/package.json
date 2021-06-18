@@ -1,9 +1,18 @@
 {
   "name": "@geut/chast",
-  "version": "2.3.0",
+  "version": "3.0.0",
   "description": "Unist compatible spec for changelogs and helpers to nodes creation",
   "homepage": "http://geutstudio.com",
-  "main": "index.js",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./actions": "./src/actions.js"
+  },
+  "dependencies": {
+    "semver": "^7.3.5",
+    "unist-builder": "^3.0.0"
+  },
   "author": {
     "name": "GEUT",
     "email": "contact@geutstudio.com"
@@ -12,16 +21,5 @@
   "repository": "https://github.com/geut/chan/tree/master/packages/chast",
   "publishConfig": {
     "access": "public"
-  },
-  "dependencies": {
-    "semver": "^5.6.0",
-    "unist-builder": "^1.0.3"
-  },
-  "scripts": {
-    "lint": "eslint . --ignore-path ../../.eslintignore"
-  },
-  "devDependencies": {
-    "eslint": "^5.12.0",
-    "jest": "^24.8.0"
   }
 }

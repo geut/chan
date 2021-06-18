@@ -1,0 +1,359 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`parse mdast to chast 1`] = `
+Object {
+  "children": Array [
+    Object {
+      "children": Array [
+        Object {
+          "children": Array [
+            Object {
+              "type": "text",
+              "value": "Changelog",
+            },
+          ],
+          "depth": 1,
+          "type": "heading",
+        },
+        Object {
+          "children": Array [
+            Object {
+              "type": "text",
+              "value": "All notable changes to this project will be documented in this file.",
+            },
+          ],
+          "type": "paragraph",
+        },
+        Object {
+          "children": Array [
+            Object {
+              "type": "text",
+              "value": "The format is based on ",
+            },
+            Object {
+              "children": Array [
+                Object {
+                  "type": "text",
+                  "value": "Keep a Changelog",
+                },
+              ],
+              "title": null,
+              "type": "link",
+              "url": "https://keepachangelog.com/en/1.0.0/",
+            },
+            Object {
+              "type": "text",
+              "value": ",
+and this project adheres to ",
+            },
+            Object {
+              "children": Array [
+                Object {
+                  "type": "text",
+                  "value": "Semantic Versioning",
+                },
+              ],
+              "title": null,
+              "type": "link",
+              "url": "https://semver.org/spec/v2.0.0.html",
+            },
+            Object {
+              "type": "text",
+              "value": ".",
+            },
+          ],
+          "type": "paragraph",
+        },
+      ],
+      "type": "preface",
+    },
+    Object {
+      "children": Array [
+        Object {
+          "children": Array [
+            Object {
+              "children": Array [
+                Object {
+                  "children": Array [
+                    Object {
+                      "type": "text",
+                      "value": "Update and improvement of Polish translation from ",
+                    },
+                    Object {
+                      "children": Array [
+                        Object {
+                          "type": "text",
+                          "value": "@m-aciek",
+                        },
+                      ],
+                      "title": null,
+                      "type": "link",
+                      "url": "https://github.com/m-aciek",
+                    },
+                    Object {
+                      "type": "text",
+                      "value": ".",
+                    },
+                  ],
+                  "type": "paragraph",
+                },
+              ],
+              "type": "change",
+            },
+            Object {
+              "children": Array [
+                Object {
+                  "children": Array [
+                    Object {
+                      "children": Array [
+                        Object {
+                          "type": "text",
+                          "value": "test1",
+                        },
+                      ],
+                      "type": "paragraph",
+                    },
+                  ],
+                  "type": "change",
+                },
+                Object {
+                  "children": Array [
+                    Object {
+                      "children": Array [
+                        Object {
+                          "type": "text",
+                          "value": "test2",
+                        },
+                      ],
+                      "type": "paragraph",
+                    },
+                  ],
+                  "type": "change",
+                },
+              ],
+              "name": "package1",
+              "type": "group",
+            },
+          ],
+          "name": "Changed",
+          "type": "action",
+        },
+      ],
+      "date": null,
+      "identifier": "unreleased",
+      "type": "release",
+      "unreleased": true,
+      "url": "https://github.com/olivierlacan/keep-a-changelog/compare/v0.0.4...HEAD",
+      "version": "Unreleased",
+      "yanked": false,
+    },
+    Object {
+      "children": Array [
+        Object {
+          "children": Array [
+            Object {
+              "children": Array [
+                Object {
+                  "children": Array [
+                    Object {
+                      "type": "text",
+                      "value": "Better explanation of the difference between the file (\\"CHANGELOG\\")
+and its function \\"the change log\\".",
+                    },
+                  ],
+                  "type": "paragraph",
+                },
+              ],
+              "type": "change",
+            },
+          ],
+          "name": "Added",
+          "type": "action",
+        },
+        Object {
+          "children": Array [
+            Object {
+              "children": Array [
+                Object {
+                  "children": Array [
+                    Object {
+                      "type": "text",
+                      "value": "Refer to a \\"change log\\" instead of a \\"CHANGELOG\\" throughout the site
+to differentiate between the file and the purpose of the file — the
+logging of changes.",
+                    },
+                  ],
+                  "type": "paragraph",
+                },
+              ],
+              "type": "change",
+            },
+          ],
+          "name": "Changed",
+          "type": "action",
+        },
+        Object {
+          "children": Array [
+            Object {
+              "children": Array [
+                Object {
+                  "children": Array [
+                    Object {
+                      "type": "text",
+                      "value": "Remove empty sections from CHANGELOG, they occupy too much space and
+create too much noise in the file. People will have to assume that the
+missing sections were intentionally left out because they contained no
+notable changes.",
+                    },
+                  ],
+                  "type": "paragraph",
+                },
+              ],
+              "type": "change",
+            },
+          ],
+          "name": "Removed",
+          "type": "action",
+        },
+      ],
+      "date": "2014-08-09",
+      "identifier": "0.0.4",
+      "type": "release",
+      "unreleased": false,
+      "url": "https://github.com/olivierlacan/keep-a-changelog/compare/v0.0.3...v0.0.4",
+      "version": "0.0.4",
+      "yanked": false,
+    },
+    Object {
+      "children": Array [],
+      "date": "2014-08-09",
+      "identifier": "0.0.3",
+      "type": "release",
+      "unreleased": false,
+      "url": undefined,
+      "version": "0.0.3",
+      "yanked": true,
+    },
+    Object {
+      "children": Array [
+        Object {
+          "children": Array [
+            Object {
+              "children": Array [
+                Object {
+                  "children": Array [
+                    Object {
+                      "type": "text",
+                      "value": "Explanation of the recommended reverse chronological release ordering.",
+                    },
+                  ],
+                  "type": "paragraph",
+                },
+              ],
+              "type": "change",
+            },
+          ],
+          "name": "Added",
+          "type": "action",
+        },
+      ],
+      "date": "2014-07-10",
+      "identifier": "0.0.2",
+      "type": "release",
+      "unreleased": false,
+      "url": "https://github.com/olivierlacan/keep-a-changelog/compare/v0.0.1...v0.0.2",
+      "version": "0.0.2",
+      "yanked": false,
+    },
+    Object {
+      "children": Array [
+        Object {
+          "children": Array [
+            Object {
+              "children": Array [
+                Object {
+                  "children": Array [
+                    Object {
+                      "type": "text",
+                      "value": "This CHANGELOG file to hopefully serve as an evolving example of a
+standardized open source project CHANGELOG.",
+                    },
+                  ],
+                  "type": "paragraph",
+                },
+              ],
+              "type": "change",
+            },
+            Object {
+              "children": Array [
+                Object {
+                  "children": Array [
+                    Object {
+                      "type": "text",
+                      "value": "CNAME file to enable GitHub Pages custom domain",
+                    },
+                  ],
+                  "type": "paragraph",
+                },
+              ],
+              "type": "change",
+            },
+            Object {
+              "children": Array [
+                Object {
+                  "children": Array [
+                    Object {
+                      "type": "text",
+                      "value": "README now contains answers to common questions about CHANGELOGs",
+                    },
+                  ],
+                  "type": "paragraph",
+                },
+              ],
+              "type": "change",
+            },
+            Object {
+              "children": Array [
+                Object {
+                  "children": Array [
+                    Object {
+                      "type": "text",
+                      "value": "Good examples and basic guidelines, including proper date formatting.",
+                    },
+                  ],
+                  "type": "paragraph",
+                },
+              ],
+              "type": "change",
+            },
+            Object {
+              "children": Array [
+                Object {
+                  "children": Array [
+                    Object {
+                      "type": "text",
+                      "value": "Counter-examples: \\"What makes unicorns cry?\\"",
+                    },
+                  ],
+                  "type": "paragraph",
+                },
+              ],
+              "type": "change",
+            },
+          ],
+          "name": "Added",
+          "type": "action",
+        },
+      ],
+      "date": "2014-05-31",
+      "identifier": "0.0.1",
+      "type": "release",
+      "unreleased": false,
+      "url": undefined,
+      "version": "0.0.1",
+      "yanked": false,
+    },
+  ],
+  "type": "root",
+}
+`;
