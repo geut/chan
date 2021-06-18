@@ -33,13 +33,12 @@ export async function addRelease (from, opts, cb) {
 }
 
 export function getMarkdownRelease (from, { version }) {
-  const markdownTree = unified()
+  const processor = unified()
     .use(markdown)
-    .parse(from)
+    .use(remarkToChan)
+    .use(stringify, { withPreface: false })
 
-  const chanTree = remarkToChan()(markdownTree)
+  const chanTree = processor.runSync(processor.parse(from))
   const release = select(`release[identifier=${version}]`, chanTree)
-  const compile = new stringify({ withPreface: false }) // eslint-disable-line
-  // TODO: Fix how compiler is used here. We should rely on a processor and not its internals.
-  return compile.Compiler({ type: 'root', children: [release] }, from)
+  return processor.stringify({ type: 'root', children: [release] }, from)
 }
