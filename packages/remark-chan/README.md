@@ -1,14 +1,12 @@
 # remark-chan
 
-remark plugin to convert mdast to [chast](https://github.com/geut/chan/tree/master/packages/chast)
+A unified plugin to convert from mdast to [chast](https://github.com/geut/chan/tree/master/packages/chast)
 
 ## Note
 
 Since v3.0 this plugin is ESM only. 
 
 ## Install
-
-[npm][]:
 
 ```sh
 npm install @geut/remark-chan
@@ -29,5 +27,7 @@ unified()
 
 ## API
 
-### `origin.use(remarkToChan[, destination][, options])`
+### `origin.use(remarkToChan)`
+
+Plugin to convert from mdast to chast.
 
