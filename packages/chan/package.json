@@ -7,7 +7,12 @@
     "bin": {
       "chan": "./bin/chan.js"
     },
-    "scripts": {},
+    "engines": {
+      "node": ">=14.0.0"
+    },
+    "scripts": {
+      "lint": "standard \"**/*.js\""
+    },
     "dependencies": {
       "@actions/github": "^5.0.0",
       "@geut/chan-core": "^3.0.0",
@@ -23,8 +28,16 @@
       "to-vfile": "^6.1.0",
       "yargs": "^17.0.1"
     },
-    "engines": {
-      "node": ">=14.0.0"
+    "devDependencies": {
+      "standard": "^16.0.3"
+    },
+    "standard": {
+      "ignore": [
+        "bin"
+      ],
+      "env": [
+        "node"
+      ]
     },
     "author": {
       "name": "GEUT",

@@ -1,12 +1,11 @@
 import toVFile from 'to-vfile'
 import { resolve } from 'path'
 
-import { addChanges }from '@geut/chan-core'
+import { addChanges } from '@geut/chan-core'
 
 import { createLogger } from '../logger.js'
 import { write } from '../write.js'
 import { openInEditor } from '../open-in-editor.js'
-
 
 const actions = [
   { command: 'added', description: 'Added for new features' },
@@ -17,7 +16,7 @@ const actions = [
   { command: 'security', description: 'Security in case of vulnerabilities' }
 ]
 
-const builder =  {
+const builder = {
   path: {
     alias: 'p',
     describe: 'Path of the CHANGELOG.md',
@@ -30,7 +29,6 @@ const builder =  {
     type: 'string'
   }
 }
-
 
 const createHandler = action => async ({ message, path, group, verbose, stdout }) => {
   const { report, success, info } = createLogger({ scope: action, verbose, stdout })

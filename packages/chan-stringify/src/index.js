@@ -2,10 +2,10 @@ import { selectAll, select } from 'unist-util-select'
 import u from 'unist-builder'
 import toMarkdown from 'mdast-util-to-markdown'
 
-export function stringify({ withPreface = true } = {}) {
+export function stringify ({ withPreface = true } = {}) {
   this.Compiler = compiler
 
-  function compiler(tree, file) {
+  function compiler (tree, file) {
     return toMarkdown(
       u('root', [
         ...(withPreface ? compilePreface({ tree, file }) : []),
@@ -17,10 +17,10 @@ export function stringify({ withPreface = true } = {}) {
         bullet: '-',
         tightDefinitions: true,
         handlers: {
-          'tag': (node) => node.value
+          tag: (node) => node.value
         },
         join: (left, right, parent, context) => {
-          if (left.type === 'heading' && (right.type !== left.type || right.depth > 2) ) {
+          if (left.type === 'heading' && (right.type !== left.type || right.depth > 2)) {
             return 0
           }
           if (left.type === 'list' && right.type === 'heading') return 1
@@ -30,7 +30,7 @@ export function stringify({ withPreface = true } = {}) {
   }
 }
 
-function compilePreface({ tree, file }) {
+function compilePreface ({ tree, file }) {
   const preface = select('preface', tree)
 
   if (!preface) {
@@ -40,22 +40,22 @@ function compilePreface({ tree, file }) {
   return preface.children
 }
 
-function compileReleases({ tree }) {
+function compileReleases ({ tree }) {
   const releases = selectAll('release', tree)
   return releases.reduce((result, release) => {
     const heading = compileHeadingRelease(release)
 
     const actions = compileActions({
-      actions: selectAll('action', release),
+      actions: selectAll('action', release)
     })
 
     return [...result, heading, ...actions]
   }, [])
 }
 
-function compileHeadingRelease(release) {
+function compileHeadingRelease (release) {
   const date = release.unreleased ? '' : u('text', ` - ${release.date}`)
-  const yanked = release.yanked ? u('tag' ,' [YANKED]') : ''
+  const yanked = release.yanked ? u('tag', ' [YANKED]') : ''
   let version
 
   if (release.url || release.unreleased) {
@@ -69,12 +69,11 @@ function compileHeadingRelease(release) {
     date,
     yanked
   ].filter(Boolean))
-
 }
 
-function compileActions({ actions }) {
+function compileActions ({ actions }) {
   return actions.reduce((result, action) => {
-    const heading = u('heading', { depth: 3 }, [ u('text', action.name) ])
+    const heading = u('heading', { depth: 3 }, [u('text', action.name)])
     const changes = compileChanges({
       changes: selectAll(':root > group,:root > change', action)
     })
@@ -83,7 +82,7 @@ function compileActions({ actions }) {
   }, [])
 }
 
-function compileChanges({ changes }) {
+function compileChanges ({ changes }) {
   return compileList(
     changes.map(change => {
       if (change.type === 'group') {
@@ -95,9 +94,9 @@ function compileChanges({ changes }) {
   )
 }
 
-function compileLinks({ tree, parse }) {
+function compileLinks ({ tree, parse }) {
   const releases = selectAll('release', tree)
-  return releases.filter(release => release.url).map(release => u('definition', { identifier: release.version, url: release.url  }))
+  return releases.filter(release => release.url).map(release => u('definition', { identifier: release.version, url: release.url }))
 }
 
 const compileList = value => u('list', { ordered: false, spread: false }, Array.isArray(value) ? value : [value])

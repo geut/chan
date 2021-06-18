@@ -103,7 +103,7 @@ export async function handler ({
         gitTemplate = gitParsed.template
         gitBranch = gitBranch || gitParsed.branch
       } else {
-        file.message(`Missing url to compare releases.`)
+        file.message('Missing url to compare releases.')
       }
     }
 
@@ -126,7 +126,7 @@ export async function handler ({
 
     if (git && ghrelease) {
       if (!gitParsed) {
-        file.message(`Cannot create a Github Release without the git url.`)
+        file.message('Cannot create a Github Release without the git url.')
       }
       await createGithubRelease({ file, version, success, info, warn, error, gitParsed })
     }

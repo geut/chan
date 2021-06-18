@@ -2,14 +2,14 @@ import { removePosition } from 'unist-util-remove-position'
 import { select } from 'unist-util-select'
 import { createRoot, createPreface, createRelease, createAction, createGroup, createChange } from '@geut/chast'
 
-export function remarkToChan() {
+export function remarkToChan () {
   return tree => {
     const newTree = removePosition(tree, true)
     return createRoot([parsePreface(newTree), ...parseReleases(newTree)])
   }
 }
 
-function parsePreface(tree) {
+function parsePreface (tree) {
   const value = tree.children.slice(0, 3)
 
   if (value.length !== 3) {
@@ -19,7 +19,7 @@ function parsePreface(tree) {
   return createPreface(tree.children.slice(0, 3))
 }
 
-function parseReleases(tree) {
+function parseReleases (tree) {
   const definitions = tree.children.filter(node => node.type === 'definition')
 
   const releases = tree.children.filter(node => ['heading', 'list'].includes(node.type) && node.depth !== 1)
@@ -50,26 +50,26 @@ function parseReleases(tree) {
   })
 }
 
-function parseHeadingRelease(heading, definitions) {
+function parseHeadingRelease (heading, definitions) {
   const link = select(':root > linkReference', heading)
   const text = select(':root > text', heading)
-  
+
   let identifier, version, date, url
   let unreleased = false
   let yanked = false
 
   if (link) {
     // In previous versions of remark [unreleased] and [YANKED] were treated as linkReference elements.
-    unreleased = link && link.identifier === 'unreleased' ? true : false
-    yanked = link && link.identifier === 'yanked' ? true : false
+    unreleased = !!(link && link.identifier === 'unreleased')
+    yanked = !!(link && link.identifier === 'yanked')
 
     identifier = link.identifier
     version = link.label
-    
-    let definition = definitions.find(def => def.identifier === link.identifier)
+
+    const definition = definitions.find(def => def.identifier === link.identifier)
     url = definition ? definition.url : null
-    
-    date = text ? text.value.trim().replace('- ', '').trim()  : null
+
+    date = text ? text.value.trim().replace('- ', '').trim() : null
   } else {
     const match = text.value.match(/\[(.*?)\]/)
 
@@ -89,9 +89,9 @@ function parseHeadingRelease(heading, definitions) {
         yanked = true
       }
     } else {
-      // first release: 0.0.1 - 2014-05-31 
+      // first release: 0.0.1 - 2014-05-31
       ([version, date] = text.value.trim().split(' - '))
-      identifier = version    
+      identifier = version
     }
   }
 
@@ -105,14 +105,14 @@ function parseHeadingRelease(heading, definitions) {
   }
 }
 
-function parseAction(action) {
+function parseAction (action) {
   const { changes, children } = action
   const name = children[0].value
 
   return createAction({ name }, changes && parseChanges(changes.children))
 }
 
-function parseChanges(changes) {
+function parseChanges (changes) {
   return changes.map(change => {
     const groupList = select(':root > list', change)
     if (groupList) {
@@ -122,7 +122,6 @@ function parseChanges(changes) {
     return createChange(change.children)
   })
 }
-
 
 /**
  * root {

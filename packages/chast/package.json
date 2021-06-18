@@ -9,9 +9,20 @@
     ".": "./src/index.js",
     "./actions": "./src/actions.js"
   },
+  "scripts": {
+    "lint": "standard \"**/*.js\""
+  },
   "dependencies": {
     "semver": "^7.3.5",
     "unist-builder": "^3.0.0"
+  },
+  "devDependencies": {
+    "standard": "^16.0.3"
+  },
+  "standard": {
+    "env": [
+      "node"
+    ]
   },
   "author": {
     "name": "GEUT",

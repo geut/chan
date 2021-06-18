@@ -12,8 +12,8 @@ const processor = unified().use(markdown)
 
 const parse = value => removePosition(processor.parse(value), true).children
 
-export function initialize({ overwrite = false } = {}) {
-  return function compile(tree, file) {
+export function initialize ({ overwrite = false } = {}) {
+  return function compile (tree, file) {
     const preface = select('preface', tree)
 
     if (preface && !overwrite) {
@@ -31,10 +31,10 @@ export function initialize({ overwrite = false } = {}) {
   }
 }
 
-export function addChanges({ changes }) {
+export function addChanges ({ changes }) {
   assert(Array.isArray(changes), 'The `changes` prop must be an array to add changes.')
 
-  function compile(tree, file) {
+  function compile (tree, file) {
     return changes.reduce((result, { version = 'unreleased', action, group, value }) => {
       assert(value, '`value` is required')
 
@@ -62,7 +62,7 @@ export function addChanges({ changes }) {
   return compile
 }
 
-export function addRelease({
+export function addRelease ({
   version: userVersion,
   date = now(),
   yanked = false,
@@ -72,7 +72,7 @@ export function addRelease({
   allowPrerelease,
   mergePrerelease
 }) {
-  function compile(tree, file) {
+  function compile (tree, file) {
     const preface = select('preface', tree)
     const unreleased = select('release[identifier=unreleased]', tree)
     let releases = selectAll('release', tree).filter(r => !r.unreleased)
@@ -160,7 +160,7 @@ export function addRelease({
   return compile
 }
 
-function findActionOrCreate(action, release) {
+function findActionOrCreate (action, release) {
   let name = action.toLowerCase().trim()
   name = name[0].toUpperCase() + name.substr(1)
 
@@ -175,7 +175,7 @@ function findActionOrCreate(action, release) {
   return actionNode
 }
 
-function findGroupOrCreate(group, action) {
+function findGroupOrCreate (group, action) {
   let groupNode = select(`group[name=${group}]`, action)
 
   if (groupNode) {
@@ -187,14 +187,14 @@ function findGroupOrCreate(group, action) {
   return groupNode
 }
 
-function now() {
+function now () {
   const date = new Date()
   return [date.getFullYear(), '-', ('0' + (date.getMonth() + 1)).slice(-2), '-', ('0' + date.getDate()).slice(-2)].join(
     ''
   )
 }
 
-function mergeActionChanges(actions) {
+function mergeActionChanges (actions) {
   return actions.reduce((result, action) => {
     const currentAction = result.find(a => a.name === action.name)
 
@@ -207,7 +207,7 @@ function mergeActionChanges(actions) {
   }, [])
 }
 
-function mergeChanges(changes) {
+function mergeChanges (changes) {
   return changes.reduce((result, change) => {
     if (change.type === 'change') {
       return [...result, change]

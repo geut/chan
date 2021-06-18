@@ -21,7 +21,7 @@ export const builder = {
   }
 }
 
-export async function handler({ semver: userVersion, path, verbose, stdout }) {
+export async function handler ({ semver: userVersion, path, verbose, stdout }) {
   const { error } = createLogger({ scope: 'view', verbose, stdout })
 
   const version = semver.valid(userVersion)

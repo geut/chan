@@ -18,7 +18,7 @@ test('add new changes', async () => {
         group: 'package1'
       }
     ]
-  });
+  })
 
-  expect(file.toString()).toMatchSnapshot();
-});
+  expect(file.toString()).toMatchSnapshot()
+})

@@ -31,7 +31,7 @@ export const builder = {
   }
 }
 
-export async function handler({ semver: userVersion, path, gitUrl, verbose, stdout }) {
+export async function handler ({ semver: userVersion, path, gitUrl, verbose, stdout }) {
   const { success, info, warn, error } = createLogger({ scope: 'gh-release', verbose, stdout })
 
   const version = semver.valid(userVersion)
@@ -50,7 +50,7 @@ export async function handler({ semver: userVersion, path, gitUrl, verbose, stdo
   await createGithubRelease({ file, version, success, info, warn, error, gitParsed })
 }
 
-export async function createGithubRelease({ file, version, success, info, warn, error, gitParsed }) {
+export async function createGithubRelease ({ file, version, success, info, warn, error, gitParsed }) {
   if (!gitParsed) {
     warn('We cannot find the repository info for your github release.')
     return

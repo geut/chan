@@ -57,7 +57,7 @@ export const createChange = (value = []) => {
   return u('change', value)
 }
 
-function sortReleases(a, b) {
+function sortReleases (a, b) {
   if (a.version === 'Unreleased') {
     return -1
   }

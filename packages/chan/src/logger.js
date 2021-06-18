@@ -1,6 +1,6 @@
 import signale from 'signale'
 
-function report({ logger, file, verbose }) {
+function report ({ logger, file, verbose }) {
   if (!file) {
     return
   }
@@ -38,7 +38,7 @@ export function hasWarnings (file) {
   return !!file.messages.find(m => m.fatal === false)
 }
 
-export function createLogger({ scope, verbose, stdout }) {
+export function createLogger ({ scope, verbose, stdout }) {
   const logger = new signale.Signale({
     stream: stdout ? process.stderr : process.stdout,
     scope: ['chan', scope].filter(Boolean)

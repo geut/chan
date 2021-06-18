@@ -20,7 +20,7 @@ const providers = {
   }
 }
 
-export async function gitUrlParse({ url }) {
+export async function gitUrlParse ({ url }) {
   let result
 
   if (url) {

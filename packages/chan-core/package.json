@@ -8,7 +8,8 @@
     ".": "./src/index.js"
   },
   "scripts": {
-    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest"
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
+    "lint": "standard \"**/*.js\""
   },
   "dependencies": {
     "@geut/chast": "^3.0.0",
@@ -24,6 +25,7 @@
     "dirname-filename-esm": "^1.1.1",
     "jest": "^27.0.0",
     "jest-date-mock": "^1.0.7",
+    "standard": "^16.0.3",
     "to-vfile": "^6.1.0",
     "vfile-reporter": "^7.0.0"
   },
@@ -31,6 +33,12 @@
     "transform": {},
     "setupFiles": [
       "jest-date-mock"
+    ]
+  },
+  "standard": {
+    "env": [
+      "node",
+      "jest"
     ]
   },
   "homepage": "http://geutstudio.com",

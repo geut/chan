@@ -8,11 +8,20 @@
     ".": "./src/index.js"
   },
   "scripts": {
+    "lint": "standard \"**/*.js\""
   },
   "dependencies": {
     "find-up": "^5.0.0",
     "git-url-parse": "^11.1.2",
     "gitconfiglocal": "^2.0.2"
+  },
+  "devDependencies": {
+    "standard": "^16.0.3"
+  },
+  "standard": {
+    "env": [
+      "node"
+    ]
   },
   "homepage": "http://geutstudio.com",
   "author": {

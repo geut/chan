@@ -8,16 +8,16 @@ import { PREFACE } from './chast-parts.js'
 
 import { stringify } from '../src/index.js'
 
-const processor = await unified()
+const processor = unified()
   .use(markdown)
   .use(remarkToChan)
   .use(stringify)
 
 test('compile initial chast to markdown', async () => {
-  const tree =  {
+  const tree = {
     type: 'root',
     children: [
-      PREFACE, 
+      PREFACE,
       {
         type: 'release',
         identifier: 'unreleased',
@@ -31,10 +31,10 @@ test('compile initial chast to markdown', async () => {
 })
 
 test('compile unreleased changes chast to markdown', async () => {
-  const tree =  {
+  const tree = {
     type: 'root',
     children: [
-      PREFACE, 
+      PREFACE,
       {
         type: 'release',
         identifier: 'unreleased',
@@ -42,15 +42,15 @@ test('compile unreleased changes chast to markdown', async () => {
         unreleased: true,
         children: []
       },
-      { 
+      {
         type: 'release',
         identifier: '0.0.2',
-        version: '0.0.2',        
+        version: '0.0.2',
         date: '2000-01-01',
         yanked: true,
         children: []
       },
-      { 
+      {
         type: 'release',
         identifier: '0.0.1',
         version: '0.0.1',
@@ -63,13 +63,13 @@ test('compile unreleased changes chast to markdown', async () => {
 })
 
 test('compiles chast to markdown', async () => {
-  const file = await processor.process(toVFile.readSync(`${dirname(import.meta)}/__files__/CHANGELOG.md`));
+  const file = await processor.process(toVFile.readSync(`${dirname(import.meta)}/__files__/CHANGELOG.md`))
 
-  expect(file.toString()).toMatchSnapshot();
-});
+  expect(file.toString()).toMatchSnapshot()
+})
 
 test('compile initialized file', async () => {
-  const file = await processor.process(toVFile.readSync(`${dirname(import.meta)}/__files__/00-CHANGELOG.md`));
+  const file = await processor.process(toVFile.readSync(`${dirname(import.meta)}/__files__/00-CHANGELOG.md`))
 
-  expect(file.toString()).toMatchSnapshot();
+  expect(file.toString()).toMatchSnapshot()
 })

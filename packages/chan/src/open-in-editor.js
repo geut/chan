@@ -8,13 +8,13 @@ async function openEditor (tmpFile) {
       if (code === 0) {
         resolve()
       } else {
-        reject()
+        reject(new Error('Cannot create temp file.'))
       }
     })
   })
 }
 
-export async function openInEditor() {
+export async function openInEditor () {
   try {
     const tmpFile = tempfile('.md')
     await openEditor(tmpFile)
