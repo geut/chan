@@ -20,16 +20,16 @@ export async function initialize (from, opts) {
     .process(from)
 }
 
-export function addChanges (from, opts) {
+export async function addChanges (from, opts) {
   return unified()
     .use(...preset(transformerAddChanges, opts))
     .process(from)
 }
 
-export async function addRelease (from, opts, cb) {
+export async function addRelease (from, opts) {
   return unified()
     .use(...preset(transformerAddRelease, opts))
-    .process(from, cb)
+    .process(from)
 }
 
 export function getMarkdownRelease (from, { version }) {
