@@ -5,8 +5,29 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [3.0.0] - 2020-06-22
+### Changed
+- Moved all packages to ESM mode.
+
+### Removed
+- Support for node < 12 for CLI.
+
+
+## [2.3.0] - 2020-06-03
 ### Added
 - New command show to display the CHANGELOG entries of a specific version
+
+## [2.2.1] - 2020-05-11
+### Fixed
+- Fixed error messsages.
+
+## [2.2.0] - 2020-04-23
+### Added
+- Support for direct GitHub Releases.
+
+### Removed
+- Browser option from release.
 
 ## [2.1.1] - 2019-07-22
 ### Fixed
@@ -70,7 +91,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 - git-first-commit dependency
 
-[Unreleased]: https://github.com/geut/chan/compare/v2.1.1...HEAD
+[Unreleased]: https://github.com/geut/chan/compare/v3.0.0...HEAD
+[3.0.0]: https://github.com/geut/chan/compare/v2.2.1...v3.0.0
+[2.2.1]: https://github.com/geut/chan/compare/v2.2.0...v2.2.1
+[2.2.0]: https://github.com/geut/chan/compare/v2.1.1...v2.2.0
 [2.1.1]: https://github.com/geut/chan/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/geut/chan/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/geut/chan/compare/v1.3.0...v2.0.0
