@@ -1,14 +1,4 @@
 {
-  "version": "2.3.0",
-  "packages": [
-    "packages/*"
-  ],
-  "command": {
-    "bootstrap": {
-      "hoist": true
-    },
-    "clean": {
-      "yes": true
-    }
-  }
+  "version": "3.0.0-beta.2",
+  "useWorkspaces": true
 }

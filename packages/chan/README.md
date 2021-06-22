@@ -6,7 +6,7 @@
 Chan is a likeable CLI tool used for writing and maintaining a CHANGELOG empowering the user to use a coloquial/friendly style.
 See more here: [keepachangelog.com](http://keepachangelog.com/)
 
-![chan](https://github.com/geut/chan/raw/master/packages/chan/assets/example.gif)
+![chan](https://github.com/geut/chan/raw/master/assets/example.gif)
 
 - [Getting started](#install)
 - [Usage](#usage)
@@ -258,11 +258,11 @@ package.json
 
 ## <a name="issues"></a> ISSUES
 
-:bug: If you found an issue we encourage you to report it on [github](https://github.com/geut/chan/issues). Please specify your OS and the actions to reproduce it.
+If you found an issue we encourage you to report it on [github](https://github.com/geut/chan/issues). Please specify your OS and the actions to reproduce it.
 
 ## <a name="contribute"></a> CONTRIBUTE
 
-:busts_in_silhouette: Ideas and contributions to the project are welcome. You must follow this [guideline](https://github.com/geut/chan/blob/master/CONTRIBUTING.md).
+Ideas and contributions to the project are welcome. You must follow this [guideline](https://github.com/geut/chan/blob/master/CONTRIBUTING.md).
 ___
 
 A [**GEUT**](http://geutstudio.com/) project

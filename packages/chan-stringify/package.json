@@ -1,9 +1,44 @@
 {
   "name": "@geut/chan-stringify",
-  "version": "2.3.0",
+  "version": "3.0.0-beta.2",
   "description": "Stringify chast to keepachangelog markdown",
   "homepage": "http://geutstudio.com",
-  "main": "index.js",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "scripts": {
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
+    "lint": "standard \"**/*.js\""
+  },
+  "dependencies": {
+    "mdast-util-to-markdown": "^0.6.5",
+    "remark-parse": "^9.0.0",
+    "remark-stringify": "^9.0.0",
+    "unified": "^9.2.0",
+    "unist-builder": "^1.0.3",
+    "unist-util-remove-position": "^1.1.2",
+    "unist-util-select": "^2.0.0"
+  },
+  "devDependencies": {
+    "@geut/remark-chan": "^3.0.0-beta.2",
+    "cross-env": "^7.0.3",
+    "dirname-filename-esm": "1.1.1",
+    "jest": "^27.0.0",
+    "standard": "^16.0.3",
+    "to-vfile": "^6.1.0",
+    "vfile-reporter": "^7.0.0"
+  },
+  "jest": {
+    "transform": {}
+  },
+  "standard": {
+    "env": [
+      "node",
+      "jest"
+    ]
+  },
   "author": {
     "name": "GEUT",
     "email": "contact@geutstudio.com"
@@ -12,24 +47,5 @@
   "repository": "https://github.com/geut/chan/tree/master/packages/chan-stringify",
   "publishConfig": {
     "access": "public"
-  },
-  "dependencies": {
-    "remark-parse": "^6.0.3",
-    "remark-stringify": "^6.0.4",
-    "unified": "^7.1.0",
-    "unist-builder": "^1.0.3",
-    "unist-util-remove-position": "^1.1.2",
-    "unist-util-select": "^2.0.0"
-  },
-  "scripts": {
-    "test": "jest",
-    "lint": "eslint . --ignore-path ../../.eslintignore"
-  },
-  "devDependencies": {
-    "@geut/remark-chan": "^2.3.0",
-    "eslint": "^5.12.0",
-    "jest": "^24.8.0",
-    "to-vfile": "^5.0.2",
-    "vfile-reporter": "^5.1.1"
   }
 }
