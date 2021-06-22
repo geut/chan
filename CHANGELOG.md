@@ -13,7 +13,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 - Support for node < 12 for CLI.
 
-
 ## [2.3.0] - 2020-06-03
 ### Added
 - New command show to display the CHANGELOG entries of a specific version
