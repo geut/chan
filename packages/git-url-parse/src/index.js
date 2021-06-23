@@ -26,7 +26,7 @@ export async function gitUrlParse ({ url }) {
   if (url) {
     result = _gitUrlParse(url)
   } else {
-    const path = await findUp('.git')
+    const path =  findUp.sync('.git', { type: 'directory', cwd: process.cwd() })
 
     if (!path) {
       return null
