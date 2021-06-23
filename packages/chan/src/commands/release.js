@@ -126,7 +126,7 @@ export async function handler ({
 
     if (git && ghrelease) {
       if (!gitParsed) {
-        file.message('Cannot create a Github Release without the git url.')
+        file.message('Cannot create a Github Release without the git url. Use `--git-url` param.')
       }
       await createGithubRelease({ file, version, success, info, warn, error, gitParsed })
     }
