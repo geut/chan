@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [3.0.1] - 2021-06-23
 ### Fixed
 - Issue with `@geut/git-url-parse` not finding `.git` directory automatically.
 
@@ -92,7 +94,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 - git-first-commit dependency
 
-[Unreleased]: https://github.com/geut/chan/compare/v3.0.0...HEAD
+[Unreleased]: https://github.com/geut/chan/compare/v3.0.1...HEAD
+[3.0.1]: https://github.com/geut/chan/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/geut/chan/compare/v2.3.0...v3.0.0
 [2.3.0]: https://github.com/geut/chan/compare/v2.2.1...v2.3.0
 [2.2.1]: https://github.com/geut/chan/compare/v2.2.0...v2.2.1
