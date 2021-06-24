@@ -16,7 +16,8 @@
     "lint:fix": "lerna run lint -- -- --fix"
   },
   "devDependencies": {
-    "lerna": "^4.0.0"
+    "lerna": "^4.0.0",
+    "enhanced-resolve": "^5.8.2"
   },
   "keywords": [
     "cli",

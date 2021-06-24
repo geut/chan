@@ -4,7 +4,7 @@
   "description": "Stringify chast to keepachangelog markdown",
   "homepage": "http://geutstudio.com",
   "type": "module",
-  "main": "./src/index.js",
+  "module": "./src/index.js",
   "exports": {
     ".": "./src/index.js"
   },
@@ -31,6 +31,7 @@
     "vfile-reporter": "^7.0.0"
   },
   "jest": {
+    "resolver": "<rootDir>/../../jest-module-resolver.js",
     "transform": {}
   },
   "standard": {

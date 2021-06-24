@@ -3,7 +3,7 @@
   "version": "3.0.1",
   "description": "Function to parse a git url and generates template url for the git compare preview.",
   "type": "module",
-  "main": "./src/index.js",
+  "module": "./src/index.js",
   "exports": {
     ".": "./src/index.js"
   },

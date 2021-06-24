@@ -4,7 +4,7 @@
   "description": "Unist compatible spec for changelogs and helpers to nodes creation",
   "homepage": "http://geutstudio.com",
   "type": "module",
-  "main": "./src/index.js",
+  "module": "./src/index.js",
   "exports": {
     ".": "./src/index.js",
     "./actions": "./src/actions.js"
