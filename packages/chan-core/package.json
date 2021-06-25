@@ -3,7 +3,7 @@
   "version": "3.0.1",
   "description": "API and transformers to work with chast",
   "type": "module",
-  "main": "./src/index.js",
+  "module": "./src/index.js",
   "exports": {
     ".": "./src/index.js"
   },
@@ -31,6 +31,7 @@
     "vfile-reporter": "^7.0.0"
   },
   "jest": {
+    "resolver": "<rootDir>/../../jest-module-resolver.js",
     "transform": {},
     "setupFiles": [
       "jest-date-mock"
