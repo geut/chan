@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [3.0.2] - 2021-06-25
 ### Fixed
 - Jest resolver not working with exports/module.
 
@@ -99,7 +101,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 - git-first-commit dependency
 
-[Unreleased]: https://github.com/geut/chan/compare/v3.0.1...HEAD
+[Unreleased]: https://github.com/geut/chan/compare/v3.0.2...HEAD
+[3.0.2]: https://github.com/geut/chan/compare/v3.0.1...v3.0.2
 [3.0.1]: https://github.com/geut/chan/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/geut/chan/compare/v2.3.0...v3.0.0
 [2.3.0]: https://github.com/geut/chan/compare/v2.2.1...v2.3.0
