@@ -8,6 +8,19 @@ beforeEach(() => {
   advanceTo(new Date(2019, 0, 11))
 })
 
+test('add first release with url', async () => {
+  const file = await addRelease(toVFile.readSync(`${dirname(import.meta)}/__files__/unreleased.md`), {
+    version: '0.0.1',
+    gitUrl: 'https://github.com/geut/chan',
+    gitTemplate: 'https://github.com/geut/chan/compare/[prev]...[next]',
+    gitBranch: 'HEAD'
+  })
+
+  expect(file.toString()).toMatchSnapshot()
+})
+
+
+
 test('add release with url', async () => {
   const file = await addRelease(toVFile.readSync(`${dirname(import.meta)}/__files__/used.md`), {
     version: '0.0.5',
