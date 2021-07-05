@@ -1,5 +1,38 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`add first release with url 1`] = `
+"# Changelog
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+## [0.0.1] - 2019-01-11
+### Changed
+- Changed X by Y.
+
+[Unreleased]: https://github.com/geut/chan/compare/v0.0.1...HEAD
+[0.0.1]: https://github.com/geut/chan/releases/tag/v0.0.1
+"
+`;
+
+exports[`add first release without url 1`] = `
+"# Changelog
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+## 0.0.1 - 2019-01-11
+### Changed
+- Changed X by Y.
+"
+`;
+
 exports[`add release allowing prereleases 1`] = `
 "# Changelog
 All notable changes to this project will be documented in this file.

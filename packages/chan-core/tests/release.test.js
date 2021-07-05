@@ -8,10 +8,29 @@ beforeEach(() => {
   advanceTo(new Date(2019, 0, 11))
 })
 
+test('add first release with url', async () => {
+  const file = await addRelease(toVFile.readSync(`${dirname(import.meta)}/__files__/unreleased.md`), {
+    version: '0.0.1',
+    gitReleaseTemplate: 'https://github.com/geut/chan/releases/tag/[next]',
+    gitCompareTemplate: 'https://github.com/geut/chan/compare/[prev]...[next]',
+    gitBranch: 'HEAD'
+  })
+
+  expect(file.toString()).toMatchSnapshot()
+})
+
+test('add first release without url', async () => {
+  const file = await addRelease(toVFile.readSync(`${dirname(import.meta)}/__files__/unreleased.md`), {
+    version: '0.0.1'
+  })
+
+  expect(file.toString()).toMatchSnapshot()
+})
+
 test('add release with url', async () => {
   const file = await addRelease(toVFile.readSync(`${dirname(import.meta)}/__files__/used.md`), {
     version: '0.0.5',
-    gitTemplate: 'https://github.com/geut/chan/compare/[prev]...[next]',
+    gitCompareTemplate: 'https://github.com/geut/chan/compare/[prev]...[next]',
     gitBranch: 'HEAD'
   })
 
@@ -29,7 +48,7 @@ test('add release without url', async () => {
 test('add release yanked', async () => {
   const file = await addRelease(toVFile.readSync(`${dirname(import.meta)}/__files__/used.md`), {
     version: '0.0.5',
-    gitTemplate: 'https://github.com/geut/chan/compare/[prev]...[next]',
+    gitCompareTemplate: 'https://github.com/geut/chan/compare/[prev]...[next]',
     gitBranch: 'HEAD',
     yanked: true
   })
@@ -40,7 +59,7 @@ test('add release yanked', async () => {
 test('add release allowing prereleases', async () => {
   const file = await addRelease(toVFile.readSync(`${dirname(import.meta)}/__files__/prereleases.md`), {
     version: '0.0.2-beta.3',
-    gitTemplate: 'https://github.com/geut/chan/compare/[prev]...[next]',
+    gitCompareTemplate: 'https://github.com/geut/chan/compare/[prev]...[next]',
     gitBranch: 'HEAD',
     allowPrerelease: true
   })
@@ -51,7 +70,7 @@ test('add release allowing prereleases', async () => {
 test('add release merged with prereleases', async () => {
   const file = await addRelease(toVFile.readSync(`${dirname(import.meta)}/__files__/prereleases.md`), {
     version: '0.0.2',
-    gitTemplate: 'https://github.com/geut/chan/compare/[prev]...[next]',
+    gitCompareTemplate: 'https://github.com/geut/chan/compare/[prev]...[next]',
     gitBranch: 'HEAD',
     mergePrerelease: true
   })

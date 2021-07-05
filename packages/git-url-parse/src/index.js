@@ -7,26 +7,30 @@ const gitconfig = promisify(gitLocal)
 
 const providers = {
   github: {
-    template: 'https://github.com/[full_name]/compare/[prev]...[next]',
+    releaseTemplate: 'https://github.com/[full_name]/releases/tags/[next]',
+    compareTemplate: 'https://github.com/[full_name]/compare/[prev]...[next]',
     branch: 'HEAD'
   },
   bitbucket: {
-    template: 'https://bitbucket.org/[full_name]/branches/compare/[prev]%0D[next]#diff',
+    releaseTemplate: 'https://github.com/[full_name]/commits/tag/[next]',
+    compareTemplate: 'https://bitbucket.org/[full_name]/branches/compare/[prev]%0D[next]#diff',
     branch: 'HEAD'
   },
   gitlab: {
-    template: 'https://gitlab.com/[full_name]/compare?from=[prev]&to=[next]',
-    branch: 'master'
+    releaseTemplate: 'https://github.com/[full_name]/-/tags/[next]',
+
+    compareTemplate: 'https://gitlab.com/[full_name]/compare?from=[prev]&to=[next]',
+    branch: 'main'
   }
 }
 
-export async function gitUrlParse ({ url }) {
+export async function gitUrlParse ({ url, cwd }) {
   let result
 
   if (url) {
     result = _gitUrlParse(url)
   } else {
-    const path =  findUp.sync('.git', { type: 'directory', cwd: process.cwd() })
+    const path = findUp.sync('.git', { type: 'directory', cwd: cwd || process.cwd() })
 
     if (!path) {
       return null
@@ -41,11 +45,14 @@ export async function gitUrlParse ({ url }) {
     return null
   }
 
-  let { template, branch } = providers[Object.keys(providers).find(p => result.source.includes(p))]
-  template = template.replace('[full_name]', result.full_name)
+  const { releaseTemplate, compareTemplate, branch } = providers[Object.keys(providers).find(p => result.source.includes(p))]
 
-  result.template = template
-  result.branch = branch
-
-  return result
+  return Object.assign(
+    result,
+    {
+      branch,
+      releaseTemplate: releaseTemplate.replace('[full_name]', result.full_name),
+      compareTemplate: compareTemplate.replace('[full_name]', result.full_name)
+    }
+  )
 }
