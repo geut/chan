@@ -1,6 +1,6 @@
 {
   "name": "@geut/git-url-parse",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "Function to parse a git url and generates template url for the git compare preview.",
   "type": "module",
   "module": "./src/index.js",
