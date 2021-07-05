@@ -93,6 +93,7 @@ export async function handler ({
     const file = await toVFile.read(resolve(path, 'CHANGELOG.md'))
 
     let gitParsed = null
+    let gitReleaseTemplate
 
     if (git) {
       gitParsed = await gitUrlParse({ url: gitUrl }).catch(() => null)
@@ -100,7 +101,8 @@ export async function handler ({
 
     if (git && !gitTemplate) {
       if (gitParsed) {
-        gitTemplate = gitParsed.template
+        gitReleaseTemplate = gitParsed.releaseTemplate
+        gitTemplate = gitParsed.compareTemplate
         gitBranch = gitBranch || gitParsed.branch
       } else {
         file.message('Missing url to compare releases.')
@@ -115,7 +117,8 @@ export async function handler ({
     await addRelease(file, {
       version,
       yanked,
-      gitTemplate,
+      gitCompareTemplate: gitTemplate,
+      gitReleaseTemplate,
       gitBranch,
       allowYanked,
       allowPrerelease,
