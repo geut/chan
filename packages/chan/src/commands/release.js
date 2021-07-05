@@ -96,7 +96,7 @@ export async function handler ({
     let gitReleaseTemplate
 
     if (git) {
-      gitParsed = await gitUrlParse({ url: gitUrl }).catch(() => null)
+      gitParsed = await gitUrlParse({ url: gitUrl, cwd: resolve(path) }).catch(() => null)
     }
 
     if (git && !gitTemplate) {

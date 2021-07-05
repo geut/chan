@@ -19,6 +19,14 @@ test('add first release with url', async () => {
   expect(file.toString()).toMatchSnapshot()
 })
 
+test('add first release without url', async () => {
+  const file = await addRelease(toVFile.readSync(`${dirname(import.meta)}/__files__/unreleased.md`), {
+    version: '0.0.1'
+  })
+
+  expect(file.toString()).toMatchSnapshot()
+})
+
 test('add release with url', async () => {
   const file = await addRelease(toVFile.readSync(`${dirname(import.meta)}/__files__/used.md`), {
     version: '0.0.5',

@@ -24,13 +24,13 @@ const providers = {
   }
 }
 
-export async function gitUrlParse ({ url }) {
+export async function gitUrlParse ({ url, cwd }) {
   let result
 
   if (url) {
     result = _gitUrlParse(url)
   } else {
-    const path = findUp.sync('.git', { type: 'directory', cwd: process.cwd() })
+    const path = findUp.sync('.git', { type: 'directory', cwd: cwd || process.cwd() })
 
     if (!path) {
       return null

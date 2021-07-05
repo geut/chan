@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Fixed
 - First version was not being linked with the release url instead of compare url. #58
+- Issue resolving `.git` when `--path` argument was passed.
 
 ## [3.0.2] - 2021-06-25
 ### Fixed
