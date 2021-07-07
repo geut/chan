@@ -4,8 +4,8 @@ import { resolve } from 'path'
 import { addChanges } from '@geut/chan-core'
 
 import { createLogger } from '../logger.js'
-import { write } from '../write.js'
 import { openInEditor } from '../open-in-editor.js'
+import { write } from '../vfs.js'
 
 const actions = [
   { command: 'added', description: 'Added for new features' },
@@ -23,8 +23,8 @@ const builder = {
     type: 'string',
     default: '.'
   },
-  g: {
-    alias: 'group',
+  group: {
+    alias: 'g',
     describe: 'Prefix change with [<group>]. This allows to group changes on release time.',
     type: 'string'
   }
