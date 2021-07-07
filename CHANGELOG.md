@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Compatibility with node v12.22.1
+- Tests for commands in `@geut/chan` CLI
+
+### Fixed
+- Issue #60 related to `fs/promises` which is not implemented in node v12
 
 ## [3.0.3] - 2021-07-05
 ### Fixed
