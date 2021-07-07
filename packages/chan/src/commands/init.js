@@ -2,7 +2,7 @@ import { resolve } from 'path'
 import toVFile from 'to-vfile'
 import boxen from 'boxen'
 
-import { access } from 'fs/promises'
+import { promises as fs } from 'fs'
 
 import { initialize } from '@geut/chan-core'
 
@@ -14,6 +14,7 @@ export const description = 'Initialize CHANGELOG.md file'
 
 export const builder = {
   dir: {
+    alias: ['p', 'path'],
     default: '.'
   },
   o: {
@@ -42,7 +43,7 @@ export async function handler ({ dir, overwrite, verbose, stdout }) {
   success('CHANGELOG.md created.')
 
   try {
-    await access(resolve(dir, 'package.json'))
+    await fs.access(resolve(dir, 'package.json'))
     info('Update the npm script `version` in your package.json to release automatically:')
     console.log(boxen('chan release ${npm_package_version} && git add .', { padding: 1, float: 'center' })) // eslint-disable-line no-template-curly-in-string
   } catch (err) {
