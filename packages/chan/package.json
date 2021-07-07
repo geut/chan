@@ -11,6 +11,7 @@
     "node": ">=14.13.0 || >=12.22.1"
   },
   "scripts": {
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
     "lint": "standard \"**/*.js\""
   },
   "dependencies": {
@@ -29,14 +30,22 @@
     "yargs": "^17.0.1"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
+    "dirname-filename-esm": "^1.1.1",
+    "jest": "^27.0.0",
     "standard": "^16.0.3"
+  },
+  "jest": {
+    "resolver": "<rootDir>/../../jest-module-resolver.js",
+    "transform": {}
   },
   "standard": {
     "ignore": [
       "bin"
     ],
     "env": [
-      "node"
+      "node",
+      "jest"
     ]
   },
   "author": {
