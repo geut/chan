@@ -8,7 +8,7 @@
     "chan": "./bin/chan.js"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=14.13.0 || >=12.22.1"
   },
   "scripts": {
     "lint": "standard \"**/*.js\""
