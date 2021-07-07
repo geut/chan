@@ -1,6 +1,6 @@
 import tempfile from 'tempfile'
 import editor from 'editor'
-import readFile from 'fs/promises'
+import { promises as fs } from 'fs'
 
 async function openEditor (tmpFile) {
   return new Promise((resolve, reject) => {
@@ -18,7 +18,7 @@ export async function openInEditor () {
   try {
     const tmpFile = tempfile('.md')
     await openEditor(tmpFile)
-    const data = await readFile(tmpFile, 'utf8')
+    const data = await fs.readFile(tmpFile, 'utf8')
     return data
   } catch (err) {
     return null

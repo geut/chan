@@ -7,8 +7,8 @@ import { addRelease } from '@geut/chan-core'
 import { gitUrlParse } from '@geut/git-url-parse'
 
 import { createLogger, hasWarnings } from '../logger.js'
-import { write } from '../write.js'
 import { createGithubRelease } from './gh-release.js'
+import { write } from '../vfs.js'
 
 export const command = 'release <semver>'
 export const description = 'Create a new release on your CHANGELOG.md.'

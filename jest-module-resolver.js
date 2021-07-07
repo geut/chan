@@ -4,9 +4,15 @@ const resolver = require('enhanced-resolve').create.sync({
   extensions: ['.js', '.json', '.node', '.ts']
 })
 
+module.exports = function (req, options) {
+  let request = req
+ 
+  if (req.startsWith('node:')) request = req.substr(5)
 
-module.exports = function (request, options) {
-  if (['fs', 'url', 'path', 'assert'].includes(request)) {
+  if (['fs', 'url', 'path', 'assert', 'util'] // node imports
+  .concat([
+    'is-plain-object' // @github/actions consume it from a cjs and `is-plain-object` has multiple builds.
+  ]).includes(request)) {
     return options.defaultResolver(request, options);
   }
   return resolver(options.basedir, request)
