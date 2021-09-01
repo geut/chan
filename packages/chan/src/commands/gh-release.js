@@ -28,10 +28,15 @@ export const builder = {
   'git-url': {
     describe: 'Define the url of the repository project.',
     type: 'string'
+  },
+  'release-prefix': {
+    describe: 'Define the release prefix to be used.',
+    type: 'string',
+    default: 'v'
   }
 }
 
-export async function handler ({ semver: userVersion, path, gitUrl, verbose, stdout }) {
+export async function handler ({ semver: userVersion, path, gitUrl, releasePrefix, verbose, stdout }) {
   const { success, info, warn, error } = createLogger({ scope: 'gh-release', verbose, stdout })
 
   const version = semver.valid(userVersion)
@@ -47,10 +52,10 @@ export async function handler ({ semver: userVersion, path, gitUrl, verbose, std
 
   getMarkdownRelease(file, { version })
 
-  await createGithubRelease({ file, version, success, info, warn, error, gitParsed })
+  await createGithubRelease({ file, version, success, info, warn, error, gitParsed, releasePrefix })
 }
 
-export async function createGithubRelease ({ file, version, success, info, warn, error, gitParsed }) {
+export async function createGithubRelease ({ file, version, success, info, warn, error, gitParsed, releasePrefix }) {
   if (!gitParsed) {
     warn('We cannot find the repository info for your github release.')
     return
@@ -67,8 +72,8 @@ export async function createGithubRelease ({ file, version, success, info, warn,
     const data = {
       user: gitParsed.owner,
       repo: gitParsed.name,
-      tag: `v${version}`,
-      title: `v${version}`,
+      tag: `${releasePrefix}${version}`,
+      title: `${releasePrefix}${version}`,
       body: getMarkdownRelease(file, { version }),
       isPrerelease: Boolean(semver.prerelease(version))
     }

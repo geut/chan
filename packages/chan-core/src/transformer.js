@@ -71,7 +71,8 @@ export function addRelease ({
   gitBranch,
   allowYanked,
   allowPrerelease,
-  mergePrerelease
+  mergePrerelease,
+  releasePrefix = 'v'
 }) {
   function compile (tree, file) {
     const preface = select('preface', tree)
@@ -136,14 +137,14 @@ export function addRelease ({
       const lastRelease = releases[0]
 
       if (lastRelease) {
-        releaseUrl = gitCompareTemplate.replace('[prev]', `v${lastRelease.version}`).replace('[next]', `v${version}`)
+        releaseUrl = gitCompareTemplate.replace('[prev]', `${releasePrefix}${lastRelease.version}`).replace('[next]', `${releasePrefix}${version}`)
       } else {
         // first release, the url should point to the tag instead of a compare url
-        releaseUrl = gitReleaseTemplate.replace('[next]', `v${version}`)
+        releaseUrl = gitReleaseTemplate.replace('[next]', `${releasePrefix}${version}`)
       }
 
       // in the future the template v[version] could be defined by the user, maybe?
-      unreleased.url = gitCompareTemplate.replace('[prev]', `v${version}`).replace('[next]', gitBranch)
+      unreleased.url = gitCompareTemplate.replace('[prev]', `${releasePrefix}${version}`).replace('[next]', gitBranch)
     }
 
     const newRelease = createRelease(

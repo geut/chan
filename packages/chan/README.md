@@ -182,6 +182,17 @@ Example:
 will generate releases with the url:
 `https://github.com/geut/chan/compare/v0.0.1..master`
 
+#### `--release-prefix` (`string`)
+
+You can provide a custom release prefix fitting your project release process.  (`v` by default).
+
+Example:
+`V`
+will generate releases with the url:
+`https://github.com/geut/chan/compare/V0.0.1..HEAD`
+
+> Also, this kind of configurations can be defined in the [package.json](#config-package-json).
+
 #### `--allow-yanked` (`boolean`)
 
 Allow yanked releases. When this option is true and the release doesn't have new changes it will released as a yanked version.
@@ -211,6 +222,17 @@ Creates a github release.
 #### `--git-url` (`string`)
 
 Define the url of the repository project.
+
+#### `--release-prefix` (`string`)
+
+You can provide a custom release prefix fitting your project release process.  (`v` by default).
+
+Example:
+`V`
+will generate releases with the url:
+`https://github.com/geut/chan/compare/V0.0.1..HEAD`
+
+> Also, this kind of configurations can be defined in the [package.json](#config-package-json).
 
 ## <a name="command-show"></a>`chan show <semver>`
 
@@ -242,7 +264,8 @@ You can configure the chan options using the `package.json` or a rc file (`.chan
 
 ```json
 {
-  "git-url": "https://github.com/geut/chan"
+  "git-url": "https://github.com/geut/chan",
+  "release-prefix": "v"
 }
 ```
 
@@ -251,7 +274,8 @@ package.json
 ```json
 {
   "chan": {
-    "git-url": "https://github.com/geut/chan"
+    "git-url": "https://github.com/geut/chan",
+    "release-prefix": "v"
   }
 }
 ```

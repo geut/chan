@@ -54,6 +54,11 @@ export const builder = {
     type: 'boolean',
     default: false
   },
+  'release-prefix': {
+    describe: 'Define the release prefix to be used',
+    type: 'string',
+    default: 'v'
+  },
   ghrelease: {
     describe: 'Uploads a github release based on your CHANGELOG',
     type: 'boolean',
@@ -76,6 +81,7 @@ export async function handler ({
   allowYanked,
   allowPrerelease,
   mergePrerelease,
+  releasePrefix,
   ghrelease,
   git,
   verbose,
@@ -122,7 +128,8 @@ export async function handler ({
       gitBranch,
       allowYanked,
       allowPrerelease,
-      mergePrerelease
+      mergePrerelease,
+      releasePrefix
     })
 
     await write({ file, stdout })
@@ -131,7 +138,7 @@ export async function handler ({
       if (!gitParsed) {
         file.message('Cannot create a Github Release without the git url. Use `--git-url` param.')
       }
-      await createGithubRelease({ file, version, success, info, warn, error, gitParsed })
+      await createGithubRelease({ file, version, success, info, warn, error, gitParsed, releasePrefix })
     }
 
     report(file)

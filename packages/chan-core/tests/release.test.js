@@ -77,3 +77,15 @@ test('add release merged with prereleases', async () => {
 
   expect(file.toString()).toMatchSnapshot()
 })
+
+test('add release with altered prefix', async () => {
+  const file = await addRelease(toVFile.readSync(`${dirname(import.meta)}/__files__/unreleased.md`), {
+    version: '0.0.1',
+    gitReleaseTemplate: 'https://github.com/geut/chan/releases/tag/[next]',
+    gitCompareTemplate: 'https://github.com/geut/chan/compare/[prev]...[next]',
+    gitBranch: 'HEAD',
+    releasePrefix: ''
+  })
+
+  expect(file.toString()).toMatchSnapshot()
+})
