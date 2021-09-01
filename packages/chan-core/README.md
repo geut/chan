@@ -43,7 +43,8 @@ await addRelease(file,   {
   version: '0.0.2',
   gitTemplate: 'https://github.com/geut/chan/compare/[prev]...[next]',
   gitBranch: 'HEAD',
-  mergePrerelease: true
+  mergePrerelease: true,
+  releasePrefix: 'v'
 })
 
 await getMarkdownRelease(file, { version: '0.0.1' })
@@ -61,7 +62,7 @@ true to overwrite if file already exists. Default to `false`
 #### `changes` {Array}
 chast representation for a set of changes.
 
-### `addRelease (from, { version, date, yanked, gitTemplate, gitBranch, allowYanked, allowPrerelease, mergePrerelease })`
+### `addRelease (from, { version, date, yanked, gitTemplate, gitBranch, allowYanked, allowPrerelease, mergePrerelease, releasePrefix })`
 #### `from` {vfile}
 
 ### `getMarkdownRelease (from, { version })`

@@ -17,6 +17,7 @@ test('export yarg command structure', () => {
   expect(release.builder).toHaveProperty('merge-prerelease')
   expect(release.builder).toHaveProperty('ghrelease')
   expect(release.builder).toHaveProperty('git')
+  expect(release.builder).toHaveProperty('release-prefix')
 
   expect(release.handler).toBeDefined()
 })
