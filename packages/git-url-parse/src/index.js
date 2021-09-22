@@ -18,11 +18,15 @@ const providers = {
   },
   gitlab: {
     releaseTemplate: 'https://github.com/[full_name]/-/tags/[next]',
-
     compareTemplate: 'https://gitlab.com/[full_name]/compare?from=[prev]&to=[next]',
     branch: 'main'
   }
 }
+
+// patch .com version of providers
+providers['github.com'] = providers.github
+providers['gitlab.com'] = providers.gitlab
+providers['bitbucket.com'] = providers.bitbucket
 
 export async function gitUrlParse ({ url, cwd }) {
   let result
@@ -41,11 +45,11 @@ export async function gitUrlParse ({ url, cwd }) {
     result = _gitUrlParse(info.remote.origin.url)
   }
 
-  if (result.source.length === 0) {
+  if (!result.source) {
     return null
   }
 
-  const { releaseTemplate, compareTemplate, branch } = providers[Object.keys(providers).find(p => result.source.includes(p))]
+  const { releaseTemplate, compareTemplate, branch } = providers[result.source]
 
   return Object.assign(
     result,

@@ -105,10 +105,10 @@ export async function handler ({
       gitParsed = await gitUrlParse({ url: gitUrl, cwd: resolve(path) }).catch(() => null)
     }
 
-    if (git && !gitTemplate) {
+    if (git) {
       if (gitParsed) {
         gitReleaseTemplate = gitParsed.releaseTemplate
-        gitTemplate = gitParsed.compareTemplate
+        gitTemplate = gitTemplate || gitParsed.compareTemplate
         gitBranch = gitBranch || gitParsed.branch
       } else {
         file.message('Missing url to compare releases.')
