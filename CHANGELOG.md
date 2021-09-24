@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [3.2.2] - 2021-09-24
 ### Fixed
 - reference correct octokit action for creating releases #67
 
@@ -45,7 +47,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Moved all packages to ESM mode.
 
 ### Removed
-- Support for node < 12 for CLI.
+- Support for node &lt; 12 for CLI.
 
 ## [2.3.0] - 2021-06-03
 ### Added
@@ -124,7 +126,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 - git-first-commit dependency
 
-[Unreleased]: https://github.com/geut/chan/compare/v3.2.1...HEAD
+[Unreleased]: https://github.com/geut/chan/compare/v3.2.2...HEAD
+[3.2.2]: https://github.com/geut/chan/compare/v3.2.1...v3.2.2
 [3.2.1]: https://github.com/geut/chan/compare/v3.2.0...v3.2.1
 [3.2.0]: https://github.com/geut/chan/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/geut/chan/compare/v3.0.3...v3.1.0
