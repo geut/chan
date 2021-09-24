@@ -81,7 +81,7 @@ export async function createGithubRelease ({ file, version, success, info, warn,
     if (process.env.GITHUB_TOKEN) {
       const github = getOctokit(process.env.GITHUB_TOKEN)
 
-      await github.repos.createRelease({
+      await github.rest.repos.createRelease({
         owner: data.user,
         repo: data.repo,
         tag_name: data.tag,
