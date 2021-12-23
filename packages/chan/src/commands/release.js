@@ -109,9 +109,9 @@ export async function handler ({
     if (git) {
       gitParsed = await gitUrlParse({ url: gitUrl, cwd: resolve(path) }).catch(() => null)
 
-      gitReleaseTemplate = gitReleaseTemplate || gitParsed?.releaseTemplate
-      gitCompareTemplate = gitCompareTemplate || gitParsed?.compareTemplate
-      gitBranch = gitBranch || gitParsed?.branch || 'HEAD'
+      gitReleaseTemplate = gitReleaseTemplate || (gitParsed && gitParsed.releaseTemplate)
+      gitCompareTemplate = gitCompareTemplate || (gitParsed && gitParsed.compareTemplate)
+      gitBranch = gitBranch || (gitParsed && gitParsed.branch) || 'HEAD'
 
       if (gitReleaseTemplate && !gitCompareTemplate) {
         error('Missing --git-compare-template')
