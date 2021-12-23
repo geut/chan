@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [3.2.6] - 2021-12-23
+### Fixed
+- fixed bitbucket and gitlab url in releaseTemplate
+
 ## [3.2.4] - 2021-12-23
 ### Fixed
 - issue #64: "Cannot read property 'replace' of undefined" when running "chan release" with git-template set
@@ -132,7 +136,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 - git-first-commit dependency
 
-[Unreleased]: https://github.com/geut/chan/compare/v3.2.4...HEAD
+[Unreleased]: https://github.com/geut/chan/compare/v3.2.6...HEAD
+[3.2.6]: https://github.com/geut/chan/compare/v3.2.4...v3.2.6
 [3.2.4]: https://github.com/geut/chan/compare/v3.2.2...v3.2.4
 [3.2.2]: https://github.com/geut/chan/compare/v3.2.1...v3.2.2
 [3.2.1]: https://github.com/geut/chan/compare/v3.2.0...v3.2.1
