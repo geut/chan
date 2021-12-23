@@ -1,6 +1,6 @@
 {
   "name": "@geut/chast",
-  "version": "3.2.5",
+  "version": "3.2.6",
   "description": "Unist compatible spec for changelogs and helpers to nodes creation",
   "homepage": "http://geutstudio.com",
   "type": "module",

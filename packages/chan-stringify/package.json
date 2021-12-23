@@ -1,6 +1,6 @@
 {
   "name": "@geut/chan-stringify",
-  "version": "3.2.5",
+  "version": "3.2.6",
   "description": "Stringify chast to keepachangelog markdown",
   "homepage": "http://geutstudio.com",
   "type": "module",
@@ -22,7 +22,7 @@
     "unist-util-select": "^2.0.0"
   },
   "devDependencies": {
-    "@geut/remark-chan": "^3.2.5",
+    "@geut/remark-chan": "^3.2.6",
     "cross-env": "^7.0.3",
     "dirname-filename-esm": "1.1.1",
     "jest": "^27.0.0",
