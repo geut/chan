@@ -12,14 +12,14 @@ const providers = {
     branch: 'HEAD'
   },
   bitbucket: {
-    releaseTemplate: 'https://github.com/[full_name]/commits/tag/[next]',
+    releaseTemplate: 'https://bitbucket.org/[full_name]/commits/tag/[next]',
     compareTemplate: 'https://bitbucket.org/[full_name]/branches/compare/[prev]%0D[next]#diff',
     branch: 'HEAD'
   },
   gitlab: {
-    releaseTemplate: 'https://github.com/[full_name]/-/tags/[next]',
+    releaseTemplate: 'https://gitlab.com/[full_name]/-/tags/[next]',
     compareTemplate: 'https://gitlab.com/[full_name]/compare?from=[prev]&to=[next]',
-    branch: 'main'
+    branch: 'HEAD'
   }
 }
 
