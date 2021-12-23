@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- issue #64: "Cannot read property 'replace' of undefined" when running "chan release" with git-template set
+- issue #65: GitHub Tag URL is just tag, not tags
+- issue #66: Allow for non-zero exit code
 
 ## [3.2.2] - 2021-09-24
 ### Fixed
@@ -47,7 +51,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Moved all packages to ESM mode.
 
 ### Removed
-- Support for node &lt; 12 for CLI.
+- Support for node < 12 for CLI.
 
 ## [2.3.0] - 2021-06-03
 ### Added

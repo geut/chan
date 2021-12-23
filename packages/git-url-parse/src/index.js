@@ -7,7 +7,7 @@ const gitconfig = promisify(gitLocal)
 
 const providers = {
   github: {
-    releaseTemplate: 'https://github.com/[full_name]/releases/tags/[next]',
+    releaseTemplate: 'https://github.com/[full_name]/releases/tag/[next]',
     compareTemplate: 'https://github.com/[full_name]/compare/[prev]...[next]',
     branch: 'HEAD'
   },

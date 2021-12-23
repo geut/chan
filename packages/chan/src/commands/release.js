@@ -27,9 +27,14 @@ export const builder = {
     describe: 'Define the release as yanked',
     type: 'boolean'
   },
-  'git-template': {
-    describe: 'Define the template url to compare your releases: https://github.com/geut/chan/compare/[prev]...[next]',
+  'git-release-template': {
+    describe: 'Define the template url for your releases (e.g. https://github.com/geut/chan/releases/tag/[next])',
     type: 'string'
+  },
+  'git-compare-template': {
+    describe: 'Define the template url to compare your releases (e.g. https://github.com/geut/chan/compare/[prev]...[next])',
+    type: 'string',
+    alias: 'git-template'
   },
   'git-url': {
     describe: 'Define the url of the repository project',
@@ -75,7 +80,8 @@ export async function handler ({
   semver: userVersion,
   path,
   yanked,
-  gitTemplate,
+  gitReleaseTemplate,
+  gitCompareTemplate,
   gitUrl,
   gitBranch,
   allowYanked,
@@ -99,31 +105,29 @@ export async function handler ({
     const file = await toVFile.read(resolve(path, 'CHANGELOG.md'))
 
     let gitParsed = null
-    let gitReleaseTemplate
 
     if (git) {
       gitParsed = await gitUrlParse({ url: gitUrl, cwd: resolve(path) }).catch(() => null)
-    }
 
-    if (git) {
-      if (gitParsed) {
-        gitReleaseTemplate = gitParsed.releaseTemplate
-        gitTemplate = gitTemplate || gitParsed.compareTemplate
-        gitBranch = gitBranch || gitParsed.branch
-      } else {
-        file.message('Missing url to compare releases.')
+      gitReleaseTemplate = gitReleaseTemplate || gitParsed?.releaseTemplate
+      gitCompareTemplate = gitCompareTemplate || gitParsed?.compareTemplate
+      gitBranch = gitBranch || gitParsed?.branch || 'HEAD'
+
+      if (gitReleaseTemplate && !gitCompareTemplate) {
+        error('Missing --git-compare-template')
+        return
       }
-    }
 
-    if (!gitBranch) {
-      // default to
-      gitBranch = 'HEAD'
+      if (!gitReleaseTemplate && gitCompareTemplate) {
+        error('Missing --git-release-template')
+        return
+      }
     }
 
     await addRelease(file, {
       version,
       yanked,
-      gitCompareTemplate: gitTemplate,
+      gitCompareTemplate,
       gitReleaseTemplate,
       gitBranch,
       allowYanked,
@@ -131,6 +135,8 @@ export async function handler ({
       mergePrerelease,
       releasePrefix
     })
+
+    if (file.data.aborted) return report(file)
 
     await write({ file, stdout })
 
@@ -146,9 +152,9 @@ export async function handler ({
     if (hasWarnings(file)) {
       return
     }
-  } catch (err) {
-    return report(err)
-  }
 
-  success(`New release created. ${version}`)
+    success(`New release created. ${version}`)
+  } catch (err) {
+    report(err)
+  }
 }

@@ -44,6 +44,18 @@ export function createLogger ({ scope, verbose, stdout }) {
     scope: ['chan', scope].filter(Boolean)
   })
 
+  const prevError = logger.error.bind(logger)
+  logger.error = (...args) => {
+    process.exitCode = 1
+    prevError(...args)
+  }
+
+  const prevFatal = logger.fatal.bind(logger)
+  logger.fatal = (...args) => {
+    process.exitCode = 1
+    prevFatal(...args)
+  }
+
   logger.report = file => report({ logger, file, verbose })
   return logger
 }

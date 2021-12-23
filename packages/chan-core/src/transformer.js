@@ -103,7 +103,9 @@ export function addRelease ({
 
     if (!toMergePrereleases && !isYanked && unreleased.children.length === 0) {
       if (!allowYanked) {
-        file.fail('There are not new changes to release.', null, 'release:no-changes')
+        file.info('There are not new changes to release.', null, 'release:no-changes')
+        file.data.aborted = true
+        return
       }
 
       file.info('There are not new changes to release. Detecting yanked release.', null, 'release:allow-yanked')

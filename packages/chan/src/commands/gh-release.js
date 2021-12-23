@@ -1,4 +1,3 @@
-
 import { resolve } from 'path'
 import toVFile from 'to-vfile'
 import semver from 'semver'
@@ -55,14 +54,14 @@ export async function handler ({ semver: userVersion, path, gitUrl, releasePrefi
   await createGithubRelease({ file, version, success, info, warn, error, gitParsed, releasePrefix })
 }
 
-export async function createGithubRelease ({ file, version, success, info, warn, error, gitParsed, releasePrefix }) {
+export async function createGithubRelease ({ file, version, success, info, error, gitParsed, releasePrefix }) {
   if (!gitParsed) {
-    warn('We cannot find the repository info for your github release.')
+    error('We cannot find the repository info for your github release.')
     return
   }
 
   if (!gitParsed.source.includes('github')) {
-    warn('GitHub Releases are only for github repositories.')
+    error('GitHub Releases are only for github repositories.')
     return
   }
 
