@@ -1,6 +1,6 @@
 {
   "name": "@geut/remark-chan",
-  "version": "3.2.3",
+  "version": "3.2.4",
   "description": "Parser mdast to chast",
   "type": "module",
   "module": "./src/index.js",
@@ -12,7 +12,7 @@
     "lint": "standard \"**/*.js\""
   },
   "dependencies": {
-    "@geut/chast": "^3.2.3",
+    "@geut/chast": "^3.2.4",
     "unist-util-remove-position": "^4.0.0",
     "unist-util-select": "^4.0.0"
   },
