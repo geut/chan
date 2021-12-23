@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [3.2.4] - 2021-12-23
 ### Fixed
 - issue #64: "Cannot read property 'replace' of undefined" when running "chan release" with git-template set
 - issue #65: GitHub Tag URL is just tag, not tags
@@ -130,7 +132,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 - git-first-commit dependency
 
-[Unreleased]: https://github.com/geut/chan/compare/v3.2.2...HEAD
+[Unreleased]: https://github.com/geut/chan/compare/v3.2.4...HEAD
+[3.2.4]: https://github.com/geut/chan/compare/v3.2.2...v3.2.4
 [3.2.2]: https://github.com/geut/chan/compare/v3.2.1...v3.2.2
 [3.2.1]: https://github.com/geut/chan/compare/v3.2.0...v3.2.1
 [3.2.0]: https://github.com/geut/chan/compare/v3.1.0...v3.2.0
