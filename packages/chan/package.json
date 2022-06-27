@@ -1,6 +1,6 @@
 {
   "name": "@geut/chan",
-  "version": "3.2.7",
+  "version": "3.2.9",
   "description": "Write and maintain a CHANGELOG from your command line.",
   "homepage": "http://geutstudio.com",
   "type": "module",
