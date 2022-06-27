@@ -1,6 +1,6 @@
 {
   "name": "@geut/chan",
-  "version": "3.2.7",
+  "version": "3.2.8",
   "description": "Chan monorepo",
   "private": true,
   "workspaces": {
