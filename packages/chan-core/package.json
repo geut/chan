@@ -1,6 +1,6 @@
 {
   "name": "@geut/chan-core",
-  "version": "3.2.6",
+  "version": "3.2.7",
   "description": "API and transformers to work with chast",
   "type": "module",
   "module": "./src/index.js",
@@ -12,7 +12,7 @@
     "lint": "standard \"**/*.js\""
   },
   "dependencies": {
-    "@geut/chan-stringify": "^3.2.6",
+    "@geut/chan-stringify": "^3.2.7",
     "@geut/chast": "^3.2.6",
     "@geut/remark-chan": "^3.2.6",
     "remark-parse": "^9.0.0",

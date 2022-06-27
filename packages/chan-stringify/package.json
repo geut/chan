@@ -1,6 +1,6 @@
 {
   "name": "@geut/chan-stringify",
-  "version": "3.2.6",
+  "version": "3.2.7",
   "description": "Stringify chast to keepachangelog markdown",
   "homepage": "http://geutstudio.com",
   "type": "module",
