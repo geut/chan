@@ -18,8 +18,7 @@
     "remark-stringify": "^9.0.0",
     "unified": "^9.2.0",
     "unist-builder": "^1.0.3",
-    "unist-util-remove-position": "^1.1.2",
-    "unist-util-select": "^2.0.0"
+    "unist-util-remove-position": "^1.1.2"
   },
   "devDependencies": {
     "@geut/remark-chan": "^3.2.6",
