@@ -1,6 +1,6 @@
 {
   "name": "@geut/chan",
-  "version": "2.0.0",
+  "version": "3.2.7",
   "description": "Chan monorepo",
   "private": true,
   "workspaces": {
@@ -16,8 +16,8 @@
     "lint:fix": "lerna run lint -- -- --fix"
   },
   "devDependencies": {
-    "lerna": "^4.0.0",
-    "enhanced-resolve": "^5.8.2"
+    "enhanced-resolve": "^5.8.2",
+    "lerna": "^4.0.0"
   },
   "keywords": [
     "cli",
