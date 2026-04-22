@@ -3,34 +3,34 @@
   "version": "3.2.6",
   "description": "Unist compatible spec for changelogs and helpers to nodes creation",
   "homepage": "http://geutstudio.com",
+  "license": "ISC",
+  "author": {
+    "name": "GEUT",
+    "email": "contact@geutstudio.com"
+  },
+  "repository": "https://github.com/geut/chan/tree/master/packages/chast",
   "type": "module",
   "module": "./src/index.js",
   "exports": {
     ".": "./src/index.js",
     "./actions": "./src/actions.js"
   },
-  "scripts": {
-    "lint": "standard \"**/*.js\""
-  },
-  "dependencies": {
-    "semver": "^7.3.5",
-    "unist-builder": "^3.0.0"
-  },
-  "devDependencies": {
-    "standard": "^16.0.3"
-  },
-  "standard": {
-    "env": [
-      "node"
-    ]
-  },
-  "author": {
-    "name": "GEUT",
-    "email": "contact@geutstudio.com"
-  },
-  "license": "ISC",
-  "repository": "https://github.com/geut/chan/tree/master/packages/chast",
   "publishConfig": {
     "access": "public"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "fmt": "oxfmt",
+    "lint": "oxlint",
+    "check-types": "tsgo --noEmit",
+    "build": "tsgo --build"
+  },
+  "dependencies": {
+    "semver": "^7.7.4",
+    "unist-builder": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/semver": "^7.7.1",
+    "@types/unist": "^3.0.3"
   }
 }
