@@ -1,0 +1,11 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/chan" },
+    { "path": "packages/chast" },
+    { "path": "packages/chan-core" },
+    { "path": "packages/chan-stringify" },
+    { "path": "packages/remark-chan" },
+    { "path": "packages/git-url-parse" }
+  ]
+}

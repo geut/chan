@@ -7,15 +7,15 @@
 - **Repository**: https://github.com/geut/chan
 - **License**: ISC
 - **Author**: GEUT (contact@geutstudio.com)
-- **Current Version**: 3.2.6 (packages), 2.0.0 (monorepo root)
+- **Current Version**: 3.2.6–3.2.9 (packages), 3.2.8 (monorepo root)
 
 ## Architecture
 
 ### Monorepo Structure
 
 The project uses a monorepo structure managed by:
-- **Yarn Workspaces**: For package management
-- **Lerna**: For publishing and versioning
+- **npm Workspaces**: For package management (migrated from Yarn Workspaces)
+- **Lerna**: Removed — publishing and versioning are no longer managed by Lerna
 
 ### Technology Stack
 
@@ -87,8 +87,8 @@ transformer → chan-stringify (chast → markdown) → Output
 **Purpose**: Custom AST (Abstract Syntax Tree) specification for changelogs
 
 **Key Files**:
-- `src/index.js` - Node constructors
-- `src/actions.js` - Valid action types enum
+- `src/index.ts` - Node constructors (migrated to TypeScript)
+- `src/actions.ts` - Valid action types enum (migrated to TypeScript)
 
 **Node Types**:
 - `root` - Root container
@@ -133,7 +133,7 @@ transformer → chan-stringify (chast → markdown) → Output
 **Purpose**: Parse git URLs and generate compare/release templates
 
 **Key Files**:
-- `src/index.js` - URL parsing and template generation
+- `src/index.ts` - URL parsing and template generation (migrated to TypeScript)
 
 **Supported Providers**:
 - GitHub
@@ -191,8 +191,9 @@ Stringify and write
 ## Testing Strategy
 
 ### Test Framework
-- **Jest** with ESM support (`NODE_OPTIONS=--experimental-vm-modules`)
-- **Custom resolver**: `jest-module-resolver.js` for workspace package resolution
+- **Vitest**: Primary test runner at the root and for modernized packages (`chast`, `git-url-parse`)
+- **Jest** with ESM support (`NODE_OPTIONS=--experimental-vm-modules`): Still used in legacy packages (`chan`, `chan-core`, `chan-stringify`, `remark-chan`)
+- ~~**Custom resolver**: `jest-module-resolver.js`~~ — removed
 
 ### Test Coverage by Package
 
@@ -203,7 +204,7 @@ Stringify and write
 | `@geut/remark-chan` | ✅ | Snapshot tests for parsing |
 | `@geut/chan-stringify` | ✅ | Snapshot tests for compilation |
 | `@geut/chast` | ❌ | No tests (lint only) |
-| `@geut/git-url-parse` | ❌ | No tests (lint only) |
+| `@geut/git-url-parse` | ✅ | Vitest tests (added during TS migration) |
 
 ### Test Files
 
@@ -226,18 +227,31 @@ Stringify and write
 **chan-stringify package**:
 - `test/index.test.js` - Compilation tests
 
+**chast package**:
+- `tests/index.test.ts` - TypeScript node constructor tests
+
+**git-url-parse package**:
+- `tests/index.test.ts` - TypeScript URL parsing tests
+
 ## CI/CD
 
 **GitHub Actions**: `.github/workflows/node-ci.yml`
 - Runs on: push/PR to `main` branch
 - Node versions: 12.x, 14.x, 16.x
 - OS matrix: Ubuntu, macOS, Windows
-- Steps: checkout → setup-node → yarn install → yarn test
+- Steps: checkout → setup-node → ~~yarn install → yarn test~~
+- **Note**: CI workflow is currently outdated — it still references `yarn` commands while the repo has migrated to `npm` and `vitest`
 
 ## Dependencies and Version Management
 
 ### Package Versions
-All packages are versioned in sync: **3.2.6**
+Packages are mostly versioned in sync:
+- `@geut/chan`: **3.2.9**
+- `@geut/chan-core`: **3.2.7**
+- `@geut/chan-stringify`: **3.2.7**
+- `@geut/chast`: **3.2.6**
+- `@geut/remark-chan`: **3.2.6**
+- `@geut/git-url-parse`: **3.2.6**
 
 ### Inter-Package Dependencies
 ```
@@ -248,15 +262,20 @@ chan-stringify → (no internal deps)
 git-url-parse → (no internal deps)
 ```
 
+### Dependency Updates (Recent)
+- `@geut/chast`: upgraded `unist-builder` to `^4.0.0`, `semver` to `^7.7.4`
+- `@geut/git-url-parse`: rewritten — now uses `find-up` ^8.0.0, `ini` ^1.3.8, `parse-github-url` ^1.0.4 (removed `git-url-parse` and `gitconfiglocal`)
+- `@geut/chan-stringify`: still on older `unist-util-remove-position` ^1.1.2 (potential compatibility issue with other packages on v4.x)
+
 ### External Dependencies
 
 **Core Processing**:
 - `unified` ^9.2.1 - Text processing framework
 - `remark-parse` ^9.0.0 - Markdown parser
 - `mdast-util-to-markdown` ^0.6.5 - Markdown serializer
-- `unist-builder` ^3.0.0 - AST node builder
-- `unist-util-select` ^4.0.0 - Tree selection
-- `unist-util-remove-position` ^4.0.0 - Position removal
+- `unist-builder` ^4.0.0 / ^3.0.0 / ^1.0.3 - AST node builder (mixed versions across packages)
+- `unist-util-select` ^4.0.0 / ^2.0.0 - Tree selection
+- `unist-util-remove-position` ^4.0.0 / ^1.1.2 - Position removal
 
 **CLI**:
 - `yargs` ^17.0.1 - Argument parsing
@@ -264,14 +283,14 @@ git-url-parse → (no internal deps)
 - `boxen` ^5.0.1 - Terminal boxes
 - `open` ^8.2.0 - Open URLs
 - `to-vfile` ^6.1.0 - File I/O
-- `find-up` ^5.0.0 - File finding
+- `find-up` ^5.0.0 / ^8.0.0 - File finding (mixed versions)
 - `editor` ^1.0.0 - External editor support
 - `tempfile` ^4.0.0 - Temp file creation
 
 **Utilities**:
-- `semver` ^7.3.5 - Version parsing/comparison
-- `git-url-parse` ^11.1.2 - Git URL parsing
-- `gitconfiglocal` ^2.0.2 - Git config reading
+- `semver` ^7.7.4 / ^7.3.5 - Version parsing/comparison
+- `parse-github-url` ^1.0.4 - Git URL parsing
+- `ini` ^1.3.8 - Git config reading
 - `new-github-release-url` ^1.0.0 - GitHub release URLs
 
 **GitHub Integration**:
@@ -286,32 +305,56 @@ git-url-parse → (no internal deps)
 4. **Comprehensive CLI**: Good UX with interactive editor support
 5. **Git Integration**: Automatic URL generation for major providers
 
+### Recent Modernization Efforts
+
+#### 1. Migration from Yarn + Lerna to npm
+- Removed `lerna.json` and `yarn.lock`
+- Added `package-lock.json`
+- Root `package.json` now defines npm workspaces (`"workspaces": { "packages": ["packages/*"] }`)
+
+#### 2. Partial Migration to TypeScript
+- `packages/chast/` and `packages/git-url-parse/` converted to TypeScript (`.ts` sources)
+- Introduced `tsgo` (`@typescript/native-preview`) for fast type-checking and compilation
+- Root `tsconfig.json` uses project references for each package
+- Type definitions exported from `chast` (e.g., `ReleaseNode`, `PrefaceNode`, `Actions`)
+
+#### 3. Testing & Linting Overhaul (Partial)
+- Root test runner changed from Jest to **Vitest**
+- Modernized packages (`chast`, `git-url-parse`) use `vitest run`
+- Legacy packages (`chan`, `chan-core`, `chan-stringify`, `remark-chan`) still on Jest
+- Root linter changed from Standard to **oxlint**
+- Modernized packages use `oxlint` / `oxfmt`
+- Legacy packages still use `standard`
+- Added `.oxlintrc.json` and `.oxfmtrc.json` configuration files
+
 ### Areas for Improvement
 
-#### 1. Test Coverage Gaps
-- `@geut/chast` has no tests
-- `@geut/git-url-parse` has no tests
-- These packages are critical but untested
-
-#### 2. Dependency Version Conflicts
+#### 1. Dependency Version Conflicts
 `chan-stringify/package.json` has mixed versions of unist utilities:
 ```json
 "unist-util-remove-position": "^1.1.2",
-"unist-util-select": "^2.0.0",
 ```
 Other packages use v4.x, which could cause compatibility issues.
 
-#### 3. Error Handling
+#### 2. Error Handling
 - Some async errors are silently caught (e.g., `openInEditor`)
 - Logger modifies `process.exitCode` directly which may have side effects
 
-#### 4. Git Config Reading
+#### 3. Git Config Reading
 - Synchronous file operations in `gitUrlParse` could block
 - Error handling returns `null` which may not distinguish between different failure modes
 
-#### 5. Legacy ES5 Folder
+#### 4. Legacy ES5 Folder
 - `es5/` directory exists with older transpiled code
 - Appears to be legacy/unused but still in repo
+
+#### 5. CI/CD Out of Sync
+- `.github/workflows/node-ci.yml` still uses `yarn` and tests against Node 12.x/14.x/16.x
+- Needs updating to `npm ci`, modern Node versions, and current test commands
+
+#### 6. Incomplete Tooling Migration
+- Only 2 of 6 packages migrated to TypeScript + Vitest + oxlint
+- Mixed tooling increases maintenance overhead
 
 ### Code Patterns
 
@@ -344,11 +387,12 @@ export function remarkToChan () {
 
 ```
 /Users/deka/Projects/geut/chan/
-├── package.json                    # Root package, workspaces config
-├── lerna.json                      # Lerna configuration
-├── yarn.lock                       # Yarn lockfile
-├── jest-module-resolver.js         # Jest ESM resolver
-├── .github/workflows/node-ci.yml   # GitHub Actions CI
+├── package.json                    # Root package, npm workspaces config
+├── package-lock.json               # npm lockfile
+├── tsconfig.json                   # TypeScript project references
+├── .oxlintrc.json                  # oxlint configuration
+├── .oxfmtrc.json                   # oxfmt configuration
+├── .github/workflows/node-ci.yml   # GitHub Actions CI (outdated — still uses yarn)
 ├── .travis.yml                     # Travis CI (legacy)
 ├── README.md                       # Project documentation
 ├── CHANGELOG.md                    # Project changelog
@@ -377,10 +421,10 @@ export function remarkToChan () {
     │   │   ├── index.js
     │   │   └── transformer.js
     │   └── tests/
-    ├── chast/                      # AST spec
+    ├── chast/                      # AST spec (TypeScript)
     │   ├── src/
-    │   │   ├── index.js
-    │   │   └── actions.js
+    │   │   ├── index.ts
+    │   │   └── actions.ts
     │   └── node_modules/
     ├── remark-chan/                # Parser
     │   ├── src/index.js
@@ -388,8 +432,8 @@ export function remarkToChan () {
     ├── chan-stringify/             # Compiler
     │   ├── src/index.js
     │   └── test/
-    └── git-url-parse/              # Git integration
-        └── src/index.js
+    └── git-url-parse/              # Git integration (TypeScript)
+        └── src/index.ts
 ```
 
 ## Build and Development
@@ -397,13 +441,21 @@ export function remarkToChan () {
 ### Available Scripts
 
 **Root level**:
-- `npm run bootstrap` - Clean and bootstrap packages
-- `npm test` - Run all package tests
-- `npm run lint` - Lint all packages
-- `npm run lint:fix` - Fix linting issues
+- `npm test` - Run Vitest across the monorepo
+- `npm run posttest` - Runs lint after tests
+- `npm run lint` - Run oxlint (root-level)
+- `npm run lint:fix` - Fix linting issues with oxlint
+- `npm run check-types` - Type-check all packages via `tsgo --noEmit`
 
-**Package level** (each package):
-- `npm test` - Run Jest tests
+**Package level** (modernized packages: `chast`, `git-url-parse`):
+- `npm test` - Run Vitest tests
+- `npm run lint` - Run oxlint
+- `npm run fmt` - Run oxfmt
+- `npm run check-types` - Type-check via tsgo
+- `npm run build` - Build via tsgo
+
+**Package level** (legacy packages: `chan`, `chan-core`, `chan-stringify`, `remark-chan`):
+- `npm test` - Run Jest tests with ESM support
 - `npm run lint` - Run Standard linter
 
 ### Installation

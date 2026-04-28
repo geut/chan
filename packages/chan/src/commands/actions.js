@@ -55,11 +55,9 @@ const createHandler = action => async ({ message, path, group, verbose, stdout }
   success('Added new changes on your changelog.')
 }
 
-export const actionCommands = [
-  ...actions.map(({ command, description }) => ({
+export const actionCommands = actions.map(({ command, description }) => ({
     command: `${command} [message]`,
     description,
     builder,
     handler: createHandler(command)
   }))
-]
