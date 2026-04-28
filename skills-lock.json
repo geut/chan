@@ -11,6 +11,12 @@
       "sourceType": "github",
       "computedHash": "76d07c4c0bebc162cc76ca7494bfe7a90e279f35832f7ce6dfc4ce16518fd560"
     },
+    "to-issues": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/to-issues/SKILL.md",
+      "computedHash": "73a91f30784523aa59ec9b02769576ebfc738e2cd5ad8f6441076031f0a5d5ac"
+    },
     "to-prd": {
       "source": "mattpocock/skills",
       "sourceType": "github",

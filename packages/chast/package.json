@@ -10,13 +10,28 @@
   },
   "repository": "https://github.com/geut/chan/tree/master/packages/chast",
   "type": "module",
-  "module": "./src/index.js",
+  "module": "./src/index.ts",
   "exports": {
-    ".": "./src/index.js",
-    "./actions": "./src/actions.js"
+    ".": "./src/index.ts",
+    "./actions": "./src/actions.ts"
   },
+  "files": [
+    "dist/src/",
+    "src/"
+  ],
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "module": "./dist/src/index.js",
+    "exports": {
+      ".": {
+        "import": "./dist/src/index.js",
+        "types": "./dist/src/index.d.ts"
+      },
+      "./actions": {
+        "import": "./dist/src/actions.js",
+        "types": "./dist/src/actions.d.ts"
+      }
+    }
   },
   "scripts": {
     "test": "vitest run",
@@ -31,6 +46,7 @@
   },
   "devDependencies": {
     "@types/semver": "^7.7.1",
-    "@types/unist": "^3.0.3"
+    "@types/unist": "^3.0.3",
+    "vitest": "^4.1.5"
   }
 }

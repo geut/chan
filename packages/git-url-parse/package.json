@@ -3,9 +3,9 @@
   "version": "3.2.6",
   "description": "Function to parse a git url and generates template url for the git compare preview.",
   "type": "module",
-  "module": "./src/index.js",
+  "module": "./src/index.ts",
   "exports": {
-    ".": "./src/index.js"
+    ".": "./src/index.ts"
   },
   "scripts": {
     "test": "vitest run",
@@ -25,8 +25,19 @@
   },
   "license": "ISC",
   "repository": "https://github.com/geut/chan/tree/master/packages/git-url-parse",
+  "files": [
+    "dist/src/",
+    "src/"
+  ],
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "module": "./dist/src/index.js",
+    "exports": {
+      ".": {
+        "import": "./dist/src/index.js",
+        "types": "./dist/src/index.d.ts"
+      }
+    }
   },
   "devDependencies": {
     "@types/ini": "^4.1.1"
