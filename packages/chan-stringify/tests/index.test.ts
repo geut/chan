@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest'
 import { stringify } from '../src/index.js'
 import { PREFACE } from './chast-parts.js'
 import type { Node } from 'unist'
-import { VFile } from 'vfile'
 
 function createProcessor() {
   // Simple mock processor for testing the compiler directly
@@ -13,9 +12,9 @@ function createProcessor() {
       pluginFn.call(this, opts)
       return this
     },
-    stringify(tree: Node, file?: VFile) {
-      const compiler = this.compiler as (tree: Node, file: VFile) => string
-      return compiler(tree, file ?? new VFile())
+    stringify(tree: Node) {
+      const compiler = this.compiler as (tree: Node, file: unknown) => string
+      return compiler(tree, {})
     },
   }
   processor.use(plugin)

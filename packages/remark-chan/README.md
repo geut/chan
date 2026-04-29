@@ -1,4 +1,4 @@
-# remark-chan -- DEPRECATED
+# remark-chan
 
 A unified plugin to convert from mdast to [chast](https://github.com/geut/chan/tree/master/packages/chast)
 

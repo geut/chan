@@ -34,7 +34,8 @@ export function stringify(options: StringifyOptions = {}): void {
 
   self.compiler = compiler
 
-  function compiler(tree: Node, file: VFile): string {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function compiler(tree: Node, file: any): string {
     const root = u(
       'root',
       [
@@ -72,7 +73,8 @@ function compilePreface(tree: ChastNode, file: VFile): Node[] {
   const preface = select('preface', tree)
 
   if (!preface) {
-    file.fail(new Error('Keep a changelog preface missing.'), tree, 'compilePreface')
+    // @ts-expect-error: @types/unist Data mismatch between vfile and unist-util-select
+    file.fail('Keep a changelog preface missing.', tree as unknown as Node, 'compilePreface')
     return []
   }
 
