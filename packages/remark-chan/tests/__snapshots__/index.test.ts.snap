@@ -1,13 +1,13 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`parse mdast to chast 1`] = `
-Object {
-  "children": Array [
-    Object {
-      "children": Array [
-        Object {
-          "children": Array [
-            Object {
+exports[`remark-chan > parse mdast to chast 1`] = `
+{
+  "children": [
+    {
+      "children": [
+        {
+          "children": [
+            {
               "type": "text",
               "value": "Changelog",
             },
@@ -15,24 +15,24 @@ Object {
           "depth": 1,
           "type": "heading",
         },
-        Object {
-          "children": Array [
-            Object {
+        {
+          "children": [
+            {
               "type": "text",
               "value": "All notable changes to this project will be documented in this file.",
             },
           ],
           "type": "paragraph",
         },
-        Object {
-          "children": Array [
-            Object {
+        {
+          "children": [
+            {
               "type": "text",
               "value": "The format is based on ",
             },
-            Object {
-              "children": Array [
-                Object {
+            {
+              "children": [
+                {
                   "type": "text",
                   "value": "Keep a Changelog",
                 },
@@ -41,14 +41,14 @@ Object {
               "type": "link",
               "url": "https://keepachangelog.com/en/1.0.0/",
             },
-            Object {
+            {
               "type": "text",
               "value": ",
 and this project adheres to ",
             },
-            Object {
-              "children": Array [
-                Object {
+            {
+              "children": [
+                {
                   "type": "text",
                   "value": "Semantic Versioning",
                 },
@@ -57,7 +57,7 @@ and this project adheres to ",
               "type": "link",
               "url": "https://semver.org/spec/v2.0.0.html",
             },
-            Object {
+            {
               "type": "text",
               "value": ".",
             },
@@ -67,21 +67,21 @@ and this project adheres to ",
       ],
       "type": "preface",
     },
-    Object {
-      "children": Array [
-        Object {
-          "children": Array [
-            Object {
-              "children": Array [
-                Object {
-                  "children": Array [
-                    Object {
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "children": [
+                    {
                       "type": "text",
                       "value": "Update and improvement of Polish translation from ",
                     },
-                    Object {
-                      "children": Array [
-                        Object {
+                    {
+                      "children": [
+                        {
                           "type": "text",
                           "value": "@m-aciek",
                         },
@@ -90,7 +90,7 @@ and this project adheres to ",
                       "type": "link",
                       "url": "https://github.com/m-aciek",
                     },
-                    Object {
+                    {
                       "type": "text",
                       "value": ".",
                     },
@@ -100,13 +100,13 @@ and this project adheres to ",
               ],
               "type": "change",
             },
-            Object {
-              "children": Array [
-                Object {
-                  "children": Array [
-                    Object {
-                      "children": Array [
-                        Object {
+            {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
                           "type": "text",
                           "value": "test1",
                         },
@@ -116,11 +116,11 @@ and this project adheres to ",
                   ],
                   "type": "change",
                 },
-                Object {
-                  "children": Array [
-                    Object {
-                      "children": Array [
-                        Object {
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
                           "type": "text",
                           "value": "test2",
                         },
@@ -147,18 +147,18 @@ and this project adheres to ",
       "version": "Unreleased",
       "yanked": false,
     },
-    Object {
-      "children": Array [
-        Object {
-          "children": Array [
-            Object {
-              "children": Array [
-                Object {
-                  "children": Array [
-                    Object {
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "children": [
+                    {
                       "type": "text",
-                      "value": "Better explanation of the difference between the file (\\"CHANGELOG\\")
-and its function \\"the change log\\".",
+                      "value": "Better explanation of the difference between the file ("CHANGELOG")
+and its function "the change log".",
                     },
                   ],
                   "type": "paragraph",
@@ -170,15 +170,15 @@ and its function \\"the change log\\".",
           "name": "Added",
           "type": "action",
         },
-        Object {
-          "children": Array [
-            Object {
-              "children": Array [
-                Object {
-                  "children": Array [
-                    Object {
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "children": [
+                    {
                       "type": "text",
-                      "value": "Refer to a \\"change log\\" instead of a \\"CHANGELOG\\" throughout the site
+                      "value": "Refer to a "change log" instead of a "CHANGELOG" throughout the site
 to differentiate between the file and the purpose of the file — the
 logging of changes.",
                     },
@@ -192,13 +192,13 @@ logging of changes.",
           "name": "Changed",
           "type": "action",
         },
-        Object {
-          "children": Array [
-            Object {
-              "children": Array [
-                Object {
-                  "children": Array [
-                    Object {
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "children": [
+                    {
                       "type": "text",
                       "value": "Remove empty sections from CHANGELOG, they occupy too much space and
 create too much noise in the file. People will have to assume that the
@@ -224,25 +224,25 @@ notable changes.",
       "version": "0.0.4",
       "yanked": false,
     },
-    Object {
-      "children": Array [],
+    {
+      "children": [],
       "date": "2014-08-09",
       "identifier": "0.0.3",
       "type": "release",
       "unreleased": false,
-      "url": undefined,
+      "url": null,
       "version": "0.0.3",
       "yanked": true,
     },
-    Object {
-      "children": Array [
-        Object {
-          "children": Array [
-            Object {
-              "children": Array [
-                Object {
-                  "children": Array [
-                    Object {
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "children": [
+                    {
                       "type": "text",
                       "value": "Explanation of the recommended reverse chronological release ordering.",
                     },
@@ -265,15 +265,15 @@ notable changes.",
       "version": "0.0.2",
       "yanked": false,
     },
-    Object {
-      "children": Array [
-        Object {
-          "children": Array [
-            Object {
-              "children": Array [
-                Object {
-                  "children": Array [
-                    Object {
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "children": [
+                    {
                       "type": "text",
                       "value": "This CHANGELOG file to hopefully serve as an evolving example of a
 standardized open source project CHANGELOG.",
@@ -284,11 +284,11 @@ standardized open source project CHANGELOG.",
               ],
               "type": "change",
             },
-            Object {
-              "children": Array [
-                Object {
-                  "children": Array [
-                    Object {
+            {
+              "children": [
+                {
+                  "children": [
+                    {
                       "type": "text",
                       "value": "CNAME file to enable GitHub Pages custom domain",
                     },
@@ -298,11 +298,11 @@ standardized open source project CHANGELOG.",
               ],
               "type": "change",
             },
-            Object {
-              "children": Array [
-                Object {
-                  "children": Array [
-                    Object {
+            {
+              "children": [
+                {
+                  "children": [
+                    {
                       "type": "text",
                       "value": "README now contains answers to common questions about CHANGELOGs",
                     },
@@ -312,11 +312,11 @@ standardized open source project CHANGELOG.",
               ],
               "type": "change",
             },
-            Object {
-              "children": Array [
-                Object {
-                  "children": Array [
-                    Object {
+            {
+              "children": [
+                {
+                  "children": [
+                    {
                       "type": "text",
                       "value": "Good examples and basic guidelines, including proper date formatting.",
                     },
@@ -326,13 +326,13 @@ standardized open source project CHANGELOG.",
               ],
               "type": "change",
             },
-            Object {
-              "children": Array [
-                Object {
-                  "children": Array [
-                    Object {
+            {
+              "children": [
+                {
+                  "children": [
+                    {
                       "type": "text",
-                      "value": "Counter-examples: \\"What makes unicorns cry?\\"",
+                      "value": "Counter-examples: "What makes unicorns cry?"",
                     },
                   ],
                   "type": "paragraph",
@@ -349,7 +349,7 @@ standardized open source project CHANGELOG.",
       "identifier": "0.0.1",
       "type": "release",
       "unreleased": false,
-      "url": undefined,
+      "url": null,
       "version": "0.0.1",
       "yanked": false,
     },

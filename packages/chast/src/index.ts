@@ -5,8 +5,10 @@ import semver from 'semver'
 
 import { actions, type Actions } from './actions.js'
 
-const validValue = (value: (Record<string, unknown> | ReleaseNode)[] = []) =>
-  assert(Array.isArray(value), 'Value must be a valid array odf unist elements.')
+type NodeValue = (Record<string, unknown> | Node)[]
+
+const validValue = (value: NodeValue = []) =>
+  assert(Array.isArray(value), 'Value must be a valid array of unist elements.')
 
 export type ReleaseNode = Node & {
   type: 'release'
@@ -28,9 +30,11 @@ export interface ReleaseProps {
   version: string
   yanked: boolean
   url?: string | null
+  date?: string | null
+  unreleased?: boolean
 }
 
-export const createRoot = (value: (Record<string, unknown> | ReleaseNode)[] = []) => {
+export const createRoot = (value: NodeValue = []) => {
   validValue(value)
 
   const nodes = value.filter(Boolean) as (PrefaceNode | ReleaseNode)[]
@@ -39,12 +43,12 @@ export const createRoot = (value: (Record<string, unknown> | ReleaseNode)[] = []
   return u('root', [preface, ...releases].filter(Boolean) as PrefaceNode[] | ReleaseNode[])
 }
 
-export const createPreface = (value: Record<string, unknown>[] = []): Node => {
+export const createPreface = (value: NodeValue = []): Node => {
   validValue(value)
-  return u('preface', value as unknown as Record<string, unknown>) as Node
+  return u('preface', value as unknown as Node[]) as Node
 }
 
-export const createRelease = (props: ReleaseProps, value = []) => {
+export const createRelease = (props: ReleaseProps, value: NodeValue = []) => {
   const { identifier, version, yanked, url } = props
 
   assert(identifier, 'The `identifier` of the release is required.')
@@ -60,27 +64,27 @@ export const createRelease = (props: ReleaseProps, value = []) => {
     props.url = null
   }
 
-  return u('release', { ...props, url: props.url ?? null }, value)
+  return u('release', { ...props, url: props.url ?? null }, value as unknown as Node[])
 }
 
-export const createAction = ({ name }: { name: Actions[keyof Actions] }, value = []) => {
+export const createAction = ({ name }: { name: Actions[keyof Actions] }, value: NodeValue = []) => {
   assert(Object.values(actions).includes(name), 'The `name` prop to create an action is not valid.')
   validValue(value)
 
-  return u('action', { name }, value)
+  return u('action', { name }, value as unknown as Node[])
 }
 
-export const createGroup = ({ name }: { name: keyof Actions }, value = []) => {
+export const createGroup = ({ name }: { name: string }, value: NodeValue = []) => {
   assert(name, 'The `name` prop is required to create a group.')
   validValue(value)
 
-  return u('group', { name }, value)
+  return u('group', { name }, value as unknown as Node[])
 }
 
-export const createChange = (value = []) => {
+export const createChange = (value: NodeValue = []) => {
   validValue(value)
 
-  return u('change', value)
+  return u('change', value as unknown as Node[])
 }
 
 function sortReleases(a: ReleaseNode, b: ReleaseNode): number {
