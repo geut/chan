@@ -141,7 +141,6 @@ export function addRelease({
 
     if (!version) {
       file.fail('Version release is not valid.')
-      return tree
     }
 
     const isPrerelease = !!semver.prerelease(version)
@@ -149,7 +148,6 @@ export function addRelease({
 
     if (!unreleased) {
       file.fail('Missing unreleased header.', undefined, 'release:missing-unreleased')
-      return tree
     }
 
     if (isPrerelease && !allowPrerelease && !mergePrerelease) {
@@ -176,7 +174,6 @@ export function addRelease({
 
     if (select(`release[identifier=${version}]`, tree as ChastNode)) {
       file.fail(`The release ${version} already exists.`)
-      return tree
     }
 
     let changes: Node[]
