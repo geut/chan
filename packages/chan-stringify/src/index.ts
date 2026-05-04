@@ -73,7 +73,6 @@ function compilePreface(tree: ChastNode, file: VFile): Node[] {
   const preface = select('preface', tree)
 
   if (!preface) {
-    // @ts-expect-error: @types/unist Data mismatch between vfile and unist-util-select
     file.fail('Keep a changelog preface missing.', tree as unknown as Node, 'compilePreface')
     return []
   }

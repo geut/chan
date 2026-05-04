@@ -1,10 +1,10 @@
 import tempfile from 'tempfile'
 import editor from 'editor'
-import { promises as fs } from 'fs'
+import { promises as fs } from 'node:fs'
 
-async function openEditor (tmpFile) {
+async function openEditor(tmpFile: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    editor(tmpFile, code => {
+    editor(tmpFile, (code: number) => {
       if (code === 0) {
         resolve()
       } else {
@@ -14,13 +14,13 @@ async function openEditor (tmpFile) {
   })
 }
 
-export async function openInEditor () {
+export async function openInEditor(): Promise<string | null> {
   try {
     const tmpFile = tempfile('.md')
     await openEditor(tmpFile)
     const data = await fs.readFile(tmpFile, 'utf8')
     return data
-  } catch (err) {
+  } catch {
     return null
   }
 }

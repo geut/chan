@@ -1,5 +1,5 @@
-import { resolve } from 'path'
-import toVFile from 'to-vfile'
+import { resolve } from 'node:path'
+import { read } from 'to-vfile'
 import semver from 'semver'
 
 import { getMarkdownRelease } from '@geut/chan-core'
@@ -11,17 +11,24 @@ export const description = 'Show release notes from CHANGELOG for a given versio
 
 export const builder = {
   semver: {
-    type: 'string'
+    type: 'string' as const
   },
   path: {
     alias: 'p',
     describe: 'Path of the CHANGELOG.md',
-    type: 'string',
+    type: 'string' as const,
     default: '.'
   }
 }
 
-export async function handler ({ semver: userVersion, path, verbose, stdout }) {
+interface ShowArgs {
+  semver: string
+  path: string
+  verbose?: boolean
+  stdout?: boolean
+}
+
+export async function handler ({ semver: userVersion, path, verbose, stdout }: ShowArgs) {
   const { error } = createLogger({ scope: 'view', verbose, stdout })
 
   const version = semver.valid(userVersion)
@@ -31,7 +38,7 @@ export async function handler ({ semver: userVersion, path, verbose, stdout }) {
     return
   }
 
-  const file = await toVFile.read(resolve(path, 'CHANGELOG.md'))
+  const file = await read(resolve(path, 'CHANGELOG.md'))
 
   const markdownRelease = getMarkdownRelease(file, { version })
 

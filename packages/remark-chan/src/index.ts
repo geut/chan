@@ -24,14 +24,13 @@ interface MdastNode extends Node, Record<string, unknown> {
 
 export function remarkToChan(): (tree: Node) => Node {
   return (tree) => {
-    // @ts-expect-error: @types/unist version mismatch between unist-util-remove-position and root
-    const newTree = removePosition(tree, true) as unknown as MdastNode
+    const newTree = removePosition(tree, { force: true }) as unknown as MdastNode
     const preface = parsePreface(newTree)
     const releases = parseReleases(newTree)
     const nodes: Node[] = []
     if (preface) nodes.push(preface)
     nodes.push(...releases)
-    return createRoot(nodes as unknown as Node[])
+    return createRoot(nodes) as Node
   }
 }
 

@@ -32,7 +32,7 @@ const mdProcessor = unified().use(remarkParse)
 
 const parse = (value: string): Node[] => {
   const tree = mdProcessor.parse(value)
-  return ((removePosition(tree, true) as unknown) as { children?: Node[] }).children ?? []
+  return ((removePosition(tree, { force: true }) as unknown) as { children?: Node[] }).children ?? []
 }
 
 export interface InitializeOptions {

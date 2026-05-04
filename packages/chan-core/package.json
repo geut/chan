@@ -24,8 +24,8 @@
     "remark-parse": "^11.0.0",
     "semver": "^7.7.4",
     "unified": "^11.0.5",
-    "unist-util-remove-position": "^4.0.0",
-    "unist-util-select": "^4.0.0"
+    "unist-util-remove-position": "^5.0.0",
+    "unist-util-select": "^5.0.0"
   },
   "devDependencies": {
     "to-vfile": "^8.0.0",

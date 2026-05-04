@@ -9,6 +9,7 @@
       "packages/*"
     ]
   },
+
   "scripts": {
     "test": "vitest",
     "posttest": "npm run lint",
@@ -38,6 +39,9 @@
     "url": "https://github.com/geut/chan/issues"
   },
   "devDependencies": {
+    "@types/signale": "^1.4.7",
+    "@types/unist": "^3.0.3",
+    "@types/yargs": "^17.0.35",
     "@typescript/native-preview": "^7.0.0-dev.20260421.1",
     "oxfmt": "^0.46.0",
     "oxlint": "^1.61.0",

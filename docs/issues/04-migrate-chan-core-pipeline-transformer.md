@@ -13,14 +13,14 @@ Replace the `unified` v9 `preset` array-of-tuples pattern with a typed `createPi
 
 ## Acceptance criteria
 
-- [ ] All `.js` source files converted to `.ts` with strict types
-- [ ] `package.json` scripts use `vitest run`, `oxlint`, `tsgo --noEmit`, `tsgo --build`
-- [ ] `package.json` exports point to `.ts` source (dev) with `publishConfig` overrides for `dist/`
-- [ ] `createPipeline(plugin, opts)` helper replaces v9 preset pattern, properly typed as `Processor<..., string>`
-- [ ] All core functions work: `initialize`, `addChanges`, `addRelease`, `getMarkdownRelease`
-- [ ] Snapshots regenerated and all tests pass (initialize, add-changes, release, get-markdown-release)
-- [ ] `npm run lint` passes with oxlint
-- [ ] `npm run check-types` passes with tsgo
+- [x] All `.js` source files converted to `.ts` with strict types
+- [x] `package.json` scripts use `vitest run`, `oxlint`, `tsgo --noEmit`, `tsgo --build`
+- [x] `package.json` exports point to `.ts` source (dev) with `publishConfig` overrides for `dist/`
+- [x] `createPipeline(plugin, opts)` helper replaces v9 preset pattern, properly typed as `Processor<..., string>`
+- [x] All core functions work: `initialize`, `addChanges`, `addRelease`, `getMarkdownRelease`
+- [x] Snapshots regenerated and all tests pass (initialize, add-changes, release, get-markdown-release)
+- [x] `npm run lint` passes with oxlint
+- [x] `npm run check-types` passes with tsgo
 
 ## Blocked by
 

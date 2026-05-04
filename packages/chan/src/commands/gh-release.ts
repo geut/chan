@@ -1,5 +1,5 @@
-import { resolve } from 'path'
-import toVFile from 'to-vfile'
+import { resolve } from 'node:path'
+import { read } from 'to-vfile'
 import semver from 'semver'
 import newGithubReleaseUrl from 'new-github-release-url'
 import open from 'open'
@@ -9,6 +9,7 @@ import { gitUrlParse } from '@geut/git-url-parse'
 import { getMarkdownRelease } from '@geut/chan-core'
 
 import { createLogger } from '../logger.js'
+import type { Signale } from 'signale'
 
 export const command = 'gh-release <semver>'
 
@@ -16,26 +17,35 @@ export const description = 'Upload a github release based on CHANGELOG.md.'
 
 export const builder = {
   semver: {
-    type: 'string'
+    type: 'string' as const
   },
   path: {
     alias: 'p',
     describe: 'Path of the CHANGELOG.md',
-    type: 'string',
+    type: 'string' as const,
     default: '.'
   },
   'git-url': {
     describe: 'Define the url of the repository project.',
-    type: 'string'
+    type: 'string' as const
   },
   'release-prefix': {
     describe: 'Define the release prefix to be used.',
-    type: 'string',
+    type: 'string' as const,
     default: 'v'
   }
 }
 
-export async function handler ({ semver: userVersion, path, gitUrl, releasePrefix, verbose, stdout }) {
+interface GhReleaseArgs {
+  semver: string
+  path: string
+  gitUrl?: string
+  releasePrefix: string
+  verbose?: boolean
+  stdout?: boolean
+}
+
+export async function handler ({ semver: userVersion, path, gitUrl, releasePrefix, verbose, stdout }: GhReleaseArgs) {
   const { success, info, warn, error } = createLogger({ scope: 'gh-release', verbose, stdout })
 
   const version = semver.valid(userVersion)
@@ -45,16 +55,36 @@ export async function handler ({ semver: userVersion, path, gitUrl, releasePrefi
     return
   }
 
-  const gitParsed = await gitUrlParse({ url: gitUrl })
+  const gitParsed = await gitUrlParse({ url: gitUrl }) as GitParsed | null
 
-  const file = await toVFile.read(resolve(path, 'CHANGELOG.md'))
+  const file = await read(resolve(path, 'CHANGELOG.md'))
 
   getMarkdownRelease(file, { version })
 
-  await createGithubRelease({ file, version, success, info, warn, error, gitParsed, releasePrefix })
+  await createGithubRelease({ file, version, success, info, _warn: warn, error, gitParsed, releasePrefix })
 }
 
-export async function createGithubRelease ({ file, version, success, info, error, gitParsed, releasePrefix }) {
+export interface GitParsed {
+  source: string
+  owner: string
+  name: string
+  branch: string
+  releaseTemplate: string
+  compareTemplate: string
+}
+
+interface CreateGithubReleaseOptions {
+  file: Awaited<ReturnType<typeof read>>
+  version: string
+  success: Signale['success']
+  info: Signale['info']
+  _warn: Signale['warn']
+  error: Signale['error']
+  gitParsed: GitParsed | null
+  releasePrefix: string
+}
+
+export async function createGithubRelease ({ file, version, success, info, _warn, error, gitParsed, releasePrefix }: CreateGithubReleaseOptions) {
   if (!gitParsed) {
     error('We cannot find the repository info for your github release.')
     return

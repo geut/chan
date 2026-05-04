@@ -1,5 +1,5 @@
-import toVFile from 'to-vfile'
-import { resolve } from 'path'
+import { read } from 'to-vfile'
+import { resolve } from 'node:path'
 
 import { addChanges } from '@geut/chan-core'
 
@@ -7,7 +7,34 @@ import { createLogger } from '../logger.js'
 import { openInEditor } from '../open-in-editor.js'
 import { write } from '../vfs.js'
 
-const actions = [
+interface ActionDef {
+  command: string
+  description: string
+}
+
+interface ActionBuilder {
+  path: {
+    alias: string
+    describe: string
+    type: 'string'
+    default: string
+  }
+  group: {
+    alias: string
+    describe: string
+    type: 'string'
+  }
+}
+
+interface ActionHandlerArgs {
+  message?: string
+  path: string
+  group?: string
+  verbose?: boolean
+  stdout?: boolean
+}
+
+const actions: ActionDef[] = [
   { command: 'added', description: 'Added for new features' },
   { command: 'changed', description: 'Changed for changes in existing functionality' },
   { command: 'deprecated', description: 'Deprecated for soon-to-be removed features' },
@@ -16,7 +43,7 @@ const actions = [
   { command: 'security', description: 'Security in case of vulnerabilities' }
 ]
 
-const builder = {
+const builder: ActionBuilder = {
   path: {
     alias: 'p',
     describe: 'Path of the CHANGELOG.md',
@@ -30,13 +57,13 @@ const builder = {
   }
 }
 
-const createHandler = action => async ({ message, path, group, verbose, stdout }) => {
+const createHandler = (action: string) => async ({ message, path, group, verbose, stdout }: ActionHandlerArgs) => {
   const { report, success, info } = createLogger({ scope: action, verbose, stdout })
 
   try {
-    const file = await toVFile.read(resolve(path, 'CHANGELOG.md'))
+    const file = await read(resolve(path, 'CHANGELOG.md'))
     if (!message) {
-      message = await openInEditor()
+      message = await openInEditor() ?? undefined
 
       if (!message || message.length === 0) {
         return info('Nothing to change.')
@@ -49,15 +76,22 @@ const createHandler = action => async ({ message, path, group, verbose, stdout }
 
     report(file)
   } catch (err) {
-    return report(err)
+    return report(err as Error)
   }
 
   success('Added new changes on your changelog.')
 }
 
-export const actionCommands = actions.map(({ command, description }) => ({
-    command: `${command} [message]`,
-    description,
-    builder,
-    handler: createHandler(command)
-  }))
+export interface ActionCommand {
+  command: string
+  description: string
+  builder: ActionBuilder
+  handler: (args: ActionHandlerArgs) => Promise<void>
+}
+
+export const actionCommands: ActionCommand[] = actions.map(({ command, description }) => ({
+  command: `${command} [message]`,
+  description,
+  builder,
+  handler: createHandler(command)
+}))

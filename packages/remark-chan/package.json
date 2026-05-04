@@ -19,8 +19,8 @@
   },
   "dependencies": {
     "@geut/chast": "^3.2.6",
-    "unist-util-remove-position": "^4.0.0",
-    "unist-util-select": "^4.0.0"
+    "unist-util-remove-position": "^5.0.0",
+    "unist-util-select": "^5.0.0"
   },
   "devDependencies": {
     "remark-parse": "^11.0.0",

@@ -7,12 +7,18 @@
   "bin": {
     "chan": "./bin/chan.js"
   },
+  "module": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "engines": {
     "node": ">=14.13.0 || >=12.22.1"
   },
   "scripts": {
-    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
-    "lint": "standard \"**/*.js\""
+    "test": "vitest run",
+    "lint": "oxlint",
+    "check-types": "tsgo --noEmit",
+    "build": "tsgo --build"
   },
   "dependencies": {
     "@actions/github": "^5.0.0",
@@ -20,33 +26,20 @@
     "@geut/git-url-parse": "^3.2.6",
     "boxen": "^5.0.1",
     "editor": "^1.0.0",
-    "find-up": "^5.0.0",
+    "find-up": "^8.0.0",
     "new-github-release-url": "^1.0.0",
     "open": "^8.2.0",
     "semver": "^7.3.5",
     "signale": "^1.4.0",
     "tempfile": "^4.0.0",
-    "to-vfile": "^6.1.0",
+    "to-vfile": "^8.0.0",
     "yargs": "^17.0.1"
   },
   "devDependencies": {
-    "cross-env": "^7.0.3",
-    "dirname-filename-esm": "^1.1.1",
-    "jest": "^27.0.0",
-    "standard": "^16.0.3"
-  },
-  "jest": {
-    "resolver": "<rootDir>/../../jest-module-resolver.js",
-    "transform": {}
-  },
-  "standard": {
-    "ignore": [
-      "bin"
-    ],
-    "env": [
-      "node",
-      "jest"
-    ]
+    "@types/signale": "^1.4.7",
+    "to-vfile": "^8.0.0",
+    "vfile": "^6.0.0",
+    "vitest": "^4.1.5"
   },
   "author": {
     "name": "GEUT",
@@ -55,6 +48,16 @@
   "license": "ISC",
   "repository": "https://github.com/geut/chan/tree/master/packages/chan",
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "module": "./dist/src/index.js",
+    "exports": {
+      ".": {
+        "import": "./dist/src/index.js",
+        "types": "./dist/src/index.d.ts"
+      }
+    },
+    "bin": {
+      "chan": "./dist/src/bin.js"
+    }
   }
 }

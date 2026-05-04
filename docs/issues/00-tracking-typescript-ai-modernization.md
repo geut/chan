@@ -19,7 +19,7 @@ This is the tracking issue for the Chan monorepo modernization and AI augmentati
 | #2 | Migrate chan-stringify to TypeScript | AFK | #1 |
 | #3 | Migrate remark-chan to TypeScript | AFK | #1 |
 | #4 | Migrate chan-core — pipeline + transformer | AFK | #2, #3 |
-| #5 | Migrate chan CLI | AFK | #4 |
+| #5 | Migrate chan CLI | AFK | #4 | ✅ Done |
 
 ### AI Feature Track (start after modernization)
 
