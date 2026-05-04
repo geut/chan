@@ -48,7 +48,7 @@ export function getMarkdownRelease(from: VFile, { version }: { version: string }
   const processor = unified().use(remarkParse).use(remarkToChan)
 
   const chanTree = processor.runSync(processor.parse(from))
-  const release = select(`release[identifier=${version}]`, chanTree as unknown as Node & Record<string, unknown>)
+  const release = select(`release[identifier="${version}"]`, chanTree as unknown as Node & Record<string, unknown>)
 
   if (!release) {
     throw new Error(`Release ${version} not found`)

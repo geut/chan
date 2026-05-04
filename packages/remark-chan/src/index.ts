@@ -24,7 +24,8 @@ interface MdastNode extends Node, Record<string, unknown> {
 
 export function remarkToChan(): (tree: Node) => Node {
   return (tree) => {
-    const newTree = removePosition(tree, { force: true }) as unknown as MdastNode
+    removePosition(tree, { force: true })
+    const newTree = tree as unknown as MdastNode
     const preface = parsePreface(newTree)
     const releases = parseReleases(newTree)
     const nodes: Node[] = []

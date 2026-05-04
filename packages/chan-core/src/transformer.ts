@@ -32,7 +32,8 @@ const mdProcessor = unified().use(remarkParse)
 
 const parse = (value: string): Node[] => {
   const tree = mdProcessor.parse(value)
-  return ((removePosition(tree, { force: true }) as unknown) as { children?: Node[] }).children ?? []
+  removePosition(tree, { force: true })
+  return ((tree as unknown) as { children?: Node[] }).children ?? []
 }
 
 export interface InitializeOptions {
@@ -77,7 +78,7 @@ export function addChanges({ changes }: AddChangesOptions) {
     return changes.reduce<Node>((result, { version = 'unreleased', action, group, value }) => {
       assert(value, '`value` is required')
 
-      const release = select(`release[identifier=${version}]`, result as ChastNode)
+      const release = select(`release[identifier="${version}"]`, result as ChastNode)
 
       if (!release) {
         file.message(`The release "${version}" was not found.`, result as ChastNode, 'addChanges')
@@ -128,7 +129,7 @@ export function addRelease({
 }: AddReleaseOptions) {
   function compile(tree: Node, file: VFile): Node | undefined {
     const preface = select('preface', tree as ChastNode)
-    const unreleased = select('release[identifier=unreleased]', tree as ChastNode)
+    const unreleased = select('release[identifier="unreleased"]', tree as ChastNode)
     let releases = (selectAll('release', tree as ChastNode) as ChastNode[]).filter((r) => !r.unreleased)
     const version = semver.valid(userVersion)
     const prereleases = releases.filter(
@@ -172,7 +173,7 @@ export function addRelease({
       isYanked = true
     }
 
-    if (select(`release[identifier=${version}]`, tree as ChastNode)) {
+    if (select(`release[identifier="${version}"]`, tree as ChastNode)) {
       file.fail(`The release ${version} already exists.`)
     }
 
