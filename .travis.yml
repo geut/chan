@@ -1,5 +1,9 @@
 language: node_js
 node_js:
   - "node"
-  - "14"
-before_script: npx lerna bootstrap --ci
+  - "24"
+install: npm ci
+# keep the npm cache around to speed up installs
+cache:
+  directories:
+  - "$HOME/.npm"
