@@ -11,16 +11,16 @@ Migrate `packages/chan/` (the CLI package) from JavaScript/Jest/standard to Type
 
 ## Acceptance criteria
 
-- [ ] All `.js` source files converted to `.ts` with strict types
-- [ ] `package.json` scripts use `vitest run`, `oxlint`, `tsgo --noEmit`, `tsgo --build`
-- [ ] `package.json` exports point to `.ts` source (dev) with `publishConfig` overrides for `dist/`
-- [ ] All CLI commands tested and passing
-- [ ] Logger (`signale` wrapper) typed correctly, including `process.exitCode` side effects
-- [ ] `config.js` typed with proper `.chanrc` schema
-- [ ] `yargs` command registration typed
-- [ ] `npm run lint` passes with oxlint
-- [ ] `npm run check-types` passes with tsgo
-- [ ] End-to-end smoke test: `chan init`, `chan added`, `chan release` produce correct output
+- [x] All `.js` source files converted to `.ts` with strict types
+- [x] `package.json` scripts use `vitest run`, `oxlint`, `tsgo --noEmit`, `tsgo --build`
+- [x] `package.json` exports point to `.ts` source (dev) with `publishConfig` overrides for `dist/`
+- [x] All CLI commands tested and passing
+- [x] Logger (`signale` wrapper) typed correctly, including `process.exitCode` side effects
+- [x] `config.js` typed with proper `.chanrc` schema
+- [x] `yargs` command registration typed
+- [x] `npm run lint` passes with oxlint
+- [x] `npm run check-types` passes with tsgo
+- [x] End-to-end smoke test: `chan init`, `chan added`, `chan release` produce correct output
 
 ## Blocked by
 
