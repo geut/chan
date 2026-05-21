@@ -1,0 +1,52 @@
+{
+  "name": "@geut/chan-ai",
+  "version": "1.0.0",
+  "description": "Inference commits",
+  "keywords": [
+    "ai",
+    "changelog",
+    "commits"
+  ],
+  "homepage": "https://geutstudio.com",
+  "bugs": {
+    "url": "https://github.com/geut/chan/issues"
+  },
+  "license": "ISC",
+  "author": {
+    "name": "GEUT",
+    "email": "contact@geutstudio.com"
+  },
+  "repository": "https://github.com/geut/chan/tree/master/packages/chan-ai",
+  "files": [
+    "dist/src/",
+    "src/"
+  ],
+  "type": "module",
+  "module": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "import": "./dist/src/index.js",
+        "types": "./dist/src/index.d.ts"
+      }
+    },
+    "module": "./dist/src/index.js"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:e2e": "vitest run --config vitest.e2e.config.ts",
+    "lint": "oxlint",
+    "check-types": "tsgo --noEmit",
+    "build": "tsgo --build"
+  },
+  "dependencies": {
+    "@langchain/core": "^1.1.46",
+    "@langchain/openai": "^1.4.5",
+    "langchain": "^1.4.0",
+    "zod": "^4.4.3"
+  }
+}

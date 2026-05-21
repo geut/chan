@@ -238,6 +238,10 @@ will generate releases with the url:
 
 Shows the release notes for a specific version.
 
+## <a name="command-analyze"></a>`chan analyze [<git-sha>]`
+
+Updates code.md with a commit analysis and enhancement.
+
 ## <a name="global-options"></a> Global options
 
 ### `--stdout` (`boolean`)
@@ -265,7 +269,11 @@ You can configure the chan options using the `package.json` or a rc file (`.chan
 ```json
 {
   "git-url": "https://github.com/geut/chan",
-  "release-prefix": "v"
+  "release-prefix": "v",
+  "ai": {
+    "provider": "AIPROVIDER",
+    "model": "AIMODEL"
+  }
 }
 ```
 
@@ -275,7 +283,11 @@ package.json
 {
   "chan": {
     "git-url": "https://github.com/geut/chan",
-    "release-prefix": "v"
+    "release-prefix": "v",
+    "ai": {
+      "provider": "AIPROVIDER",
+      "model": "AIMODEL"
+    }
   }
 }
 ```
