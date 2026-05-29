@@ -1,45 +1,53 @@
 import { describe, expect, it, beforeAll } from 'vitest'
-import { analyze } from '../../src/index.js'
+import { createAnalyzer } from '../../src/index.js'
+import { CommitAnalysisResponseSchema, type AnalyzeFn } from '../../src/types.js'
+
 import { createTempGitRepo, type TempRepo } from './fixtures.js'
 
 const describeOrSkip = process.env.OPENAI_API_KEY ? describe : describe.skip
 
 describeOrSkip('analyze e2e', () => {
   let repo: TempRepo
+  let analyzer: AnalyzeFn
 
-  beforeAll(() => {
+  beforeAll(async () => {
     repo = createTempGitRepo()
+    const context = `This is a module exports math functions`
+    analyzer = await createAnalyzer({
+      provider: 'openai',
+      model: 'kimi-k2.6',
+      context,
+      endpoint: 'https://opencode.ai/zen/v1/',
+      includeRaw: true,
+    })
   })
 
   it('should analyze commits', async () => {
-    const result = await analyze({
+    const result = await analyzer({
       commitShas: repo.commits,
-      provider: 'openai',
-      model: 'kimi-k2.6',
       cwd: repo.dir,
     })
 
     expect(result).toHaveLength(3)
-    expect(result[0]).toHaveProperty('sha')
-    expect(result[0].sha).toBe(repo.commits[0])
-    expect(result[0]).toHaveProperty('analysis')
-    expect(result[0].analysis).toBeDefined()
-    expect(result[0]).toHaveProperty('author')
-    expect(result[0]).toHaveProperty('date')
-    expect(result[0]).toHaveProperty('category')
+    expect(CommitAnalysisResponseSchema.parse(result[0].parsed)).toBeTruthy()
+    expect(result[0].parsed.sha).toBe(repo.commits[0])
+    expect(result[0].parsed.analysis).toBeDefined()
+    expect(result[0].parsed.breakingChange).toBe(false)
 
-    expect(result[1]).toHaveProperty('sha')
-    expect(result[1].sha).toBe(repo.commits[1])
-    expect(result[1]).toHaveProperty('analysis')
-    expect(result[1]).toHaveProperty('author')
-    expect(result[1]).toHaveProperty('date')
-    expect(result[1]).toHaveProperty('category')
+    expect(CommitAnalysisResponseSchema.parse(result[1].parsed)).toBeTruthy()
 
-    expect(result[2]).toHaveProperty('sha')
-    expect(result[2].sha).toBe(repo.commits[2])
-    expect(result[2]).toHaveProperty('analysis')
-    expect(result[2]).toHaveProperty('author')
-    expect(result[2]).toHaveProperty('date')
-    expect(result[2]).toHaveProperty('category')
+    expect(result[1].parsed.sha).toBe(repo.commits[1])
+    expect(result[1].parsed.analysis).toBeDefined()
+    expect(result[1].parsed.breakingChange).toBe(false)
+
+    expect(CommitAnalysisResponseSchema.parse(result[2].parsed)).toBeTruthy()
+    expect(result[2].parsed.sha).toBe(repo.commits[2])
+    expect(result[2].parsed.analysis).toBeDefined()
+    if (result[2].parsed.breakingConfidence <= 0.3) {
+      expect(result[2].parsed.breakingChange).toBe(false)
+    }
+    if (result[2].parsed.breakingConfidence >= 0.8) {
+      expect(result[2].parsed.breakingChange).toBe(true)
+    }
   })
 })

@@ -21,19 +21,19 @@ export function createTempGitRepo(): TempRepo {
 
   // Commit 1: a feature
   const initial = 'export const add = (a: number, b: number) => a + b'
-  writeFileSync(join(dir, 'index.js'), initial)
-  execSync("git add . && git commit -m 'feat: function to add two numbers'", {
+  writeFileSync(join(dir, 'index.ts'), initial)
+  execSync("git add . && git commit -m 'add function to add two numbers'", {
     cwd: dir,
     encoding: 'utf-8',
     shell: 'bash',
   })
   commits.push(execSync('git rev-parse HEAD', { cwd: dir, encoding: 'utf-8' }).trim().slice(0, 7))
 
-  // Commit 2: a fix
+  // Commit 2: another feature
   const multiplicationFunction = 'export const product = (a: number, b: number) => a * b'
   const update = `${initial}\n${multiplicationFunction}`
-  writeFileSync(join(dir, 'index.js'), update)
-  execSync("git add . && git commit -m 'fix: function to multiply two numbers'", {
+  writeFileSync(join(dir, 'index.ts'), update)
+  execSync("git add . && git commit -m 'add multiply function'", {
     cwd: dir,
     encoding: 'utf-8',
     shell: 'bash',
@@ -41,8 +41,8 @@ export function createTempGitRepo(): TempRepo {
   commits.push(execSync('git rev-parse HEAD', { cwd: dir, encoding: 'utf-8' }).trim().slice(0, 7))
 
   // Commit 3: a breaking change -- remove product function
-  writeFileSync(join(dir, 'index.js'), initial)
-  execSync('git add . && git commit -m "fix: remove product function"', {
+  writeFileSync(join(dir, 'index.ts'), initial)
+  execSync('git add . && git commit -m "remove multiply function"', {
     cwd: dir,
     encoding: 'utf-8',
     shell: 'bash',

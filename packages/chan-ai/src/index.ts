@@ -1,17 +1,26 @@
 import { promisify } from 'node:util'
 import { exec as execRaw } from 'node:child_process'
-import type { AIConfig } from './types.js'
 import { tool } from '@langchain/core/tools'
 import { initChatModel } from 'langchain/chat_models/universal'
 import { createMiddleware } from 'langchain'
 import { z } from 'zod'
-import { ToolMessage } from '@langchain/core/messages'
+import {
+  type AIConfig,
+  type AnalyzeArgs,
+  type CommitAnalysisResponse,
+  type AnalyzeFn,
+  type AnalyzeResponse,
+  AIConfigSchema,
+  CommitAnalysisResponseSchema,
+} from './types.js'
+
+import { ToolMessage, type AIMessage } from '@langchain/core/messages'
 
 const exec = promisify(execRaw)
 
-async function getCommit(commitSha: string, cwd: string) {
+async function getCommit(commitSha: string, cwd: string): Promise<string> {
   const { stdout, stderr } = await exec(
-    `git show ${commitSha} --pretty=format:"%h !! %s !! %an !! %ad" --date=short`,
+    `git show ${commitSha} --pretty=format:"%h%n%s%nBody:%b%n%an (%ae)%n%aI%n%p" -U0`,
     {
       cwd,
     }
@@ -62,160 +71,205 @@ export const getCommitsInfo = tool(
 const SYSTEM_PROMPT = `
   You are a helpful assistant that analyzes commits and updates the code.md file.
   You will be given a commit with some information and you will need to analyze it to enhance the knowledge around that commit.
-  Each commit is formatted as follows: "%h !! %s !! %an !! %ad" (commit hash, commit message, author name, commit date). The separator is "!!".
-  The commit date is in the format "YYYY-MM-DD".
-  The output comes from the git show command.  
-
-  Analysis should be based on the commit message, diff, and other commit metadata.
-  With your knowledge of the codebase and the changes, you will need to enhance the commit message with more details about the changes. 
-  You will need to categorize the changes into the following categories: feature, fix, docs, refactor, test, chore, style, performance, security.
-  You will also need to evaluate if it is a breaking change or not.
-
-  Every part of the analysis should be separated by a line break.
-  Every decision should be backed by evidence. This is important.
-
-  The condensed findings are going to be appended to the code.md file. You don't need to update the code.md file, only generate the content.
-  The code.md file is a markdown file that contains the commits and the analysis of the commits.
-`
-
-export const CATEGORIES = [
-  'Feature',
-  'Fix',
-  'Documentation',
-  'Refactor',
-  'Test',
-  'Chore',
-  'Style',
-  'Performance',
-  'Security',
-] as const
-
-export const commitAnalysisResponseSchema = z.object({
-  sha: z.string(),
-  analysis: z.string(),
-  author: z.string(),
-  date: z.string(),
-  category: z.enum(CATEGORIES),
-  breakingChange: z.enum(['yes', 'no']),
-  relatedCode: z.array(z.string()).describe('Evidence backing the analysis.'),
-  relatedIssues: z
-    .array(z.string())
-    .default([])
-    .describe('Related issues (if any). This can be a github issue or jira or linear link.'),
-})
-
-const CONTEXT = `
-  ## Project Overview
-
-  **Chan** is a CLI tool and library ecosystem for writing and maintaining CHANGELOG.md files following the [Keep a Changelog](https://keepachangelog.com/) format. It provides a command-line interface for adding changes, creating releases, and managing changelog files in a structured way.
+  Each commit information is formatted as follows: "%h%n%s%nBody:%b%n%an (%ae)%n%aI%n%p" (commit hash, commit message, message body (Body:%b), author name and email, ISO date, parent SHAs). The separator is "%n".
+  The commit date is in the format strict ISO 8601.
+  The output comes from the git show command. 
+  The patch/diff is included in the commit information to analyze.
   
-  ## Architecture
+  ## About the analysis
+  Analysis should be based on the commit message, body, and other commit metadata (including diffs).
+  With your knowledge of the codebase, you will need to enhance the commit message with more details about the changes. 
+  Be brief and to the point. Consider how this information could be used in the future along with other commits to understand how the codebase has evolved.
 
-  ### Monorepo Structure
+  ## About coauthors
+  List the coauthors of the commit. Return an empty array if no coauthors are present.
 
-  The project uses a monorepo structure managed by:
-  - **npm Workspaces**: For package management (migrated from Yarn Workspaces)
+  ## About categories
+  You will need to categorize the changes into the following categories: Feature, Fix, Documentation, Refactor, Test, Chore, Style, Performance or Security.
+  
+  ## Breaking change decision (be consistent)
+  You will also need to evaluate if it is a breaking change or not (true or false). Along with the decision you will need to provide a confidence level between 0 and 1, where 0 is the lowest confidence and 1 is the highest confidence. Any confidence level >= 0.8 is considered a strong decision. Lastly add breaking details if any (useful with low confidence levels).
+  Definition: A breaking change is any change that can cause a previously working external consumer (downstream code, scripts, CI, integrations) to fail to build, fail at runtime, or behave incompatibly WITHOUT them changing their code, assuming they use public/documented surfaces.
+  
+  breakingChange: boolean — true only if a public/documented consumer could break without changing their code.
+  breakingConfidence: number from 0 to 1 — confidence that breakingChange is correct (not P(breaking)).
+  - 0.8–1.0: clear evidence in diff/message
+  - 0.4–0.7: partial evidence
+  - 0.0–0.3: weak evidence; prefer breakingChange false unless hard signals on public surface
+  breakingDetails: string — required. If breakingChange is false, use "".
 
-  ### Technology Stack
+  Decision procedure:
+  1. Look for HARD breaking signals in the diff/patch:
+    - removed/renamed exports, CLI commands, flags, config keys
+    - signature/return shape changes
+    - output format changes (JSON/markdown/file layout)
+    - entrypoint/export changes (package.json "exports"/"bin")
+    - engine/runtime requirement changes
+  If any are present and affect public surface => breakingChange = true.
+  2. If only SOFT signals exist (refactor/tests/docs/internal changes) => breakingChange = false.
+  3. Insufficient evidence: breakingChange false, breakingConfidence ≤ 0.3, state what evidence is missing.
+  Use the provided codebase context to judge what is public API.
 
-  - **Language**: JavaScript (ES Modules)
-  - **Runtime**: Node.js (>=12.22.1 || >=14.13.0)
-  - **Core Dependencies**:
-    - unified - Unified interface for processing text
-    - remark-parse - Markdown parser
-    - yargs - CLI argument parsing
-    - semver - Semantic versioning
-    - unist-util-select - Tree selection utilities
-    - vfile - Virtual file format for text processing
+  ## About packages affected
+  You will also need to evaluate if the changes are related to a specific package or not. If they are, you will need to provide the package name. Return an empty array if no packages are affected.
 
-  ## File Structure Summary
+  ## About related code
+  List files, functions or other code elements that are related to your analysis.
 
-  /Users/deka/Projects/geut/chan/
-  ├── package.json                    # Root package, npm workspaces config
-  ├── package-lock.json               # npm lockfile
-  ├── tsconfig.json                   # TypeScript project references
-  ├── .oxlintrc.json                  # oxlint configuration
-  ├── .oxfmtrc.json                   # oxfmt configuration
-  ├── .github/workflows/node-ci.yml   # GitHub Actions CI (outdated — still uses yarn)
-  ├── .travis.yml                     # Travis CI (legacy)
-  ├── README.md                       # Project documentation
-  ├── CHANGELOG.md                    # Project changelog
-  ├── CONTRIBUTING.md                 # Contribution guidelines
-  ├── LICENSE                         # ISC license
-  ├── assets/
-  │   └── example.gif                 # Demo asset
-  ├── docs/                           # Documentation (this file)
-  ├── es5/                            # Legacy transpiled code
-  │   ├── index.js
-  │   ├── api/
-  │   └── parser/
-  ├── node_modules/                   # Dependencies
-  └── packages/
-      ├── chan/                       # CLI tool
-      │   ├── bin/chan.js
-      │   ├── src/
-      │   │   ├── commands/
-      │   │   ├── config.js
-      │   │   ├── logger.js
-      │   │   ├── vfs.js
-      │   │   └── open-in-editor.js
-      │   └── tests/
-      ├── chan-core/                  # Core API
-      │   ├── src/
-      │   │   ├── index.js
-      │   │   └── transformer.js
-      │   └── tests/
-      ├── chast/                      # AST spec (TypeScript)
-      │   ├── src/
-      │   │   ├── index.ts
-      │   │   └── actions.ts
-      │   └── node_modules/
-      ├── remark-chan/                # Parser
-      │   ├── src/index.js
-      │   └── tests/
-      ├── chan-stringify/             # Compiler
-      │   ├── src/index.js
-      │   └── test/
-      └── git-url-parse/              # Git integration (TypeScript)
-          └── src/index.ts
+  ## About related issues
+  List issues that are related to your analysis. This can be a github issue (#123) or jira (JIRA-456) or linear link. Return an empty array if no issues are related.
+
+  Every decision should be backed by evidence. This is important.
+  The condensed findings are going to be appended to the code.md file. 
+  You don't need to update the code.md file, only generate the content.
 `
 
 const contextSchema = z.object({
   codebase: z.string(),
 })
 
-export async function analyze({ commitShas, provider, model, chatModel, cwd }: AIConfig) {
-  // Note (dk):
-  // use context (model.invoke(context)) to pass the repo general knowledge
-  // this repo general knowledge should be created with the init command
-
+export async function createAnalyzer(config: AIConfig): Promise<AnalyzeFn> {
+  AIConfigSchema.parse(config)
+  const {
+    provider,
+    model,
+    context,
+    chatModel,
+    endpoint,
+    maxTokens = 800,
+    includeRaw = false,
+  } = config
   const modelInstance =
     chatModel ??
     (await initChatModel(model, {
       modelProvider: provider,
-      temperature: 0.25,
-      maxTokens: 200,
+      maxTokens,
       middleware: [handleToolErrors],
-      configuration: {
-        baseURL: 'https://opencode.ai/zen/v1/', // custom hack for using opencode zen
-      },
+      configuration: endpoint
+        ? {
+            baseURL: endpoint,
+          }
+        : undefined,
       systemPrompt: SYSTEM_PROMPT,
       contextSchema,
     }))
 
-  const commitsInfo = await getCommitsInfo.invoke({
-    commitShas: commitShas.join(', '),
-    cwd,
-  })
+  return async ({ commitShas, cwd }: AnalyzeArgs): Promise<AnalyzeResponse[]> => {
+    const commitsInfo = await getCommitsInfo.invoke({
+      commitShas: commitShas.join(', '),
+      cwd,
+    })
+    const modelWithStructure = modelInstance.withStructuredOutput(CommitAnalysisResponseSchema, {
+      // @ts-expect-error - includeRaw is typed as boolean
+      includeRaw,
+    })
 
-  const modelWithStructure = modelInstance.withStructuredOutput(commitAnalysisResponseSchema)
+    const messages = commitsInfo.map(
+      commit => `Analyze the following commit and return JSON:\n\n${commit}`
+    )
 
-  const messages = commitsInfo.map(commit => `Analyze the following commit: ${commit}`)
+    console.log({ context })
+    const responses = await Promise.all(
+      messages.map(
+        message =>
+          modelWithStructure.invoke(message, {
+            // @ts-expect-error - context is typed as string
+            context,
+          }) as unknown as Promise<{
+            parsed: CommitAnalysisResponse
+            raw: AIMessage
+          }>
+      )
+    )
 
-  const responses = await modelWithStructure.batch(messages, {
-    maxConcurrency: 5,
-    context: CONTEXT,
-  })
+    const parsedResponses = responses.map(response => {
+      return {
+        parsed: response.parsed || { ...response },
+        raw: response.raw || {},
+      }
+    }) as unknown as AnalyzeResponse[]
 
-  return responses
+    // store token usage
+    // todo: move to a separate function (utils)
+    const totalTokenUsage = responses.reduce((acc, response) => {
+      console.log({ response })
+      return acc + (response?.raw?.usage_metadata?.total_tokens ?? 0)
+    }, 0)
+    console.log(`Total token usage: ${totalTokenUsage}`)
+
+    return parsedResponses
+  }
 }
+
+// export async function analyze({
+//   commitShas,
+//   provider,
+//   model,
+//   chatModel,
+//   cwd,
+//   endpoint,
+//   includeRaw = false,
+//   maxTokens = 500,
+// }: AIConfig) {
+//   // Note (dk):
+//   // use context (model.invoke(context)) to pass the repo general knowledge
+//   // this repo general knowledge should be created with the init command
+//   AIConfigSchema.parse({ commitShas, provider, model, chatModel, cwd, includeRaw })
+
+//   const modelInstance =
+//     chatModel ??
+//     (await initChatModel(model, {
+//       modelProvider: provider,
+//       temperature: 0.25,
+//       maxTokens,
+//       middleware: [handleToolErrors],
+//       configuration: endpoint
+//         ? {
+//             baseURL: endpoint,
+//           }
+//         : undefined,
+//       systemPrompt: SYSTEM_PROMPT,
+//       contextSchema,
+//     }))
+
+//   const commitsInfo = await getCommitsInfo.invoke({
+//     commitShas: commitShas.join(', '),
+//     cwd,
+//   })
+
+//   const modelWithStructure = modelInstance.withStructuredOutput(CommitAnalysisResponseSchema, {
+//     // @ts-expect-error - includeRaw is typed as boolean
+//     includeRaw,
+//   })
+
+//   const messages = commitsInfo.map(commit => `Analyze the following commit: ${commit}`)
+
+//   const responses = await Promise.all(
+//     messages.map(
+//       message =>
+//         modelWithStructure.invoke(message, {
+//           // @ts-expect-error - context is typed as string
+//           context: CONTEXT,
+//         }) as unknown as Promise<{
+//           parsed: CommitAnalysisResponse
+//           raw: AIMessage
+//         }>
+//     )
+//   )
+
+//   const parsedResponses = responses.map(response => {
+//     return {
+//       parsed: response.parsed || { ...response },
+//       raw: response.raw || {},
+//     }
+//   })
+
+//   // store token usage
+//   const totalTokenUsage = responses.reduce((acc, response) => {
+//     console.log({ response })
+//     return acc + (response?.raw?.usage_metadata?.total_tokens ?? 0)
+//   }, 0)
+//   console.log(`Total token usage: ${totalTokenUsage}`)
+
+//   return parsedResponses
+// }

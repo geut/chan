@@ -1,5 +1,8 @@
+import { readFile } from 'node:fs/promises'
+import { join } from 'node:path'
+
 import { createLogger } from '../logger.js'
-import { analyze } from '@geut/chan-ai'
+import { createAnalyzer } from '@geut/chan-ai'
 
 export const command = 'analyze'
 export const description = 'Analyze commits and update code.md file.'
@@ -30,6 +33,21 @@ export const builder = {
     type: 'string',
     default: 'gpt-5.5',
   },
+  aiMaxTokens: {
+    describe: 'Maximum tokens for the AI model',
+    type: 'number',
+    default: 500,
+  },
+  aiEndpoint: {
+    describe: 'AI endpoint',
+    type: 'string',
+    default: undefined,
+  },
+  aiIncludeRaw: {
+    describe: 'Include raw AI response',
+    type: 'boolean',
+    default: false,
+  },
 }
 
 interface AnalyzeArgs {
@@ -38,9 +56,21 @@ interface AnalyzeArgs {
   auto?: boolean
   aiProvider?: string
   aiModel?: string
+  aiMaxTokens?: number
+  aiEndpoint?: string
+  aiIncludeRaw?: boolean
 }
 
-export async function handler({ verbose, gitSha, auto, aiProvider, aiModel }: AnalyzeArgs) {
+export async function handler({
+  verbose,
+  gitSha,
+  auto,
+  aiProvider,
+  aiModel,
+  aiMaxTokens,
+  aiEndpoint,
+  aiIncludeRaw,
+}: AnalyzeArgs) {
   const { info } = createLogger({ scope: 'analyze', verbose })
 
   if (!aiProvider || !aiModel) {
@@ -48,21 +78,30 @@ export async function handler({ verbose, gitSha, auto, aiProvider, aiModel }: An
     return
   }
 
+  const aiContext = (await readFile(join(process.cwd(), '.chan', 'context.md'), 'utf8')) || ''
+
+  const analyzer = await createAnalyzer({
+    provider: aiProvider as string,
+    model: aiModel as string,
+    context: aiContext,
+    maxTokens: aiMaxTokens,
+    endpoint: aiEndpoint,
+    includeRaw: aiIncludeRaw,
+  })
+
   if (gitSha) {
     info(`Analyzing commit SHA ${gitSha} and updating code.md file...`)
 
     // call enrichFn with commit
-    const enrichedCommit = await analyze({
+    const enrichedCommit = await analyzer({
       commitShas: [gitSha as string],
-      provider: aiProvider as string,
-      model: aiModel as string,
       cwd: process.cwd(),
     })
     console.log(enrichedCommit)
   }
 
   if (auto) {
-    info(`Analyzing latest commits  and updating code.md file...`)
+    info(`Analyzing latest commits and updating code.md file...`)
     // get latest commits
     // const commits = await getLatestCommits()
     // call enrichFn with commits

@@ -1,20 +1,35 @@
 import { fakeModel } from 'langchain'
 
-import { describe, expect, it, vi } from 'vitest'
-import { analyze, getCommitsInfo, CATEGORIES } from '../src/index.js'
+import { beforeAll, describe, expect, it, vi } from 'vitest'
+import { createAnalyzer, getCommitsInfo } from '../src/index.js'
+import { CATEGORIES, CommitAnalysisResponseSchema, type AnalyzeFn } from '../src/types.js'
 
 const model = fakeModel().structuredResponse({
   sha: 'abc123',
   analysis: 'This is a test response.',
   author: 'User',
+  authorEmail: 'user@example.com',
+  coauthors: ['user2', 'user3'],
   date: '2026-05-04',
   category: 'Feature',
-  breakingChange: 'no',
+  breakingChange: false,
+  breakingDetails: '',
+  breakingConfidence: 0.95,
+  packagesAffected: ['package1', 'package2'],
   relatedCode: [''],
   relatedIssues: [''],
 })
 
-describe.skip('analyze unit test', () => {
+describe('analyze unit test', () => {
+  let analyzer: AnalyzeFn
+
+  beforeAll(async () => {
+    analyzer = await createAnalyzer({
+      provider: 'openai',
+      model: 'gpt-4o',
+      chatModel: model,
+    })
+  })
   it('should analyze commits', async () => {
     // spy on the getCommitsInfo tool
     const getCommitsInfoSpy = vi.spyOn(getCommitsInfo, 'invoke')
@@ -30,19 +45,18 @@ describe.skip('analyze unit test', () => {
     `,
     ])
 
-    const result = await analyze({
+    const result = await analyzer({
       commitShas: ['abc123'],
-      provider: 'openai',
-      model: 'gpt-4o',
-      chatModel: model,
       cwd: process.cwd(),
     })
-    expect(result[0].analysis).toBeDefined()
-    expect(result[0].author).toBe('User')
-    expect(result[0].date).toBe('2026-05-04')
-    expect(CATEGORIES.includes(result[0].category)).toBe(true)
-    expect(result[0].breakingChange).toBe('no')
-    expect(result[0].relatedCode).toBeDefined()
-    expect(result[0].relatedIssues).toBeDefined()
+
+    // validate the response with the schema
+    expect(CommitAnalysisResponseSchema.parse(result[0].parsed)).toBeTruthy()
+
+    expect(result[0].parsed.analysis).toBeDefined()
+    expect(result[0].parsed.author).toBe('User')
+    expect(result[0].parsed.date).toBe('2026-05-04')
+    expect(CATEGORIES.includes(result[0].parsed.category)).toBe(true)
+    expect(result[0].parsed.breakingChange).toBeTypeOf('boolean')
   })
 })
