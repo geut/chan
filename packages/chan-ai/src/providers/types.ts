@@ -26,4 +26,5 @@ export interface ProviderConfig {
   apiKey?: string
   baseUrl?: string
   maxTokens?: number
+  headers?: Record<string, string>
 }

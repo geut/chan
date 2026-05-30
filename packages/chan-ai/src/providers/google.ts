@@ -22,11 +22,13 @@ export class GoogleProvider implements Provider {
   private apiKey?: string
   private baseUrl: string
   private maxTokens: number
+  private headers: Record<string, string>
   constructor(config: ProviderConfig) {
     this.model = config.model
     this.apiKey = config.apiKey ?? process.env.GOOGLE_API_KEY
     this.baseUrl = config.baseUrl ?? 'https://generativelanguage.googleapis.com/v1beta'
-    this.maxTokens = config.maxTokens ?? 800
+    this.maxTokens = config.maxTokens ?? 1000
+    this.headers = config.headers ?? {}
   }
 
   async invoke<T>(messages: ChatMessage[], schema: z.ZodSchema<T>): Promise<CompletionResult<T>> {
@@ -44,17 +46,20 @@ export class GoogleProvider implements Provider {
       }))
 
     const url = new URL(`${this.baseUrl}/models/${this.model}:generateContent`)
-    url.searchParams.set('key', this.apiKey ?? '')
+    // url.searchParams.set('key', this.apiKey ?? '')
 
     const response = await fetch(url.toString(), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': this.apiKey ?? '',
+        ...this.headers,
+      },
       body: JSON.stringify({
         ...(systemText ? { systemInstruction: { parts: [{ text: systemText }] } } : {}),
         contents: history,
         generationConfig: {
           maxOutputTokens: this.maxTokens,
-          responseMimeType: 'application/json',
         },
       }),
     })
@@ -65,10 +70,12 @@ export class GoogleProvider implements Provider {
     }
 
     const data = (await response.json()) as GoogleResponse
-    const text = data.candidates[0]?.content?.parts[0]?.text ?? ''
+    const text = data.candidates[0]?.content?.parts?.[0]?.text ?? ''
 
     if (!text) {
-      throw new Error('Empty response from Google API')
+      throw new Error(
+        `Empty response from Google API. Candidate finish reason: "${data.candidates[0]?.finishReason}". Full raw response: ${JSON.stringify(data)}`
+      )
     }
 
     const parsed = extractAndParseJson(text, schema)

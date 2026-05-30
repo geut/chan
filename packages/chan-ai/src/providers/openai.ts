@@ -17,45 +17,55 @@ interface OpenAIResponse {
   }
 }
 
+function normalizeBaseUrl(url: string): string {
+  return url.replace(/\/$/, '')
+}
+
 export class OpenAICompatibleProvider implements Provider {
   private model: string
   private apiKey?: string
   private baseUrl: string
   private maxTokens: number
+  private headers: Record<string, string>
+  private extraBody: Record<string, unknown>
+
   constructor(config: ProviderConfig) {
     this.model = config.model
     this.apiKey = config.apiKey ?? process.env.OPENAI_API_KEY
-    this.baseUrl = config.baseUrl ?? 'https://api.openai.com/v1'
+    this.baseUrl = normalizeBaseUrl(config.baseUrl ?? 'https://api.openai.com/v1')
     this.maxTokens = config.maxTokens ?? 800
+    this.headers = config.headers ?? {}
+    this.extraBody = config.extraBody ?? {}
   }
 
   async invoke<T>(messages: ChatMessage[], schema: z.ZodSchema<T>): Promise<CompletionResult<T>> {
     const augmentedMessages = withSchemaInstruction(messages, schema)
 
-    const extraOptions = {
-      temperature: 0.25,
-    }
-    if (this.model.startsWith('claude-opus')) {
-      delete extraOptions['temperature']
-    }
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${this.apiKey ?? ''}`,
         'Content-Type': 'application/json',
+        ...this.headers,
       },
       body: JSON.stringify({
         model: this.model,
         messages: augmentedMessages,
         max_tokens: this.maxTokens,
+        temperature: 0.15,
         response_format: { type: 'json_object' },
-        ...extraOptions,
+        ...this.extraBody,
       }),
     })
 
     if (!response.ok) {
       const error = await response.text()
-      throw new Error(`OpenAI API error (${response.status}): ${error}`)
+      const hint = error.includes('No provider available')
+        ? ' (Hint: the model may be temporarily unroutable on this provider. Try a different model or provider.)'
+        : ''
+      throw new Error(
+        `OpenAI API error (${response.status}) for model "${this.model}": ${error}${hint}`
+      )
     }
 
     const data = (await response.json()) as OpenAIResponse

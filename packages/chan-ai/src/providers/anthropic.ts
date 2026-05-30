@@ -16,11 +16,13 @@ export class AnthropicProvider implements Provider {
   private apiKey?: string
   private baseUrl: string
   private maxTokens: number
+  private headers: Record<string, string>
   constructor(config: ProviderConfig) {
     this.model = config.model
     this.apiKey = config.apiKey ?? process.env.ANTHROPIC_API_KEY
     this.baseUrl = config.baseUrl ?? 'https://api.anthropic.com/v1'
     this.maxTokens = config.maxTokens ?? 800
+    this.headers = config.headers ?? {}
   }
 
   async invoke<T>(messages: ChatMessage[], schema: z.ZodSchema<T>): Promise<CompletionResult<T>> {
@@ -34,6 +36,7 @@ export class AnthropicProvider implements Provider {
         'x-api-key': this.apiKey ?? '',
         'anthropic-version': '2023-06-01',
         'Content-Type': 'application/json',
+        ...this.headers,
       },
       body: JSON.stringify({
         model: this.model,

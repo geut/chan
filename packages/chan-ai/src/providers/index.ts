@@ -33,6 +33,18 @@ export function createProvider(name: string, config: ProviderConfig): Provider {
   return factory(config)
 }
 
+export async function listOpenAIModels(baseUrl: string, apiKey?: string): Promise<string[]> {
+  const url = `${baseUrl.replace(/\/$/, '')}/models`
+  const response = await fetch(url, {
+    headers: apiKey ? { Authorization: `Bearer ${apiKey}` } : {},
+  })
+  if (!response.ok) {
+    throw new Error(`Failed to list models: ${response.status} ${await response.text()}`)
+  }
+  const data = (await response.json()) as { data?: { id: string }[] }
+  return (data.data ?? []).map(m => m.id).sort()
+}
+
 export function isKnownProvider(name: string): boolean {
   return name in DEFAULT_PROVIDERS
 }

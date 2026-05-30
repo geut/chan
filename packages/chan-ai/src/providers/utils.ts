@@ -2,7 +2,7 @@ import type { z } from 'zod'
 import type { ChatMessage } from './types.js'
 
 function describeZodType(schema: z.ZodTypeAny, indent = ''): string {
-  const ctor = (schema as unknown as { constructor: { name: string } }).constructor.name
+  const ctor = (schema as { constructor: { name: string } }).constructor.name
 
   if (ctor === 'ZodString') {
     return 'string'
@@ -66,13 +66,13 @@ export function extractAndParseJson<T>(text: string, schema: z.ZodSchema<T>): T 
   const codeBlockMatch = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/)
   const jsonText = codeBlockMatch ? codeBlockMatch[1] : text.trim()
 
-  const start = jsonText.indexOf('{')
-  const end = jsonText.lastIndexOf('}')
+  const start = jsonText?.indexOf('{') ?? -1
+  const end = jsonText?.lastIndexOf('}') ?? -1
   if (start === -1 || end === -1) {
     throw new Error('No JSON object found in response')
   }
 
-  const parsed = JSON.parse(jsonText.slice(start, end + 1))
+  const parsed = JSON.parse(jsonText?.slice(start, end + 1) ?? '')
   return schema.parse(parsed)
 }
 
@@ -82,7 +82,7 @@ export function augmentSystemPrompt(messages: ChatMessage[], instruction: string
   if (firstSystemIdx !== -1) {
     result[firstSystemIdx] = {
       ...result[firstSystemIdx],
-      content: result[firstSystemIdx].content + '\n\n' + instruction,
+      content: `${result[firstSystemIdx].content}\n\n${instruction}`,
     }
   } else {
     result.unshift({ role: 'system', content: instruction })
@@ -96,7 +96,10 @@ export function withJsonInstruction(messages: ChatMessage[]): ChatMessage[] {
   return augmentSystemPrompt(messages, instruction)
 }
 
-export function withSchemaInstruction<T>(messages: ChatMessage[], schema: z.ZodSchema<T>): ChatMessage[] {
+export function withSchemaInstruction<T>(
+  messages: ChatMessage[],
+  schema: z.ZodSchema<T>
+): ChatMessage[] {
   const instruction =
     `You must respond with a single valid JSON object and nothing else. ` +
     `Do not include markdown code blocks, explanations, or any text outside the JSON object. ` +

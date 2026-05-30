@@ -2,13 +2,10 @@ import { promisify } from 'node:util'
 import { exec as execRaw } from 'node:child_process'
 import { createProvider } from './providers/index.js'
 
-import { z } from 'zod'
 import {
   type AIConfig,
   type AnalyzeArgs,
   type CommitAnalysisResponse,
-  type AnalyzeFn,
-  type AnalyzeResponse,
   AIConfigSchema,
   CommitAnalysisResponseSchema,
 } from './types.js'
@@ -108,13 +105,13 @@ const SYSTEM_PROMPT = `
   Response must be a valid JSON object. 
 `
 
-const contextSchema = z.object({
-  codebase: z.string(),
-})
+// const contextSchema = z.object({
+//   codebase: z.string(),
+// })
 
 export function createAnalyzer(config: AIConfig): Function {
   AIConfigSchema.parse(config)
-  const { provider, model, tools = [getCommitInfo], context, baseUrl, maxTokens = 800 } = config
+  const { provider, model, tools = [getCommitInfo], context, baseUrl, maxTokens = 2000 } = config
   const modelProvider =
     typeof provider === 'string'
       ? createProvider(provider, { model, baseUrl, maxTokens })

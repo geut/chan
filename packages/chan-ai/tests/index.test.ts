@@ -1,6 +1,6 @@
 import { MockProvider } from '../src/providers/mock.js'
 
-import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
+import { beforeAll, describe, expect, it, vi } from 'vitest'
 import * as chanAI from '../src/index.js'
 import { CATEGORIES, CommitAnalysisResponseSchema } from '../src/types.js'
 
