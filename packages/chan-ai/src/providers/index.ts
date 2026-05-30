@@ -15,7 +15,7 @@ export type {
 
 export const DEFAULT_PROVIDERS: Record<string, (config: ProviderConfig) => Provider> = {
   openai: c => new OpenAICompatibleProvider({ baseUrl: 'https://api.openai.com/v1', ...c }),
-  opencode: c => new OpenAICompatibleProvider({ baseUrl: 'https://opencode.ai/zen/v1/', ...c }),
+  opencode: c => new OpenAICompatibleProvider({ baseUrl: 'https://opencode.ai/zen/v1', ...c }),
   openrouter: c => new OpenAICompatibleProvider({ baseUrl: 'https://openrouter.ai/api/v1', ...c }),
   groq: c => new OpenAICompatibleProvider({ baseUrl: 'https://api.groq.com/openai/v1', ...c }),
   together: c => new OpenAICompatibleProvider({ baseUrl: 'https://api.together.xyz/v1', ...c }),
