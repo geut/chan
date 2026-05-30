@@ -1,15 +1,20 @@
 import { z } from 'zod'
-import type { BaseChatModel } from '@langchain/core/language_models/chat_models'
-import type { AIMessage } from '@langchain/core/messages'
+import type { CompletionResult, Provider } from './providers/types.js'
+
+const ToolSchema = z.function({
+  input: [z.object({ commitSha: z.string(), cwd: z.string() })],
+  output: z.promise(z.string()),
+})
 
 const AIConfigSchema = z.object({
-  provider: z.string(),
+  provider: z.union([z.string(), z.custom<Provider>()]),
   model: z.string(),
+  // array of tool functions (receive an array of Shas and return a string)
+  tools: z.array(ToolSchema).optional(),
   context: z.string().optional(),
-  chatModel: z.custom<BaseChatModel>().optional(),
   includeRaw: z.boolean().optional(),
   maxTokens: z.number().optional(),
-  endpoint: z.string().optional(),
+  baseUrl: z.string().optional(),
 })
 
 const CATEGORIES = [
@@ -27,10 +32,10 @@ const CATEGORIES = [
 const CommitAnalysisResponseSchema = z.object({
   sha: z.string(),
   analysis: z.string(),
-  author: z.string(),
+  author: z.string().describe('Author of the commit.'),
   authorEmail: z.string().describe('Author email.'),
   coauthors: z.array(z.string()).describe('Coauthors of the commit.'),
-  date: z.string(),
+  date: z.string().describe('Date of the commit.'),
   category: z.enum(CATEGORIES),
   breakingChange: z.boolean().describe('Is the change a breaking change?'),
   breakingDetails: z.string().describe('Details about the breaking change (if any).'),
@@ -54,12 +59,12 @@ const AnalyzeArgsSchema = z.object({
 })
 
 type AnalyzeArgs = z.input<typeof AnalyzeArgsSchema>
-type AnalyzeFn = (args: AnalyzeArgs) => Promise<AnalyzeResponse[]>
+type AnalyzeFn = (args: AnalyzeArgs) => Promise<CompletionResult<CommitAnalysisResponse>[]>
 type AIConfig = z.infer<typeof AIConfigSchema>
 type CommitAnalysisResponse = z.infer<typeof CommitAnalysisResponseSchema>
 interface AnalyzeResponse {
   parsed: CommitAnalysisResponse
-  raw: AIMessage | undefined
+  raw: unknown
 }
 
 export { AIConfigSchema, CommitAnalysisResponseSchema, CATEGORIES }

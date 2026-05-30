@@ -8,16 +8,15 @@ const describeOrSkip = process.env.OPENAI_API_KEY ? describe : describe.skip
 
 describeOrSkip('analyze e2e', () => {
   let repo: TempRepo
-  let analyzer: AnalyzeFn
+  let analyzer: ReturnType<typeof createAnalyzer>
 
   beforeAll(async () => {
     repo = createTempGitRepo()
     const context = `This is a module exports math functions`
-    analyzer = await createAnalyzer({
-      provider: 'openai',
-      model: 'kimi-k2.6',
-      context,
-      endpoint: 'https://opencode.ai/zen/v1/',
+    analyzer = createAnalyzer({
+      provider: 'opencode',
+      model: 'gemini-3.5-flash',
+      baseUrl: 'https://opencode.ai/zen/v1',
       includeRaw: true,
     })
   })
@@ -43,6 +42,7 @@ describeOrSkip('analyze e2e', () => {
     expect(CommitAnalysisResponseSchema.parse(result[2].parsed)).toBeTruthy()
     expect(result[2].parsed.sha).toBe(repo.commits[2])
     expect(result[2].parsed.analysis).toBeDefined()
+    console.log({ result: result[2].parsed })
     if (result[2].parsed.breakingConfidence <= 0.3) {
       expect(result[2].parsed.breakingChange).toBe(false)
     }

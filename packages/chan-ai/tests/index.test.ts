@@ -1,10 +1,10 @@
-import { fakeModel } from 'langchain'
+import { MockProvider } from '../src/providers/mock.js'
 
-import { beforeAll, describe, expect, it, vi } from 'vitest'
-import { createAnalyzer, getCommitsInfo } from '../src/index.js'
-import { CATEGORIES, CommitAnalysisResponseSchema, type AnalyzeFn } from '../src/types.js'
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
+import * as chanAI from '../src/index.js'
+import { CATEGORIES, CommitAnalysisResponseSchema } from '../src/types.js'
 
-const model = fakeModel().structuredResponse({
+const mockResponse = {
   sha: 'abc123',
   analysis: 'This is a test response.',
   author: 'User',
@@ -18,37 +18,40 @@ const model = fakeModel().structuredResponse({
   packagesAffected: ['package1', 'package2'],
   relatedCode: [''],
   relatedIssues: [''],
-})
+}
 
 describe('analyze unit test', () => {
-  let analyzer: AnalyzeFn
+  let analyzer
+  let mockProvider: MockProvider
+  let invokeSpy: ReturnType<typeof vi.spyOn>
+  const getCommitsInfoTool = vi.fn().mockResolvedValue([
+    `abc123
+feat: update code
+Body:
+User (user@example.com)
+2026-05-04T00:00:00+00:00
+`,
+  ])
 
   beforeAll(async () => {
-    analyzer = await createAnalyzer({
-      provider: 'openai',
-      model: 'gpt-4o',
-      chatModel: model,
+    mockProvider = new MockProvider(mockResponse)
+    invokeSpy = vi.spyOn(mockProvider, 'invoke')
+
+    analyzer = chanAI.createAnalyzer({
+      provider: mockProvider,
+      model: 'mockModel',
+      tools: [getCommitsInfoTool],
     })
   })
-  it('should analyze commits', async () => {
-    // spy on the getCommitsInfo tool
-    const getCommitsInfoSpy = vi.spyOn(getCommitsInfo, 'invoke')
-    getCommitsInfoSpy.mockResolvedValue([
-      `
-      abc123 !! Update: some code !! User !! 2026-05-04
-      diff --git a/file.txt b/file.txt
-      index 123456..789012 100644
-      --- a/file.txt
-      +++ b/file.txt
-      @@ -1,5 +1,9 @@
-      content
-    `,
-    ])
 
+  it('should analyze commits', async () => {
     const result = await analyzer({
       commitShas: ['abc123'],
       cwd: process.cwd(),
     })
+
+    expect(getCommitsInfoTool).toHaveBeenCalledWith({ commitSha: 'abc123', cwd: process.cwd() })
+    expect(invokeSpy).toHaveBeenCalledTimes(1)
 
     // validate the response with the schema
     expect(CommitAnalysisResponseSchema.parse(result[0].parsed)).toBeTruthy()

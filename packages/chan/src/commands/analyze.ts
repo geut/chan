@@ -80,12 +80,12 @@ export async function handler({
 
   const aiContext = (await readFile(join(process.cwd(), '.chan', 'context.md'), 'utf8')) || ''
 
-  const analyzer = await createAnalyzer({
-    provider: aiProvider as string,
-    model: aiModel as string,
+  const analyzer = createAnalyzer({
+    provider: aiProvider,
+    model: aiModel,
     context: aiContext,
     maxTokens: aiMaxTokens,
-    endpoint: aiEndpoint,
+    baseUrl: aiEndpoint,
     includeRaw: aiIncludeRaw,
   })
 
@@ -94,7 +94,7 @@ export async function handler({
 
     // call enrichFn with commit
     const enrichedCommit = await analyzer({
-      commitShas: [gitSha as string],
+      commitShas: [gitSha],
       cwd: process.cwd(),
     })
     console.log(enrichedCommit)

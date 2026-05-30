@@ -1,8 +1,7 @@
 import { promisify } from 'node:util'
 import { exec as execRaw } from 'node:child_process'
-import { tool } from '@langchain/core/tools'
-import { initChatModel } from 'langchain/chat_models/universal'
-import { createMiddleware } from 'langchain'
+import { createProvider } from './providers/index.js'
+
 import { z } from 'zod'
 import {
   type AIConfig,
@@ -13,12 +12,17 @@ import {
   AIConfigSchema,
   CommitAnalysisResponseSchema,
 } from './types.js'
-
-import { ToolMessage, type AIMessage } from '@langchain/core/messages'
+import type { CompletionResult } from './providers/types.js'
 
 const exec = promisify(execRaw)
 
-async function getCommit(commitSha: string, cwd: string): Promise<string> {
+async function getCommitInfo({
+  commitSha,
+  cwd,
+}: {
+  commitSha: string
+  cwd: string
+}): Promise<string> {
   const { stdout, stderr } = await exec(
     `git show ${commitSha} --pretty=format:"%h%n%s%nBody:%b%n%an (%ae)%n%aI%n%p" -U0`,
     {
@@ -33,40 +37,19 @@ async function getCommit(commitSha: string, cwd: string): Promise<string> {
   return stdout.trim()
 }
 
-const handleToolErrors = createMiddleware({
-  name: 'handle_tool_errors',
-  wrapToolCall: async (request, handler) => {
-    try {
-      return await handler(request)
-    } catch (error) {
-      return new ToolMessage({
-        content: `Tool error: Please check your input and try again. (${error})`,
-        tool_call_id: request.toolCall.id!,
-      })
-    }
-  },
-})
-
-export const getCommitsInfo = tool(
-  async ({ commitShas, cwd }: { commitShas: string; cwd: string }) => {
-    const commitShasArray = commitShas.split(',')
-
-    let commitsInfo = []
-    for (const commitSha of commitShasArray) {
-      const commit = await getCommit(commitSha, cwd)
-      commitsInfo.push(commit as unknown as string)
-    }
-    return commitsInfo as unknown as string[]
-  },
-  {
-    name: 'get_commits_info',
-    description: 'Get information about one or more commits',
-    schema: z.object({
-      commitShas: z.string(),
-      cwd: z.string().describe('The current working directory.'),
-    }),
-  }
-)
+function getTokenUsage(responses: CompletionResult<CommitAnalysisResponse>[]) {
+  const totalTokenUsage = responses.reduce(
+    (acc, response) => {
+      return {
+        input: acc.input + (response?.usage?.input ?? 0),
+        output: acc.output + (response?.usage?.output ?? 0),
+        total: acc.total + (response?.usage?.total ?? 0),
+      }
+    },
+    { input: 0, output: 0, total: 0 }
+  )
+  return totalTokenUsage
+}
 
 const SYSTEM_PROMPT = `
   You are a helpful assistant that analyzes commits and updates the code.md file.
@@ -122,154 +105,55 @@ const SYSTEM_PROMPT = `
   Every decision should be backed by evidence. This is important.
   The condensed findings are going to be appended to the code.md file. 
   You don't need to update the code.md file, only generate the content.
+  Response must be a valid JSON object. 
 `
 
 const contextSchema = z.object({
   codebase: z.string(),
 })
 
-export async function createAnalyzer(config: AIConfig): Promise<AnalyzeFn> {
+export function createAnalyzer(config: AIConfig): Function {
   AIConfigSchema.parse(config)
-  const {
-    provider,
-    model,
-    context,
-    chatModel,
-    endpoint,
-    maxTokens = 800,
-    includeRaw = false,
-  } = config
-  const modelInstance =
-    chatModel ??
-    (await initChatModel(model, {
-      modelProvider: provider,
-      maxTokens,
-      middleware: [handleToolErrors],
-      configuration: endpoint
-        ? {
-            baseURL: endpoint,
-          }
-        : undefined,
-      systemPrompt: SYSTEM_PROMPT,
-      contextSchema,
-    }))
+  const { provider, model, tools = [getCommitInfo], context, baseUrl, maxTokens = 800 } = config
+  const modelProvider =
+    typeof provider === 'string'
+      ? createProvider(provider, { model, baseUrl, maxTokens })
+      : provider
 
-  return async ({ commitShas, cwd }: AnalyzeArgs): Promise<AnalyzeResponse[]> => {
-    const commitsInfo = await getCommitsInfo.invoke({
-      commitShas: commitShas.join(', '),
-      cwd,
-    })
-    const modelWithStructure = modelInstance.withStructuredOutput(CommitAnalysisResponseSchema, {
-      // @ts-expect-error - includeRaw is typed as boolean
-      includeRaw,
-    })
+  return async ({
+    commitShas,
+    cwd,
+  }: AnalyzeArgs): Promise<CompletionResult<CommitAnalysisResponse>[]> => {
+    // call tools
+    const toolResults = []
+    for (const tool of tools) {
+      // each tool should be called with the commit shas and the cwd
+      const results = await Promise.all(commitShas.map(sha => tool({ commitSha: sha, cwd })))
+      toolResults.push(...results)
+    }
 
-    const messages = commitsInfo.map(
-      commit => `Analyze the following commit and return JSON:\n\n${commit}`
-    )
-
-    console.log({ context })
     const responses = await Promise.all(
-      messages.map(
-        message =>
-          modelWithStructure.invoke(message, {
-            // @ts-expect-error - context is typed as string
-            context,
-          }) as unknown as Promise<{
-            parsed: CommitAnalysisResponse
-            raw: AIMessage
-          }>
-      )
+      toolResults.map(result => {
+        const messages = [
+          { role: 'system' as const, content: SYSTEM_PROMPT },
+          ...(context
+            ? [{ role: 'system' as const, content: `Codebase context: ${context}` }]
+            : []),
+          {
+            role: 'user' as const,
+            content: `Analyze the following commit information:\n\n${result}`,
+          },
+        ]
+        return modelProvider.invoke(messages, CommitAnalysisResponseSchema)
+      })
     )
 
-    const parsedResponses = responses.map(response => {
-      return {
-        parsed: response.parsed || { ...response },
-        raw: response.raw || {},
-      }
-    }) as unknown as AnalyzeResponse[]
+    // get token usage
+    const tokenUsage = getTokenUsage(responses)
+    console.log(
+      `Total token usage: ${tokenUsage.total} (input: ${tokenUsage.input}, output: ${tokenUsage.output})`
+    )
 
-    // store token usage
-    // todo: move to a separate function (utils)
-    const totalTokenUsage = responses.reduce((acc, response) => {
-      console.log({ response })
-      return acc + (response?.raw?.usage_metadata?.total_tokens ?? 0)
-    }, 0)
-    console.log(`Total token usage: ${totalTokenUsage}`)
-
-    return parsedResponses
+    return responses
   }
 }
-
-// export async function analyze({
-//   commitShas,
-//   provider,
-//   model,
-//   chatModel,
-//   cwd,
-//   endpoint,
-//   includeRaw = false,
-//   maxTokens = 500,
-// }: AIConfig) {
-//   // Note (dk):
-//   // use context (model.invoke(context)) to pass the repo general knowledge
-//   // this repo general knowledge should be created with the init command
-//   AIConfigSchema.parse({ commitShas, provider, model, chatModel, cwd, includeRaw })
-
-//   const modelInstance =
-//     chatModel ??
-//     (await initChatModel(model, {
-//       modelProvider: provider,
-//       temperature: 0.25,
-//       maxTokens,
-//       middleware: [handleToolErrors],
-//       configuration: endpoint
-//         ? {
-//             baseURL: endpoint,
-//           }
-//         : undefined,
-//       systemPrompt: SYSTEM_PROMPT,
-//       contextSchema,
-//     }))
-
-//   const commitsInfo = await getCommitsInfo.invoke({
-//     commitShas: commitShas.join(', '),
-//     cwd,
-//   })
-
-//   const modelWithStructure = modelInstance.withStructuredOutput(CommitAnalysisResponseSchema, {
-//     // @ts-expect-error - includeRaw is typed as boolean
-//     includeRaw,
-//   })
-
-//   const messages = commitsInfo.map(commit => `Analyze the following commit: ${commit}`)
-
-//   const responses = await Promise.all(
-//     messages.map(
-//       message =>
-//         modelWithStructure.invoke(message, {
-//           // @ts-expect-error - context is typed as string
-//           context: CONTEXT,
-//         }) as unknown as Promise<{
-//           parsed: CommitAnalysisResponse
-//           raw: AIMessage
-//         }>
-//     )
-//   )
-
-//   const parsedResponses = responses.map(response => {
-//     return {
-//       parsed: response.parsed || { ...response },
-//       raw: response.raw || {},
-//     }
-//   })
-
-//   // store token usage
-//   const totalTokenUsage = responses.reduce((acc, response) => {
-//     console.log({ response })
-//     return acc + (response?.raw?.usage_metadata?.total_tokens ?? 0)
-//   }, 0)
-//   console.log(`Total token usage: ${totalTokenUsage}`)
-
-//   return parsedResponses
-// }
