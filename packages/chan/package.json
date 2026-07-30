@@ -47,6 +47,7 @@
     "@geut/git-url-parse": "^3.2.6",
     "boxen": "^5.0.1",
     "editor": "^1.0.0",
+    "fast-write-atomic": "^0.4.0",
     "find-up": "^8.0.0",
     "new-github-release-url": "^1.0.0",
     "open": "^8.2.0",

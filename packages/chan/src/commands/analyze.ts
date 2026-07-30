@@ -1,11 +1,12 @@
-import { readFile } from 'node:fs/promises'
-import { join } from 'node:path'
+import { createAnalyzer, type CommitAnalysisResponse, type Provider } from '@geut/chan-ai'
 
 import { createLogger } from '../logger.js'
-import { createAnalyzer } from '@geut/chan-ai'
+import { loadConfig } from '../config.js'
+import { getCommitLog, getCommitMetadata, getHeadSha } from '../git.js'
+import { appendEntries, formatEntry } from '../code-md.js'
 
 export const command = 'analyze'
-export const description = 'Analyze commits and update code.md file.'
+export const description = 'Analyze commits and append structured entries to .chan/code.md.'
 
 export const builder = {
   verbose: {
@@ -19,29 +20,30 @@ export const builder = {
     type: 'string',
   },
   auto: {
-    describe: 'Auto analyze latest commits (HEAD only)',
+    describe: 'Auto analyze HEAD only (fast path used by the post-commit hook)',
     type: 'boolean',
     default: false,
   },
+  limit: {
+    describe: 'Max number of commits to read from git log',
+    type: 'number',
+    default: 50,
+  },
   aiProvider: {
-    describe: 'AI provider',
+    describe: 'AI provider (overrides .chanrc ai.provider)',
     type: 'string',
-    default: 'openai',
   },
   aiModel: {
-    describe: 'AI model',
+    describe: 'AI model (overrides .chanrc ai.model)',
     type: 'string',
-    default: 'gpt-5.5',
   },
   aiMaxTokens: {
-    describe: 'Maximum tokens for the AI model',
+    describe: 'Maximum tokens for the AI model (overrides .chanrc ai.maxTokens)',
     type: 'number',
-    default: 500,
   },
   aiEndpoint: {
-    describe: 'AI endpoint',
+    describe: 'AI endpoint / baseUrl (overrides .chanrc ai.endpoint)',
     type: 'string',
-    default: undefined,
   },
 }
 
@@ -49,54 +51,90 @@ interface AnalyzeArgs {
   verbose?: boolean
   gitSha?: string
   auto?: boolean
+  limit?: number
   aiProvider?: string
   aiModel?: string
   aiMaxTokens?: number
   aiEndpoint?: string
 }
 
-export async function handler({
-  verbose,
-  gitSha,
-  auto,
-  aiProvider,
-  aiModel,
-  aiMaxTokens,
-  aiEndpoint,
-}: AnalyzeArgs) {
-  const { info } = createLogger({ scope: 'analyze', verbose })
+interface AiResolvedConfig {
+  provider: string | Provider
+  model: string
+  maxTokens?: number
+  baseUrl?: string
+}
 
-  if (!aiProvider || !aiModel) {
-    info('AI provider or model is not configured, skipping analysis...')
+export interface RunAnalyzeOptions {
+  cwd: string
+  commitShas: string[]
+  ai?: AiResolvedConfig
+}
+
+export async function runAnalyze({ cwd, commitShas, ai }: RunAnalyzeOptions): Promise<number> {
+  const metas = await Promise.all(commitShas.map(sha => getCommitMetadata(sha, cwd)))
+
+  let analyses: (CommitAnalysisResponse | undefined)[] = metas.map(() => undefined)
+
+  if (ai) {
+    const analyzer = createAnalyzer({
+      provider: ai.provider,
+      model: ai.model,
+      maxTokens: ai.maxTokens,
+      baseUrl: ai.baseUrl,
+    })
+    const results = await analyzer({ commitShas, cwd })
+    analyses = results.map(r => r.parsed)
+  }
+
+  const entries = metas.map((meta, index) => formatEntry({ meta, analysis: analyses[index] }))
+
+  await appendEntries({ cwd, entries })
+
+  return entries.length
+}
+
+export async function handler(args: AnalyzeArgs) {
+  const { verbose, gitSha, auto, limit = 50, aiProvider, aiModel, aiMaxTokens, aiEndpoint } = args
+
+  const cwd = process.cwd()
+  const { info, success } = createLogger({ scope: 'analyze', verbose })
+
+  const config = loadConfig()
+  const provider = aiProvider ?? config.ai?.provider
+  const model = aiModel ?? config.ai?.model
+  const hasAI = Boolean(provider && model)
+
+  let commitShas: string[]
+  if (gitSha) {
+    commitShas = [gitSha]
+  } else if (auto) {
+    commitShas = [await getHeadSha(cwd)]
+  } else {
+    commitShas = await getCommitLog(cwd, { limit })
+  }
+
+  if (commitShas.length === 0) {
+    info('No commits to analyze.')
     return
   }
 
-  const aiContext = (await readFile(join(process.cwd(), '.chan', 'context.md'), 'utf8')) || ''
+  const ai: AiResolvedConfig | undefined = hasAI
+    ? {
+        provider: provider as string | Provider,
+        model: model!,
+        maxTokens: aiMaxTokens ?? config.ai?.maxTokens,
+        baseUrl: aiEndpoint ?? config.ai?.endpoint,
+      }
+    : undefined
 
-  const analyzer = createAnalyzer({
-    provider: aiProvider,
-    model: aiModel,
-    context: aiContext,
-    maxTokens: aiMaxTokens,
-    baseUrl: aiEndpoint,
-  })
-
-  if (gitSha) {
-    info(`Analyzing commit SHA ${gitSha} and updating code.md file...`)
-
-    // call enrichFn with commit
-    const enrichedCommit = await analyzer({
-      commitShas: [gitSha],
-      cwd: process.cwd(),
-    })
-    console.log(enrichedCommit)
+  if (ai) {
+    info(`Analyzing ${commitShas.length} commit(s) with (${provider}/${model})...`)
+  } else {
+    info('AI not configured, storing raw commit metadata without synthesis.')
   }
 
-  if (auto) {
-    info(`Analyzing latest commits and updating code.md file...`)
-    // get latest commits
-    // const commits = await getLatestCommits()
-    // call enrichFn with commits
-    // const enrichedCommits = await enrichFn(commits)
-  }
+  const count = await runAnalyze({ cwd, commitShas, ai })
+
+  success(`Appended ${count} entr${count === 1 ? 'y' : 'ies'} to .chan/code.md.`)
 }

@@ -6,6 +6,7 @@ import { initialize } from '@geut/chan-core'
 
 import { createLogger } from '../logger.js'
 import { read, write } from '../vfs.js'
+import { initCodeMd } from '../code-md.js'
 
 export const command = 'init [dir]'
 export const description = 'Initialize CHANGELOG.md file'
@@ -46,6 +47,13 @@ export async function handler ({ dir, overwrite, verbose, stdout }: InitArgs) {
   }
 
   success('CHANGELOG.md created.')
+
+  try {
+    await initCodeMd(resolve(dir))
+    info('Created .chan/code.md knowledge base.')
+  } catch (err) {
+    return report(err as Error)
+  }
 
   try {
     await fs.access(resolve(dir, 'package.json'))

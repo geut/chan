@@ -13,6 +13,21 @@ import {
 } from './types.js'
 import type { CompletionResult } from './providers/types.js'
 
+export {
+  AIConfigSchema,
+  CommitAnalysisResponseSchema,
+  CATEGORIES,
+} from './types.js'
+export type {
+  AIConfig,
+  CommitAnalysisResponse,
+  AnalyzeFn,
+  AnalyzeArgs,
+  SHA,
+} from './types.js'
+export type { Provider, ProviderConfig, ChatMessage, CompletionResult, TokenUsage } from './providers/types.js'
+export { MockProvider } from './providers/index.js'
+
 const exec = promisify(execRaw)
 
 export async function getCommitInfo({
