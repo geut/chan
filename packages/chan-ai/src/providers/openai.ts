@@ -27,15 +27,13 @@ export class OpenAICompatibleProvider implements Provider {
   private baseUrl: string
   private maxTokens: number
   private headers: Record<string, string>
-  private extraBody: Record<string, unknown>
 
   constructor(config: ProviderConfig) {
     this.model = config.model
     this.apiKey = config.apiKey ?? process.env.OPENAI_API_KEY
     this.baseUrl = normalizeBaseUrl(config.baseUrl ?? 'https://api.openai.com/v1')
-    this.maxTokens = config.maxTokens ?? 800
+    this.maxTokens = config.maxTokens ?? 1000
     this.headers = config.headers ?? {}
-    this.extraBody = config.extraBody ?? {}
   }
 
   async invoke<T>(messages: ChatMessage[], schema: z.ZodSchema<T>): Promise<CompletionResult<T>> {
@@ -54,7 +52,6 @@ export class OpenAICompatibleProvider implements Provider {
         max_tokens: this.maxTokens,
         temperature: 0.15,
         response_format: { type: 'json_object' },
-        ...this.extraBody,
       }),
     })
 

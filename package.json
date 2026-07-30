@@ -38,6 +38,7 @@
     "url": "https://github.com/geut/chan/issues"
   },
   "devDependencies": {
+    "@types/node": "^26.1.1",
     "@types/signale": "^1.4.7",
     "@types/unist": "^3.0.3",
     "@types/yargs": "^17.0.35",

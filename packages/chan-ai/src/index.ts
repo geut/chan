@@ -1,10 +1,12 @@
 import { promisify } from 'node:util'
 import { exec as execRaw } from 'node:child_process'
-import { createProvider } from './providers/index.js'
+import { createProvider, isKnownProvider } from './providers/index.js'
 
 import {
+  type SHA,
   type AIConfig,
   type AnalyzeArgs,
+  type AnalyzeFn,
   type CommitAnalysisResponse,
   AIConfigSchema,
   CommitAnalysisResponseSchema,
@@ -13,11 +15,11 @@ import type { CompletionResult } from './providers/types.js'
 
 const exec = promisify(execRaw)
 
-async function getCommitInfo({
+export async function getCommitInfo({
   commitSha,
   cwd,
 }: {
-  commitSha: string
+  commitSha: SHA
   cwd: string
 }): Promise<string> {
   const { stdout, stderr } = await exec(
@@ -37,10 +39,11 @@ async function getCommitInfo({
 function getTokenUsage(responses: CompletionResult<CommitAnalysisResponse>[]) {
   const totalTokenUsage = responses.reduce(
     (acc, response) => {
+      const usage = response?.usage
       return {
-        input: acc.input + (response?.usage?.input ?? 0),
-        output: acc.output + (response?.usage?.output ?? 0),
-        total: acc.total + (response?.usage?.total ?? 0),
+        input: acc.input + (usage?.input ?? 0),
+        output: acc.output + (usage?.output ?? 0),
+        total: acc.total + (usage?.total ?? 0),
       }
     },
     { input: 0, output: 0, total: 0 }
@@ -104,14 +107,28 @@ const SYSTEM_PROMPT = `
   You don't need to update the code.md file, only generate the content.
   Response must be a valid JSON object. 
 `
-
+// TODO: provide codebase context -- this should be generated once and stored perhaps at the beggining of the code.md file
 // const contextSchema = z.object({
 //   codebase: z.string(),
 // })
 
-export function createAnalyzer(config: AIConfig): Function {
-  AIConfigSchema.parse(config)
-  const { provider, model, tools = [getCommitInfo], context, baseUrl, maxTokens = 2000 } = config
+const DEFAULT_MAX_TOKENS = 1000
+
+export function createAnalyzer(config: AIConfig): AnalyzeFn {
+  const parsedConfig = AIConfigSchema.parse(config)
+  const {
+    provider,
+    model,
+    tools = [getCommitInfo],
+    context,
+    baseUrl,
+    maxTokens = DEFAULT_MAX_TOKENS,
+  } = parsedConfig
+
+  if (typeof provider === 'string' && !isKnownProvider(provider)) {
+    throw new Error(`Provider ${provider} is not supported`)
+  }
+
   const modelProvider =
     typeof provider === 'string'
       ? createProvider(provider, { model, baseUrl, maxTokens })

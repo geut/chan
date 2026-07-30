@@ -24,12 +24,10 @@ export {
   addRelease as transformerAddRelease,
 } from './transformer.js'
 
-function createPipeline(transformer: (...args: any[]) => any, opts: any = {}) {
-  return unified()
-    .use(remarkParse)
-    .use(remarkToChan)
-    .use(transformer, opts)
-    .use(stringify)
+type CompileTransformer = (tree: Node, file: VFile) => Node | undefined
+
+function createPipeline<Opts>(transformer: (opts: Opts) => CompileTransformer, opts: Opts) {
+  return unified().use(remarkParse).use(remarkToChan).use(transformer, opts).use(stringify)
 }
 
 export async function initialize(from: VFile, opts: InitializeOptions = {}): Promise<VFile> {
@@ -48,7 +46,10 @@ export function getMarkdownRelease(from: VFile, { version }: { version: string }
   const processor = unified().use(remarkParse).use(remarkToChan)
 
   const chanTree = processor.runSync(processor.parse(from))
-  const release = select(`release[identifier="${version}"]`, chanTree as unknown as Node & Record<string, unknown>)
+  const release = select(
+    `release[identifier="${version}"]`,
+    chanTree as unknown as Node & Record<string, unknown>
+  )
 
   if (!release) {
     throw new Error(`Release ${version} not found`)

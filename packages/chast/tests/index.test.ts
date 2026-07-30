@@ -15,7 +15,7 @@ describe('chast', () => {
   })
 
   it('createRoot: keeps preface and sorts releases (Unreleased first, then semver desc)', () => {
-    const preface = createPreface([{ type: 'text', children: 'Hello' } as Record<string, unknown>])
+    const preface = createPreface([{ type: 'text', children: 'Hello' } as Record<string, string>])
 
     const r100 = createRelease({
       identifier: 'x',
@@ -37,11 +37,11 @@ describe('chast', () => {
     })
 
     const root = createRoot([r100, preface, r200, runrel] as (
-      | Record<string, unknown>
+      | Record<string, string>
       | ReleaseNode
     )[])
 
-    const children = (root as any).children as any[]
+    const { children } = root as { children: (Record<string, string> | ReleaseNode)[] }
     expect(children[0].type).toBe('preface')
 
     const versions = children.filter(c => c.type === 'release').map(r => r.version)

@@ -43,11 +43,6 @@ export const builder = {
     type: 'string',
     default: undefined,
   },
-  aiIncludeRaw: {
-    describe: 'Include raw AI response',
-    type: 'boolean',
-    default: false,
-  },
 }
 
 interface AnalyzeArgs {
@@ -58,7 +53,6 @@ interface AnalyzeArgs {
   aiModel?: string
   aiMaxTokens?: number
   aiEndpoint?: string
-  aiIncludeRaw?: boolean
 }
 
 export async function handler({
@@ -69,7 +63,6 @@ export async function handler({
   aiModel,
   aiMaxTokens,
   aiEndpoint,
-  aiIncludeRaw,
 }: AnalyzeArgs) {
   const { info } = createLogger({ scope: 'analyze', verbose })
 
@@ -86,7 +79,6 @@ export async function handler({
     context: aiContext,
     maxTokens: aiMaxTokens,
     baseUrl: aiEndpoint,
-    includeRaw: aiIncludeRaw,
   })
 
   if (gitSha) {

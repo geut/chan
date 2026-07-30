@@ -15,7 +15,12 @@ export type {
 
 export const DEFAULT_PROVIDERS: Record<string, (config: ProviderConfig) => Provider> = {
   openai: c => new OpenAICompatibleProvider({ baseUrl: 'https://api.openai.com/v1', ...c }),
-  opencode: c => new OpenAICompatibleProvider({ baseUrl: 'https://opencode.ai/zen/v1', ...c }),
+  opencode: c =>
+    new OpenAICompatibleProvider({
+      baseUrl: 'https://opencode.ai/zen/v1',
+      apiKey: process.env.OPENCODE_API_KEY,
+      ...c,
+    }),
   openrouter: c => new OpenAICompatibleProvider({ baseUrl: 'https://openrouter.ai/api/v1', ...c }),
   groq: c => new OpenAICompatibleProvider({ baseUrl: 'https://api.groq.com/openai/v1', ...c }),
   together: c => new OpenAICompatibleProvider({ baseUrl: 'https://api.together.xyz/v1', ...c }),
@@ -41,8 +46,8 @@ export async function listOpenAIModels(baseUrl: string, apiKey?: string): Promis
   if (!response.ok) {
     throw new Error(`Failed to list models: ${response.status} ${await response.text()}`)
   }
-  const data = (await response.json()) as { data?: { id: string }[] }
-  return (data.data ?? []).map(m => m.id).sort()
+  const data = (await response.json()) as { data?: { id: string }[] | undefined }
+  return (data?.data ?? []).map(m => m.id).toSorted()
 }
 
 export function isKnownProvider(name: string): boolean {

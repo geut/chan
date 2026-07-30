@@ -31,9 +31,9 @@ interface ChastNode extends Node {
 const mdProcessor = unified().use(remarkParse)
 
 const parse = (value: string): Node[] => {
-  const tree = mdProcessor.parse(value)
+  const tree = mdProcessor.parse(value) as Node & { children?: ChastNode[] }
   removePosition(tree, { force: true })
-  return ((tree as unknown) as { children?: Node[] }).children ?? []
+  return tree.children!
 }
 
 export interface InitializeOptions {
@@ -90,9 +90,9 @@ export function addChanges({ changes }: AddChangesOptions) {
 
       if (group) {
         const groupNode = findGroupOrCreate(group, actionNode)
-        ;(groupNode as ChastNode).children = [...((groupNode as ChastNode).children ?? []), changeNode]
+        groupNode.children = [...(groupNode.children ?? []), changeNode]
       } else {
-        ;(actionNode as ChastNode).children = [...((actionNode as ChastNode).children ?? []), changeNode]
+        actionNode.children = [...(actionNode.children ?? []), changeNode]
       }
 
       return result
@@ -130,14 +130,14 @@ export function addRelease({
   function compile(tree: Node, file: VFile): Node | undefined {
     const preface = select('preface', tree as ChastNode)
     const unreleased = select('release[identifier="unreleased"]', tree as ChastNode)
-    let releases = (selectAll('release', tree as ChastNode) as ChastNode[]).filter((r) => !r.unreleased)
-    const version = semver.valid(userVersion)
-    const prereleases = releases.filter(
-      (r) => {
-        const rVersion = semver.valid(semver.coerce(r.version!))
-        return !!semver.prerelease(r.version!) && rVersion && semver.eq(rVersion, version!)
-      }
+    let releases = (selectAll('release', tree as ChastNode) as ChastNode[]).filter(
+      r => !r.unreleased
     )
+    const version = semver.valid(userVersion)
+    const prereleases = releases.filter(r => {
+      const rVersion = semver.valid(semver.coerce(r.version))
+      return !!semver.prerelease(r.version!) && rVersion && semver.eq(rVersion, version!)
+    })
     let isYanked = yanked
 
     if (!version) {
@@ -186,9 +186,7 @@ export function addRelease({
     }
 
     if (toMergePrereleases) {
-      releases = releases.filter(
-        (r) => !prereleases.find((pr) => pr.identifier === r.identifier)
-      )
+      releases = releases.filter(r => !prereleases.find(pr => pr.identifier === r.identifier))
       const prereleaseChanges = prereleases.reduce<Node[]>(
         (prev, current) => mergeActionChanges([...prev, ...(current.children ?? [])]),
         []
@@ -266,17 +264,15 @@ function now(): string {
   return [
     String(date.getFullYear()),
     '-',
-    (`0${date.getMonth() + 1}`).slice(-2),
+    `0${date.getMonth() + 1}`.slice(-2),
     '-',
-    (`0${date.getDate()}`).slice(-2),
+    `0${date.getDate()}`.slice(-2),
   ].join('')
 }
 
 function mergeActionChanges(actions: Node[]): Node[] {
   return actions.reduce<Node[]>((result, action) => {
-    const currentAction = result.find(
-      (a) => (a as ChastNode).name === (action as ChastNode).name
-    )
+    const currentAction = result.find(a => (a as ChastNode).name === (action as ChastNode).name)
 
     if (!currentAction) {
       return [...result, action]
@@ -297,17 +293,14 @@ function mergeChanges(changes: Node[]): Node[] {
     }
 
     const groupIdx = result.findIndex(
-      (c) => c.type === 'group' && (c as ChastNode).name === (change as ChastNode).name
+      c => c.type === 'group' && (c as ChastNode).name === (change as ChastNode).name
     )
     if (groupIdx === -1) {
       return [...result, change]
     }
 
     const target = result[groupIdx] as ChastNode
-    target.children = [
-      ...(target.children ?? []),
-      ...((change as ChastNode).children ?? []),
-    ]
+    target.children = [...(target.children ?? []), ...((change as ChastNode).children ?? [])]
     return result
   }, [])
 }

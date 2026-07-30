@@ -30,10 +30,10 @@ function describeZodType(schema: z.ZodTypeAny, indent = ''): string {
     return describeZodType(inner)
   }
   if (ctor === 'ZodObject') {
-    const shape = (schema as unknown as { shape: Record<string, z.ZodTypeAny> }).shape
+    const { shape } = schema as unknown as { shape: Record<string, z.ZodTypeAny> }
     const fields = Object.entries(shape).map(([key, val]) => {
       const desc = val.description ? ` — ${val.description}` : ''
-      return `${indent}  ${key}: ${describeZodType(val, indent + '  ')}${desc}`
+      return `${indent}  ${key}: ${describeZodType(val, `${indent}  `)}${desc}`
     })
     return `{\n${fields.join(',\n')}${indent}\n${indent}}`
   }
@@ -49,10 +49,10 @@ function describeZodType(schema: z.ZodTypeAny, indent = ''): string {
   return ctor.replace(/^Zod/, '').toLowerCase()
 }
 
-export function schemaToDescription(schema: z.ZodSchema<unknown>): string {
+export function schemaToDescription(schema: z.ZodSchema): string {
   const ctor = (schema as unknown as { constructor: { name: string } }).constructor.name
   if (ctor === 'ZodObject') {
-    const shape = (schema as unknown as { shape: Record<string, z.ZodTypeAny> }).shape
+    const { shape } = schema as unknown as { shape: Record<string, z.ZodTypeAny> }
     const fields = Object.entries(shape).map(([key, val]) => {
       const desc = val.description ? ` — ${val.description}` : ''
       return `  ${key}: ${describeZodType(val)}${desc}`
@@ -80,9 +80,12 @@ export function augmentSystemPrompt(messages: ChatMessage[], instruction: string
   const result = messages.map(m => ({ ...m }))
   const firstSystemIdx = result.findIndex(m => m.role === 'system')
   if (firstSystemIdx !== -1) {
-    result[firstSystemIdx] = {
-      ...result[firstSystemIdx],
-      content: `${result[firstSystemIdx].content}\n\n${instruction}`,
+    const firstSystem = result[firstSystemIdx]
+    if (firstSystem) {
+      result[firstSystemIdx] = {
+        role: firstSystem.role,
+        content: `${firstSystem.content}\n\n${instruction}`,
+      }
     }
   } else {
     result.unshift({ role: 'system', content: instruction })

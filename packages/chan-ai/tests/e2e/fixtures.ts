@@ -27,7 +27,7 @@ export function createTempGitRepo(): TempRepo {
     encoding: 'utf-8',
     shell: 'bash',
   })
-  commits.push(execSync('git rev-parse HEAD', { cwd: dir, encoding: 'utf-8' }).trim().slice(0, 7))
+  commits.push(execSync('git rev-parse HEAD', { cwd: dir, encoding: 'utf-8' }).trim())
 
   // Commit 2: another feature
   const multiplicationFunction = 'export const product = (a: number, b: number) => a * b'
@@ -38,7 +38,7 @@ export function createTempGitRepo(): TempRepo {
     encoding: 'utf-8',
     shell: 'bash',
   })
-  commits.push(execSync('git rev-parse HEAD', { cwd: dir, encoding: 'utf-8' }).trim().slice(0, 7))
+  commits.push(execSync('git rev-parse HEAD', { cwd: dir, encoding: 'utf-8' }).trim())
 
   // Commit 3: a breaking change -- remove product function
   writeFileSync(join(dir, 'index.ts'), initial)
@@ -47,7 +47,7 @@ export function createTempGitRepo(): TempRepo {
     encoding: 'utf-8',
     shell: 'bash',
   })
-  commits.push(execSync('git rev-parse HEAD', { cwd: dir, encoding: 'utf-8' }).trim().slice(0, 7))
+  commits.push(execSync('git rev-parse HEAD', { cwd: dir, encoding: 'utf-8' }).trim())
 
   return { dir, commits }
 }

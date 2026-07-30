@@ -1,6 +1,8 @@
 import { z } from 'zod'
 import type { CompletionResult, Provider } from './providers/types.js'
 
+const SHASchema = z.hash('sha1')
+
 const ToolSchema = z.function({
   input: [z.object({ commitSha: z.string(), cwd: z.string() })],
   output: z.promise(z.string()),
@@ -12,7 +14,6 @@ const AIConfigSchema = z.object({
   // array of tool functions (receive an array of Shas and return a string)
   tools: z.array(ToolSchema).optional(),
   context: z.string().optional(),
-  includeRaw: z.boolean().optional(),
   maxTokens: z.number().optional(),
   baseUrl: z.string().optional(),
 })
@@ -62,10 +63,7 @@ type AnalyzeArgs = z.input<typeof AnalyzeArgsSchema>
 type AnalyzeFn = (args: AnalyzeArgs) => Promise<CompletionResult<CommitAnalysisResponse>[]>
 type AIConfig = z.infer<typeof AIConfigSchema>
 type CommitAnalysisResponse = z.infer<typeof CommitAnalysisResponseSchema>
-interface AnalyzeResponse {
-  parsed: CommitAnalysisResponse
-  raw: unknown
-}
+type SHA = z.infer<typeof SHASchema>
 
 export { AIConfigSchema, CommitAnalysisResponseSchema, CATEGORIES }
-export type { AIConfig, CommitAnalysisResponse, AnalyzeFn, AnalyzeArgs, AnalyzeResponse }
+export type { AIConfig, CommitAnalysisResponse, AnalyzeFn, AnalyzeArgs, SHA }

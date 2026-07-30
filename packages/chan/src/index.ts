@@ -1,5 +1,5 @@
 export { commands } from './commands/index.js'
-export { config } from './config.js'
+export { loadConfig } from './config.js'
 export { createLogger, hasWarnings } from './logger.js'
 export { openInEditor } from './open-in-editor.js'
 export { read, write } from './vfs.js'

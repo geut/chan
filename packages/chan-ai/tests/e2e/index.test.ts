@@ -31,7 +31,7 @@ describeOrSkip('analyze e2e', () => {
     // Run the "list models" test below to discover exact names.
     analyzer = createAnalyzer({
       provider: process.env.TEST_PROVIDER ?? 'opencode',
-      model: process.env.TEST_MODEL ?? 'kimi-k2.6',
+      model: process.env.TEST_MODEL ?? 'kimi-k2.7-code',
       baseUrl: 'https://opencode.ai/zen/v1',
     })
   })
@@ -44,18 +44,18 @@ describeOrSkip('analyze e2e', () => {
 
     expect(result).toHaveLength(3)
     expect(CommitAnalysisResponseSchema.parse(result[0].parsed)).toBeTruthy()
-    expect(result[0].parsed.sha).toBe(repo.commits[0])
+    expect(result[0].parsed.sha).toBe(repo.commits[0].slice(0, 7))
     expect(result[0].parsed.analysis).toBeDefined()
     expect(result[0].parsed.breakingChange).toBe(false)
 
     expect(CommitAnalysisResponseSchema.parse(result[1].parsed)).toBeTruthy()
 
-    expect(result[1].parsed.sha).toBe(repo.commits[1])
+    expect(result[1].parsed.sha).toBe(repo.commits[1].slice(0, 7))
     expect(result[1].parsed.analysis).toBeDefined()
     expect(result[1].parsed.breakingChange).toBe(false)
 
     expect(CommitAnalysisResponseSchema.parse(result[2].parsed)).toBeTruthy()
-    expect(result[2].parsed.sha).toBe(repo.commits[2])
+    expect(result[2].parsed.sha).toBe(repo.commits[2].slice(0, 7))
     expect(result[2].parsed.analysis).toBeDefined()
 
     if (result[2].parsed.breakingConfidence <= 0.3) {

@@ -48,6 +48,7 @@ This command will modify your CHANGELOG creating a new entry called `added` unde
 > `chan` follows the [keepachangelog.com](http://keepachangelog.com/) format/style.
 
 Release your changes:
+
 ```bash
 $ chan release 0.0.1
 ```
@@ -56,6 +57,7 @@ And you will get something like:
 
 ```markdown
 # Changelog
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
@@ -64,7 +66,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ## 0.0.1 - 2019-01-11
+
 ### Added
+
 - New feature in my API to print foo in the console.
 
 [Unreleased]: https://github.com/my-org/my-repo/compare/v0.0.1..HEAD
@@ -86,27 +90,27 @@ Overwrite the current CHANGELOG.md
 
 ## <a name="command-action"></a>`chan <action> <msg>`
 
-Create new entries with the `<msg>` in your changelog under the release: *Unreleased*
+Create new entries with the `<msg>` in your changelog under the release: _Unreleased_
 
 `<action>` could be:
 
-  - **added**
-    Writes your changelog indicating new stuff.
+- **added**
+  Writes your changelog indicating new stuff.
 
-  - **fixed**
-    Writes your changelog indicating fixed stuff.
+- **fixed**
+  Writes your changelog indicating fixed stuff.
 
-  - **changed**
-    Writes your changelog indicating updated stuff.
+- **changed**
+  Writes your changelog indicating updated stuff.
 
-  - **security**
-    Writes your changelog indicating security upgrades.
+- **security**
+  Writes your changelog indicating security upgrades.
 
-  - **removed**
-    Writes your changelog indicating removed stuff.
+- **removed**
+  Writes your changelog indicating removed stuff.
 
-  - **deprecated**
-    Writes your changelog indicating deprecated stuff.
+- **deprecated**
+  Writes your changelog indicating deprecated stuff.
 
 ### Options
 
@@ -119,12 +123,16 @@ Define the path of the CHANGELOG.md (cwd by default).
 Prefix change with provided group value.
 
 Example:
+
 ```bash
 chan added --group=packages/package-one 'New stuff added'
- ```
+```
+
 will add to you changelog unreleased changes:
+
 ```markdown
 ### Added
+
 - packages/package-one
   - New stuff added.
 ```
@@ -184,7 +192,7 @@ will generate releases with the url:
 
 #### `--release-prefix` (`string`)
 
-You can provide a custom release prefix fitting your project release process.  (`v` by default).
+You can provide a custom release prefix fitting your project release process. (`v` by default).
 
 Example:
 `V`
@@ -211,7 +219,7 @@ Creates a github release.
 
 By default it opens the browser with the github release to edit and accept.
 
-If you define the env [GITHUB_TOKEN](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line) it will publish the release directly, *best option for CI*.
+If you define the env [GITHUB_TOKEN](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line) it will publish the release directly, _best option for CI_.
 
 ## <a name="command-gh-release"></a>`chan gh-release <semver>`
 
@@ -225,7 +233,7 @@ Define the url of the repository project.
 
 #### `--release-prefix` (`string`)
 
-You can provide a custom release prefix fitting your project release process.  (`v` by default).
+You can provide a custom release prefix fitting your project release process. (`v` by default).
 
 Example:
 `V`
@@ -272,7 +280,9 @@ You can configure the chan options using the `package.json` or a rc file (`.chan
   "release-prefix": "v",
   "ai": {
     "provider": "AIPROVIDER",
-    "model": "AIMODEL"
+    "model": "AIMODEL",
+    "maxTokens": 5000,
+    "endpoint": "https://api.openai.com/v1"
   }
 }
 ```
@@ -299,6 +309,7 @@ If you found an issue we encourage you to report it on [github](https://github.c
 ## <a name="contribute"></a> CONTRIBUTE
 
 Ideas and contributions to the project are welcome. You must follow this [guideline](https://github.com/geut/chan/blob/master/CONTRIBUTING.md).
-___
+
+---
 
 A [**GEUT**](http://geutstudio.com/) project

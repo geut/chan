@@ -13,7 +13,6 @@ describe('analyze', () => {
     expect(analyze.builder).toHaveProperty('aiModel')
     expect(analyze.builder).toHaveProperty('aiMaxTokens')
     expect(analyze.builder).toHaveProperty('aiEndpoint')
-    expect(analyze.builder).toHaveProperty('aiIncludeRaw')
     expect(analyze.handler).toBeDefined()
   })
 })
