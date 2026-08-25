@@ -3,16 +3,32 @@
   "version": "3.2.9",
   "description": "Write and maintain a CHANGELOG from your command line.",
   "homepage": "http://geutstudio.com",
-  "type": "module",
+  "license": "ISC",
+  "author": {
+    "name": "GEUT",
+    "email": "contact@geutstudio.com"
+  },
+  "repository": "https://github.com/geut/chan/tree/master/packages/chan",
   "bin": {
     "chan": "./bin/chan.js"
   },
+  "type": "module",
   "module": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts"
   },
-  "engines": {
-    "node": ">=14.13.0 || >=12.22.1"
+  "publishConfig": {
+    "access": "public",
+    "bin": {
+      "chan": "./dist/src/bin.js"
+    },
+    "exports": {
+      ".": {
+        "import": "./dist/src/index.js",
+        "types": "./dist/src/index.d.ts"
+      }
+    },
+    "module": "./dist/src/index.js"
   },
   "scripts": {
     "test": "vitest run",
@@ -41,23 +57,7 @@
     "vfile": "^6.0.0",
     "vitest": "^4.1.5"
   },
-  "author": {
-    "name": "GEUT",
-    "email": "contact@geutstudio.com"
-  },
-  "license": "ISC",
-  "repository": "https://github.com/geut/chan/tree/master/packages/chan",
-  "publishConfig": {
-    "access": "public",
-    "module": "./dist/src/index.js",
-    "exports": {
-      ".": {
-        "import": "./dist/src/index.js",
-        "types": "./dist/src/index.d.ts"
-      }
-    },
-    "bin": {
-      "chan": "./dist/src/bin.js"
-    }
+  "engines": {
+    "node": ">=22.0.0"
   }
 }

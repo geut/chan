@@ -1,9 +1,12 @@
 language: node_js
 node_js:
-  - "node"
-  - "24"
+  - 'node'
+  - '24'
 install: npm ci
+script:
+  - npm test
+  - npm run check-types
 # keep the npm cache around to speed up installs
 cache:
   directories:
-  - "$HOME/.npm"
+    - '$HOME/.npm'
