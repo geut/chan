@@ -12,6 +12,10 @@
   "bin": {
     "chan": "./bin/chan.js"
   },
+  "files": [
+    "dist/src/",
+    "src/"
+  ],
   "type": "module",
   "module": "./src/index.ts",
   "exports": {
