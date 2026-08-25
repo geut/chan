@@ -21,10 +21,16 @@ export const DEFAULT_PROVIDERS: Record<string, (config: ProviderConfig) => Provi
       apiKey: process.env.OPENCODE_API_KEY,
       ...c,
     }),
+  anthropic: c => new AnthropicProvider({ baseUrl: 'https://api.anthropic.com/v1', ...c }),
+  ollama: c =>
+    new OpenAICompatibleProvider({
+      baseUrl: 'http://localhost:11434/v1',
+      apiKey: 'ollama',
+      ...c,
+    }),
   openrouter: c => new OpenAICompatibleProvider({ baseUrl: 'https://openrouter.ai/api/v1', ...c }),
   groq: c => new OpenAICompatibleProvider({ baseUrl: 'https://api.groq.com/openai/v1', ...c }),
   together: c => new OpenAICompatibleProvider({ baseUrl: 'https://api.together.xyz/v1', ...c }),
-  anthropic: c => new AnthropicProvider({ baseUrl: 'https://api.anthropic.com/v1', ...c }),
   google: c =>
     new GoogleProvider({ baseUrl: 'https://generativelanguage.googleapis.com/v1beta', ...c }),
 }

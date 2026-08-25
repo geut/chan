@@ -1,0 +1,21 @@
+services:
+  chan-ai:
+    build:
+      context: .
+      dockerfile: Dockerfile.cowork
+    container_name: chan-ai-cowork
+    volumes:
+      - .:/workspace
+      # Keep container-side node_modules isolated from the host so binaries
+      # and platform-specific packages work correctly inside Docker.
+      - node_modules:/workspace/node_modules
+      - chan-ai-dist:/workspace/packages/chan-ai/dist
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
+    # No exposed ports: this is a CLI/test package with no HTTP service.
+    # Humans interact with it via `docker compose exec chan-ai ...`.
+
+volumes:
+  node_modules:
+  chan-ai-dist:

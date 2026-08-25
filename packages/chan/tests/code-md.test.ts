@@ -8,9 +8,13 @@ import {
   CODE_MD_FILENAME,
   CODE_MD_HEADING,
   appendEntries,
+  appendActionEntry,
   codeMdPath,
+  commitsSinceLastAction,
+  formatActionEntry,
   formatEntry,
   initCodeMd,
+  scanBreakingChanges,
 } from '../src/code-md.js'
 import type { CommitMetadata } from '../src/git.js'
 
@@ -117,5 +121,183 @@ describe('initCodeMd', () => {
     const after = await readFile(codeMdPath(cwd), 'utf8')
 
     expect(after).toBe(before)
+  })
+})
+
+describe('formatActionEntry', () => {
+  it('formats an action entry with classification and linked commits', () => {
+    const entry = formatActionEntry({
+      action: 'added',
+      date: '2026-07-20T12:00:00+00:00',
+      message: 'Add multiply function',
+      classification: ['Feature'],
+      commits: ['0123456', 'fedcba0'],
+      group: 'math',
+    })
+    expect(entry).toContain('## Action added')
+    expect(entry).toContain('- **Date:** 2026-07-20T12:00:00+00:00')
+    expect(entry).toContain('- **Message:** Add multiply function')
+    expect(entry).toContain('- **Classification:** Feature')
+    expect(entry).toContain('- **Commits:** `0123456`, `fedcba0`')
+    expect(entry).toContain('- **Group:** math')
+  })
+
+  it('records breaking details when present', () => {
+    const entry = formatActionEntry({
+      action: 'changed',
+      date: '2026-07-20T12:00:00+00:00',
+      message: 'Rename export',
+      classification: ['Refactor', 'Feature'],
+      commits: ['0123456'],
+      breakingChange: true,
+      breakingDetails: 'Public export renamed.',
+    })
+    expect(entry).toContain('- **Breaking change:** yes')
+    expect(entry).toContain('- **Breaking details:** Public export renamed.')
+    expect(entry).toContain('- **Classification:** Refactor, Feature')
+  })
+})
+
+describe('appendActionEntry', () => {
+  it('appends an action entry after commit entries', async () => {
+    const cwd = tempDir()
+    await appendEntries({ cwd, entries: [formatEntry({ meta: rawMeta })] })
+    await appendActionEntry({
+      cwd,
+      entry: formatActionEntry({
+        action: 'added',
+        date: '2026-07-20T12:00:00+00:00',
+        message: 'Add thing',
+        classification: ['Feature'],
+        commits: ['0123456'],
+      }),
+    })
+    const content = await readFile(codeMdPath(cwd), 'utf8')
+    expect(content).toContain('## Commit 0123456')
+    expect(content).toContain('## Action added')
+  })
+})
+
+describe('commitsSinceLastAction', () => {
+  it('returns all commit SHAs when there is no action yet', async () => {
+    const cwd = tempDir()
+    await appendEntries({
+      cwd,
+      entries: [
+        formatEntry({ meta: { ...rawMeta, shortSha: 'aaaaaaa' } }),
+        formatEntry({ meta: { ...rawMeta, shortSha: 'bbbbbbb' } }),
+      ],
+    })
+    const shas = await commitsSinceLastAction(cwd)
+    expect(shas).toEqual(['aaaaaaa', 'bbbbbbb'])
+  })
+
+  it('returns only commits after the last action marker', async () => {
+    const cwd = tempDir()
+    await appendEntries({
+      cwd,
+      entries: [
+        formatEntry({ meta: { ...rawMeta, shortSha: 'aaaaaaa' } }),
+        formatActionEntry({
+          action: 'added',
+          date: '2026-07-20T12:00:00+00:00',
+          message: 'release 1',
+          classification: ['Feature'],
+          commits: ['aaaaaaa'],
+        }),
+        formatEntry({ meta: { ...rawMeta, shortSha: 'ccccccc' } }),
+      ],
+    })
+    const shas = await commitsSinceLastAction(cwd)
+    expect(shas).toEqual(['ccccccc'])
+  })
+})
+
+describe('scanBreakingChanges', () => {
+  it('returns breaking commit entries before the last action marker', async () => {
+    const cwd = tempDir()
+    await appendEntries({
+      cwd,
+      entries: [
+        formatEntry({
+          meta: { ...rawMeta, shortSha: 'aaaaaaa' },
+          analysis: {
+            sha: 'aaaaaaa',
+            analysis: 'breaking change',
+            author: 'A',
+            authorEmail: 'a@a.com',
+            coauthors: [],
+            date: '2026-07-20T12:00:00+00:00',
+            category: 'Feature',
+            breakingChange: true,
+            breakingDetails: 'Removed public export.',
+            breakingConfidence: 0.9,
+            packagesAffected: [],
+            relatedCode: [],
+            relatedIssues: [],
+          },
+        }),
+        formatActionEntry({
+          action: 'added',
+          date: '2026-07-20T12:00:00+00:00',
+          message: 'release 1',
+          classification: ['Feature'],
+          commits: ['aaaaaaa'],
+        }),
+        // This breaking commit is AFTER the action → unreleased, should be found.
+        formatEntry({
+          meta: { ...rawMeta, shortSha: 'ddddddd' },
+          analysis: {
+            sha: 'ddddddd',
+            analysis: 'another breaking',
+            author: 'A',
+            authorEmail: 'a@a.com',
+            coauthors: [],
+            date: '2026-07-20T12:00:00+00:00',
+            category: 'Refactor',
+            breakingChange: true,
+            breakingDetails: 'Renamed CLI flag.',
+            breakingConfidence: 0.85,
+            packagesAffected: [],
+            relatedCode: [],
+            relatedIssues: [],
+          },
+        }),
+      ],
+    })
+    const findings = await scanBreakingChanges(cwd)
+    expect(findings).toHaveLength(1)
+    expect(findings[0]?.sha).toBe('ddddddd')
+    expect(findings[0]?.breakingDetails).toBe('Renamed CLI flag.')
+    expect(findings[0]?.confidence).toBe(0.85)
+  })
+
+  it('returns all breaking commits when there is no action marker', async () => {
+    const cwd = tempDir()
+    await appendEntries({
+      cwd,
+      entries: [
+        formatEntry({
+          meta: { ...rawMeta, shortSha: 'aaaaaaa' },
+          analysis: {
+            sha: 'aaaaaaa',
+            analysis: 'breaking',
+            author: 'A',
+            authorEmail: 'a@a.com',
+            coauthors: [],
+            date: '2026-07-20T12:00:00+00:00',
+            category: 'Fix',
+            breakingChange: true,
+            breakingDetails: 'x',
+            breakingConfidence: 1,
+            packagesAffected: [],
+            relatedCode: [],
+            relatedIssues: [],
+          },
+        }),
+      ],
+    })
+    const findings = await scanBreakingChanges(cwd)
+    expect(findings).toHaveLength(1)
   })
 })

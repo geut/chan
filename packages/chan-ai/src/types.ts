@@ -54,16 +54,72 @@ const CommitAnalysisResponseSchema = z.object({
     ),
 })
 
+// chan action verbs (keepachangelog). The augmenter infers one of these as the
+// "action"; the precise AI category is preserved separately in `classification`.
+const CHAN_ACTIONS = [
+  'added',
+  'changed',
+  'deprecated',
+  'removed',
+  'fixed',
+  'security',
+] as const
+
+const ActionAugmentationResponseSchema = z.object({
+  action: z.enum(CHAN_ACTIONS).describe(
+    'The keepachangelog verb that best describes this change for the changelog.'
+  ),
+  message: z
+    .string()
+    .describe(
+      'A concise, user-facing changelog entry derived from the commits and (if provided) the user message.'
+    ),
+  classification: z
+    .array(z.enum(CATEGORIES))
+    .describe(
+      'Precise categories from the chan-ai taxonomy (Feature, Fix, Documentation, Refactor, Test, Chore, Style, Performance, Security). May include multiple.'
+    ),
+  linkedShas: z
+    .array(z.string())
+    .describe('Commit SHAs (short or full) that this changelog entry corresponds to.'),
+  breakingChange: z
+    .boolean()
+    .describe('Whether this change is a breaking change for downstream consumers.'),
+  breakingDetails: z.string().describe('Details about the breaking change (empty string if none).'),
+  confidence: z.number().describe('Confidence level (0 to 1) of the inferred action/message.')
+})
+
 const AnalyzeArgsSchema = z.object({
   commitShas: z.array(z.string()),
   cwd: z.string(),
 })
 
+const AugmentArgsSchema = z.object({
+  message: z.string().optional().describe('Optional user-provided change message. If absent, the AI infers it.'),
+  commitShas: z.array(z.string()).describe('Commit SHAs the changelog entry covers.'),
+  codeMdContext: z
+    .string()
+    .optional()
+    .describe('Relevant slice of .chan/code.md (commit analyses) to inform the augmentation.'),
+})
+
 type AnalyzeArgs = z.input<typeof AnalyzeArgsSchema>
+type AugmentArgs = z.input<typeof AugmentArgsSchema>
 type AnalyzeFn = (args: AnalyzeArgs) => Promise<CompletionResult<CommitAnalysisResponse>[]>
+type AugmentFn = (args: AugmentArgs) => Promise<CompletionResult<ActionAugmentationResponse>>
 type AIConfig = z.infer<typeof AIConfigSchema>
 type CommitAnalysisResponse = z.infer<typeof CommitAnalysisResponseSchema>
+type ActionAugmentationResponse = z.infer<typeof ActionAugmentationResponseSchema>
 type SHA = z.infer<typeof SHASchema>
 
-export { AIConfigSchema, CommitAnalysisResponseSchema, CATEGORIES }
-export type { AIConfig, CommitAnalysisResponse, AnalyzeFn, AnalyzeArgs, SHA }
+export { AIConfigSchema, CommitAnalysisResponseSchema, ActionAugmentationResponseSchema, CATEGORIES, CHAN_ACTIONS }
+export type {
+  AIConfig,
+  CommitAnalysisResponse,
+  ActionAugmentationResponse,
+  AnalyzeFn,
+  AugmentFn,
+  AnalyzeArgs,
+  AugmentArgs,
+  SHA,
+}

@@ -3,7 +3,7 @@ import { createTempGitRepo } from './e2e/fixtures.js'
 
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 import * as chanAI from '../src/index.js'
-import { CATEGORIES, CommitAnalysisResponseSchema } from '../src/types.js'
+import { CATEGORIES, CommitAnalysisResponseSchema, ActionAugmentationResponseSchema, CHAN_ACTIONS } from '../src/types.js'
 
 const mockResponse = {
   sha: 'abc123',
@@ -103,5 +103,72 @@ User (user@example.com)
     expect(result[0].parsed.date).toBe('2026-05-04')
     expect(CATEGORIES.includes(result[0].parsed.category)).toBe(true)
     expect(result[0].parsed.breakingChange).toBeTypeOf('boolean')
+  })
+})
+
+describe('augment unit test', () => {
+  const mockAugmentResponse = {
+    action: 'added',
+    message: 'Add multiply function to the math module',
+    classification: ['Feature'],
+    linkedShas: ['abc123', 'def456'],
+    breakingChange: false,
+    breakingDetails: '',
+    confidence: 0.9
+  }
+
+  it('createAugmenter throws for an unsupported provider', () => {
+    expect(() =>
+      chanAI.createAugmenter({
+        provider: 'invalidProvider',
+        model: 'mockModel'
+      })
+    ).toThrow('Provider invalidProvider is not supported')
+  })
+
+  it('augments commits into a keepachangelog entry, preserving the precise classification', async () => {
+    const mockProvider = new MockProvider(mockAugmentResponse)
+    const invokeSpy = vi.spyOn(mockProvider, 'invoke')
+
+    const augment = chanAI.createAugmenter({
+      provider: mockProvider,
+      model: 'mockModel'
+    })
+
+    const result = await augment({
+      commitShas: ['abc123', 'def456'],
+      codeMdContext: '## Commit abc123\n- **Analysis:** adds multiply'
+    })
+
+    expect(invokeSpy).toHaveBeenCalledTimes(1)
+    expect(ActionAugmentationResponseSchema.parse(result.parsed)).toBeTruthy()
+    expect(CHAN_ACTIONS.includes(result.parsed.action)).toBe(true)
+    expect(result.parsed.message).toBe('Add multiply function to the math module')
+    expect(result.parsed.classification).toEqual(['Feature'])
+    expect(result.parsed.linkedShas).toEqual(['abc123', 'def456'])
+    expect(result.parsed.breakingChange).toBe(false)
+  })
+
+  it('augments without a user message (infers it)', async () => {
+    const mockProvider = new MockProvider(mockAugmentResponse)
+    const augment = chanAI.createAugmenter({ provider: mockProvider, model: 'mockModel' })
+
+    const result = await augment({
+      commitShas: ['abc123']
+    })
+
+    expect(result.parsed.message).toBeDefined()
+    expect(result.parsed.action).toBe('added')
+  })
+})
+
+describe('ollama provider registration', () => {
+  it('is a known first-class provider', () => {
+    // createProvider would not throw for ollama because it is registered.
+    const augment = chanAI.createAugmenter({
+      provider: 'ollama',
+      model: 'llama3.1'
+    })
+    expect(typeof augment).toBe('function')
   })
 })

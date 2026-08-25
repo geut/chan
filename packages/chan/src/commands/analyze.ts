@@ -1,9 +1,13 @@
 import { createAnalyzer, type CommitAnalysisResponse, type Provider } from '@geut/chan-ai'
 
 import { createLogger } from '../logger.js'
-import { loadConfig } from '../config.js'
 import { getCommitLog, getCommitMetadata, getHeadSha } from '../git.js'
 import { appendEntries, formatEntry } from '../code-md.js'
+import {
+  resolveAiConfig,
+  createAnalyzerFromConfig,
+  type AiResolvedConfig,
+} from '../ai-config.js'
 
 export const command = 'analyze'
 export const description = 'Analyze commits and append structured entries to .chan/code.md.'
@@ -16,18 +20,17 @@ export const builder = {
     default: false,
   },
   gitSha: {
-    describe: 'Git SHA to analyze',
+    describe: 'Git SHA to analyze (defaults to HEAD)',
     type: 'string',
   },
-  auto: {
-    describe: 'Auto analyze HEAD only (fast path used by the post-commit hook)',
-    type: 'boolean',
-    default: false,
+  commits: {
+    describe: 'Comma-separated list of commit SHAs to analyze',
+    type: 'string',
   },
   limit: {
-    describe: 'Max number of commits to read from git log',
+    describe: 'Max number of commits to read from git log (used when no gitSha/commits given and you want a range). Set to 1 to analyze only HEAD.',
     type: 'number',
-    default: 50,
+    default: 1,
   },
   aiProvider: {
     describe: 'AI provider (overrides .chanrc ai.provider)',
@@ -50,19 +53,12 @@ export const builder = {
 interface AnalyzeArgs {
   verbose?: boolean
   gitSha?: string
-  auto?: boolean
+  commits?: string
   limit?: number
   aiProvider?: string
   aiModel?: string
   aiMaxTokens?: number
   aiEndpoint?: string
-}
-
-interface AiResolvedConfig {
-  provider: string | Provider
-  model: string
-  maxTokens?: number
-  baseUrl?: string
 }
 
 export interface RunAnalyzeOptions {
@@ -71,7 +67,11 @@ export interface RunAnalyzeOptions {
   ai?: AiResolvedConfig
 }
 
-export async function runAnalyze({ cwd, commitShas, ai }: RunAnalyzeOptions): Promise<number> {
+export async function runAnalyze({
+  cwd,
+  commitShas,
+  ai,
+}: RunAnalyzeOptions): Promise<number> {
   const metas = await Promise.all(commitShas.map(sha => getCommitMetadata(sha, cwd)))
 
   let analyses: (CommitAnalysisResponse | undefined)[] = metas.map(() => undefined)
@@ -87,7 +87,9 @@ export async function runAnalyze({ cwd, commitShas, ai }: RunAnalyzeOptions): Pr
     analyses = results.map(r => r.parsed)
   }
 
-  const entries = metas.map((meta, index) => formatEntry({ meta, analysis: analyses[index] }))
+  const entries = metas.map((meta, index) =>
+    formatEntry({ meta, analysis: analyses[index] })
+  )
 
   await appendEntries({ cwd, entries })
 
@@ -95,23 +97,50 @@ export async function runAnalyze({ cwd, commitShas, ai }: RunAnalyzeOptions): Pr
 }
 
 export async function handler(args: AnalyzeArgs) {
-  const { verbose, gitSha, auto, limit = 50, aiProvider, aiModel, aiMaxTokens, aiEndpoint } = args
+  const {
+    verbose,
+    gitSha,
+    commits,
+    limit = 1,
+    aiProvider,
+    aiModel,
+    aiMaxTokens,
+    aiEndpoint,
+  } = args
 
   const cwd = process.cwd()
   const { info, success } = createLogger({ scope: 'analyze', verbose })
 
-  const config = loadConfig()
-  const provider = aiProvider ?? config.ai?.provider
-  const model = aiModel ?? config.ai?.model
-  const hasAI = Boolean(provider && model)
+  const ai = resolveAiConfig({
+    aiProvider,
+    aiModel,
+    aiMaxTokens,
+    aiEndpoint,
+  })
+
+  if (!ai) {
+    // `chan analyze` requires AI to be useful; without it there is nothing to
+    // synthesize and we don't want to append raw noise to the knowledge base.
+    info(
+      'AI is not configured. Set ai.provider and ai.model in .chanrc (or pass --ai-provider/--ai-model) to analyze commits.'
+    )
+    return
+  }
 
   let commitShas: string[]
-  if (gitSha) {
+  if (commits) {
+    commitShas = commits
+      .split(',')
+      .map(s => s.trim())
+      .filter(s => s.length > 0)
+  } else if (gitSha) {
     commitShas = [gitSha]
-  } else if (auto) {
-    commitShas = [await getHeadSha(cwd)]
   } else {
+    // Default: analyze HEAD (post-commit hook path). Use --limit to analyze a range.
     commitShas = await getCommitLog(cwd, { limit })
+    if (commitShas.length === 0) {
+      commitShas = [await getHeadSha(cwd)]
+    }
   }
 
   if (commitShas.length === 0) {
@@ -119,22 +148,12 @@ export async function handler(args: AnalyzeArgs) {
     return
   }
 
-  const ai: AiResolvedConfig | undefined = hasAI
-    ? {
-        provider: provider as string | Provider,
-        model: model!,
-        maxTokens: aiMaxTokens ?? config.ai?.maxTokens,
-        baseUrl: aiEndpoint ?? config.ai?.endpoint,
-      }
-    : undefined
-
-  if (ai) {
-    info(`Analyzing ${commitShas.length} commit(s) with (${provider}/${model})...`)
-  } else {
-    info('AI not configured, storing raw commit metadata without synthesis.')
-  }
+  info(`Analyzing ${commitShas.length} commit(s) with AI (${ai.provider}/${ai.model})...`)
 
   const count = await runAnalyze({ cwd, commitShas, ai })
 
   success(`Appended ${count} entr${count === 1 ? 'y' : 'ies'} to .chan/code.md.`)
 }
+
+// Re-export for external callers (e.g. tests / future github action wrapper).
+export { createAnalyzerFromConfig, type AiResolvedConfig, type Provider }

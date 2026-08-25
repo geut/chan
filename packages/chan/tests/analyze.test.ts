@@ -13,7 +13,7 @@ describe('analyze', () => {
     expect(analyze.description).toBeDefined()
     expect(analyze.builder).toBeDefined()
     expect(analyze.builder).toHaveProperty('gitSha')
-    expect(analyze.builder).toHaveProperty('auto')
+    expect(analyze.builder).toHaveProperty('commits')
     expect(analyze.builder).toHaveProperty('aiProvider')
     expect(analyze.builder).toHaveProperty('aiModel')
     expect(analyze.builder).toHaveProperty('aiMaxTokens')

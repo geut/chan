@@ -7,22 +7,31 @@ import {
   type AIConfig,
   type AnalyzeArgs,
   type AnalyzeFn,
+  type AugmentArgs,
+  type AugmentFn,
   type CommitAnalysisResponse,
+  type ActionAugmentationResponse,
   AIConfigSchema,
   CommitAnalysisResponseSchema,
+  ActionAugmentationResponseSchema,
 } from './types.js'
 import type { CompletionResult } from './providers/types.js'
 
 export {
   AIConfigSchema,
   CommitAnalysisResponseSchema,
+  ActionAugmentationResponseSchema,
   CATEGORIES,
+  CHAN_ACTIONS,
 } from './types.js'
 export type {
   AIConfig,
   CommitAnalysisResponse,
+  ActionAugmentationResponse,
   AnalyzeFn,
+  AugmentFn,
   AnalyzeArgs,
+  AugmentArgs,
   SHA,
 } from './types.js'
 export type { Provider, ProviderConfig, ChatMessage, CompletionResult, TokenUsage } from './providers/types.js'
@@ -184,5 +193,89 @@ export function createAnalyzer(config: AIConfig): AnalyzeFn {
     )
 
     return responses
+  }
+}
+
+const AUGMENT_SYSTEM_PROMPT = `
+  You are a helpful assistant that turns one or more git commits into a single keepachangelog-style changelog entry.
+  You will receive: (a) optionally a user-provided message, (b) the commit SHAs covered, and (c) relevant context from the project's .chan/code.md knowledge base (per-commit analyses).
+
+  ## Goal
+  Produce ONE concise, user-facing changelog entry that summarizes the work across the given commits.
+  - If the user provided a message, treat it as the intended changelog line and refine it for clarity; do not invent unrelated changes.
+  - If no user message was provided, infer the changelog line from the commits and code.md context.
+
+  ## action
+  Choose exactly one keepachangelog verb: "added", "changed", "deprecated", "removed", "fixed", or "security".
+  - added: new features / new capabilities.
+  - changed: changes in existing functionality (includes refactors and performance changes that affect behavior).
+  - deprecated: soon-to-be removed features.
+  - removed: now-removed features.
+  - fixed: bug fixes.
+  - security: vulnerability fixes / security-relevant changes.
+
+  ## classification
+  Preserve the PRECISE chan-ai taxonomy in "classification" (one or more of): Feature, Fix, Documentation, Refactor, Test, Chore, Style, Performance, Security. This is more granular than "action" and may include multiple values. Keep it even when it overlaps with the chosen action.
+
+  ## message
+  A single concise sentence as it should appear in CHANGELOG.md. Imperative or past tense, no leading verb-prefix, no trailing period. Do not include the SHA.
+
+  ## linkedShas
+  The commit SHAs this entry corresponds to. Use the SHAs you were given. Short or full forms are both acceptable; prefer the form you were given.
+
+  ## breakingChange
+  true only if a public/documented consumer could break without changing their code (removed/renamed exports, signature/return-shape changes, output-format changes, entrypoint/export changes, engine/runtime bumps). Otherwise false. Provide breakingDetails when true, "" when false.
+
+  ## confidence
+  Confidence (0 to 1) that the chosen action and message correctly represent the commits.
+
+  Respond with a single valid JSON object matching the given schema. No markdown, no prose outside the JSON.
+`
+
+export function createAugmenter(config: AIConfig): AugmentFn {
+  const parsedConfig = AIConfigSchema.parse(config)
+  const {
+    provider,
+    model,
+    context,
+    baseUrl,
+    maxTokens = DEFAULT_MAX_TOKENS,
+  } = parsedConfig
+
+  if (typeof provider === 'string' && !isKnownProvider(provider)) {
+    throw new Error(`Provider ${provider} is not supported`)
+  }
+
+  const modelProvider =
+    typeof provider === 'string'
+      ? createProvider(provider, { model, baseUrl, maxTokens })
+      : provider
+
+  return async ({
+    message,
+    commitShas,
+    codeMdContext,
+  }: AugmentArgs): Promise<CompletionResult<ActionAugmentationResponse>> => {
+    const userParts = [
+      message ? `User-provided message: ${message}` : 'No user-provided message; infer it from the commits.',
+      `Commit SHAs covered: ${commitShas.join(', ')}`,
+      codeMdContext
+        ? `.chan/code.md context (per-commit analyses for these commits and recent neighbors):\n${codeMdContext}`
+        : '.chan/code.md context: (not available)',
+    ]
+
+    const messages = [
+      { role: 'system' as const, content: AUGMENT_SYSTEM_PROMPT },
+      ...(context
+        ? [{ role: 'system' as const, content: `Codebase context: ${context}` }]
+        : []),
+      { role: 'user' as const, content: userParts.join('\n\n') },
+    ]
+
+    const result = await modelProvider.invoke(messages, ActionAugmentationResponseSchema)
+    console.log(
+      `Augment token usage: ${result.usage.total} (input: ${result.usage.input}, output: ${result.usage.output})`
+    )
+    return result
   }
 }
