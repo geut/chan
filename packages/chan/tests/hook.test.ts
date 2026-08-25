@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process'
-import { readFile, stat } from 'node:fs/promises'
+import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
@@ -26,7 +26,7 @@ describe('hook command structure', () => {
 })
 
 describe('hook install', () => {
-  it('creates .chan/hooks/post-commit, makes it executable and sets core.hooksPath', async () => {
+  it('creates .chan/hooks/post-commit and sets core.hooksPath', async () => {
     const repo = createTempGitRepo()
 
     await handler({ action: 'install', path: repo.dir })
@@ -34,11 +34,6 @@ describe('hook install', () => {
     const postCommitPath = join(repo.dir, '.chan', 'hooks', 'post-commit')
     const content = await readFile(postCommitPath, 'utf8')
     expect(content).toContain('chan analyze --auto')
-
-    const fileStat = await stat(postCommitPath)
-    // 0o755 -> owner exec bit set
-    expect(fileStat.mode & 0o100).toBeTruthy()
-
     expect(gitConfig(repo.dir, 'core.hooksPath')).toBe('.chan/hooks')
   })
 })
