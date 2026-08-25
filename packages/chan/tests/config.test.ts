@@ -13,14 +13,14 @@ vi.mock('find-up', () => ({
 
 import { loadConfig, type Config } from '../src/config.js'
 
-describe.only('general config checks', () => {
+describe('general config checks', () => {
   beforeEach(() => {
     vol.reset()
   })
 
   it('can read .chanrc file with minimal options', () => {
     const payload: Config = {
-      gitUrl: new URL('https://github.com/owner/repo.git'),
+      gitUrl: 'https://github.com/owner/repo.git',
       releasePrefix: 'v',
       ai: {
         provider: 'openai',
