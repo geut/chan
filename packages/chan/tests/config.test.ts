@@ -51,7 +51,7 @@ describe('general config checks', () => {
 
   it('can read .chanrc file with all options', () => {
     const payload: Config = {
-      gitUrl: new URL('https://github.com/owner/repo.git'),
+      gitUrl: 'https://github.com/owner/repo.git',
       gitCompareTemplate: 'https://github.com/owner/repo/compare/[prev]...[next]',
       gitReleaseTemplate: 'https://github.com/owner/repo/releases/tag/[next]',
       gitBranch: 'main',
@@ -91,7 +91,8 @@ describe('general config checks', () => {
 
   it('should throw with an invalid config option', () => {
     const payload: Config = {
-      gitUrl: new URL('https://github.com/owner/repo.git'),
+      gitUrl: 'https://github.com/owner/repo.git',
+      // @ts-expect-error - we want to test the error case
       releasePrefix: 1,
     }
     vol.fromJSON({ [chanrcPath]: JSON.stringify(payload) })
