@@ -1,0 +1,116 @@
+{
+  "plugins": ["unicorn", "typescript", "oxc"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "style": "off"
+  },
+  "rules": {
+    "eqeqeq": "error",
+    "curly": "allow",
+    "yoda": "error",
+    "prefer-object-spread": "error",
+    "prefer-template": "warn",
+    "prefer-rest-params": "error",
+    "prefer-destructuring": "warn",
+    "prefer-exponentiation-operator": "error",
+    "operator-assignment": "warn",
+    "new-cap": "error",
+    "no-multi-assign": "error",
+    "no-nested-ternary": "warn",
+    "no-duplicate-imports": "error",
+    "no-template-curly-in-string": "error",
+    "no-lone-blocks": "error",
+    "no-labels": "error",
+    "no-extra-label": "error",
+    "sort-imports": "off",
+
+    "unicorn/prefer-string-starts-ends-with": "error",
+    "unicorn/prefer-string-trim-start-end": "error",
+    "unicorn/prefer-spread": "error",
+    "unicorn/prefer-logical-operator-over-ternary": "warn",
+    "unicorn/prefer-includes": "error",
+    "unicorn/prefer-array-index-of": "warn",
+    "unicorn/prefer-object-from-entries": "warn",
+    "unicorn/prefer-optional-catch-binding": "error",
+    "unicorn/prefer-global-this": "warn",
+    "unicorn/no-nested-ternary": "warn",
+    "unicorn/no-console-spaces": "error",
+    "unicorn/empty-brace-spaces": "error",
+    "unicorn/throw-new-error": "error",
+    "unicorn/number-literal-case": "error",
+    "unicorn/no-zero-fractions": "error",
+    "unicorn/consistent-existence-index-check": "warn",
+
+    "no-var": "error",
+    "no-debugger": "error",
+
+    "typescript/consistent-type-definitions": "error",
+    "typescript/consistent-type-imports": "error",
+    "typescript/no-inferrable-types": "error",
+    "typescript/no-empty-interface": "warn",
+    "typescript/no-explicit-any": "warn",
+    "typescript/no-unnecessary-boolean-literal-compare": "error",
+    "typescript/no-unnecessary-type-arguments": "error",
+    "typescript/no-unnecessary-type-assertion": "error",
+    "typescript/no-unnecessary-type-constraint": "error",
+    "typescript/non-nullable-type-assertion-style": "error",
+    "typescript/prefer-as-const": "error",
+    "typescript/array-type": "error",
+    "typescript/ban-ts-comment": "error",
+    "typescript/consistent-indexed-object-style": "error",
+    "typescript/no-namespace": "error",
+    "typescript/prefer-function-type": "error",
+    "typescript/prefer-namespace-keyword": "error",
+    "typescript/prefer-for-of": "warn",
+    "typescript/no-confusing-void-expression": "off",
+    "typescript/no-floating-promises": "off",
+    "typescript/no-var-requires": "off",
+    "typescript/no-misused-promises": "off",
+    "typescript/explicit-function-return-type": "off",
+    "typescript/promise-function-async": "off",
+    "typescript/no-for-in-array": "off",
+    "typescript/return-await": "off",
+    "typescript/no-non-null-assertion": "off",
+
+    "import/no-duplicates": "error",
+    "import/first": "error",
+    "import/exports-last": "off",
+    "import/no-anonymous-default-export": "warn"
+  },
+  "settings": {
+    "jsx-a11y": {
+      "polymorphicPropName": null,
+      "components": {},
+      "attributes": {}
+    },
+    "next": {
+      "rootDir": []
+    },
+
+    "jsdoc": {
+      "ignorePrivate": false,
+      "ignoreInternal": false,
+      "ignoreReplacesDocs": true,
+      "overrideReplacesDocs": true,
+      "augmentsExtendsReplacesDocs": false,
+      "implementsReplacesDocs": false,
+      "exemptDestructuredRootsFromChecks": false,
+      "tagNamePreference": {}
+    }
+  },
+  "env": {
+    "builtin": true,
+    "browser": true,
+    "es2021": true,
+    "node": true,
+    "worker": true,
+    "mocha": true,
+    "jest": true
+  },
+  "globals": {
+    "Atomics": "readonly",
+    "SharedArrayBuffer": "readonly"
+  },
+  "ignorePatterns": ["node_modules/**", "dist/**", "build/**", "coverage/**", ".next/**", "out/**"]
+}

@@ -4,48 +4,43 @@
   "description": "Stringify chast to keepachangelog markdown",
   "homepage": "http://geutstudio.com",
   "type": "module",
-  "module": "./src/index.js",
+  "module": "./src/index.ts",
   "exports": {
-    ".": "./src/index.js"
+    ".": "./src/index.ts"
+  },
+  "files": [
+    "dist/src/",
+    "src/"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "module": "./dist/src/index.js",
+    "exports": {
+      ".": {
+        "import": "./dist/src/index.js",
+        "types": "./dist/src/index.d.ts"
+      }
+    }
   },
   "scripts": {
-    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
-    "lint": "standard \"**/*.js\""
+    "test": "vitest run",
+    "lint": "oxlint",
+    "check-types": "tsgo --noEmit",
+    "build": "tsgo --build"
   },
   "dependencies": {
-    "mdast-util-to-markdown": "^0.6.5",
-    "remark-parse": "^9.0.0",
-    "remark-stringify": "^9.0.0",
-    "unified": "^9.2.0",
-    "unist-builder": "^1.0.3",
-    "unist-util-remove-position": "^1.1.2"
+    "mdast-util-to-markdown": "^2.1.2",
+    "unified": "^11.0.5",
+    "unist-builder": "^4.0.0",
+    "unist-util-select": "^5.0.0"
   },
   "devDependencies": {
-    "@geut/remark-chan": "^3.2.6",
-    "cross-env": "^7.0.3",
-    "dirname-filename-esm": "1.1.1",
-    "jest": "^27.0.0",
-    "standard": "^16.0.3",
-    "to-vfile": "^6.1.0",
-    "vfile-reporter": "^7.0.0"
-  },
-  "jest": {
-    "resolver": "<rootDir>/../../jest-module-resolver.js",
-    "transform": {}
-  },
-  "standard": {
-    "env": [
-      "node",
-      "jest"
-    ]
+    "vitest": "^4.1.5"
   },
   "author": {
     "name": "GEUT",
     "email": "contact@geutstudio.com"
   },
   "license": "ISC",
-  "repository": "https://github.com/geut/chan/tree/master/packages/chan-stringify",
-  "publishConfig": {
-    "access": "public"
-  }
+  "repository": "https://github.com/geut/chan/tree/master/packages/chan-stringify"
 }

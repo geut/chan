@@ -3,21 +3,19 @@
   "version": "3.2.8",
   "description": "Chan monorepo",
   "private": true,
+  "type": "module",
   "workspaces": {
     "packages": [
       "packages/*"
     ]
   },
   "scripts": {
-    "bootstrap": "lerna clean && lerna bootstrap",
-    "test": "lerna run test",
+    "test": "vitest",
     "posttest": "npm run lint",
-    "lint": "lerna run lint",
-    "lint:fix": "lerna run lint -- -- --fix"
-  },
-  "devDependencies": {
-    "enhanced-resolve": "^5.8.2",
-    "lerna": "^4.0.0"
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "tsgo": "tsgo",
+    "check-types": "tsgo --noEmit"
   },
   "keywords": [
     "cli",
@@ -38,5 +36,15 @@
   },
   "bugs": {
     "url": "https://github.com/geut/chan/issues"
+  },
+  "devDependencies": {
+    "@types/signale": "^1.4.7",
+    "@types/unist": "^3.0.3",
+    "@types/yargs": "^17.0.35",
+    "@typescript/native-preview": "^7.0.0-dev.20260421.1",
+    "oxfmt": "^0.46.0",
+    "oxlint": "^1.61.0",
+    "tsx": "^4.21.0",
+    "vitest": "^4.1.4"
   }
 }

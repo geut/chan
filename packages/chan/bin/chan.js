@@ -1,27 +1,18 @@
 #!/usr/bin/env node
 
-import yargs from 'yargs'
-import { hideBin } from 'yargs/helpers'
+import { spawnSync } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
+import { dirname, join } from 'node:path'
 
-import { config } from '../src/config.js'
-import { commands } from '../src/commands/index.js'
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
-yargs(hideBin(process.argv))
-  .config(config)
-  .pkgConf('chan')
-  .command(commands)
-  .options({
-    verbose: {
-      describe: 'Show more info on error',
-      type: 'boolean',
-      global: true
-    },
-    stdout: {
-      describe: 'Show the output to the stdout',
-      type: 'boolean'
-    }
-  })
-  .demandCommand()
-  .help()
-  .version()
-  .argv
+// Dev mode: sibling packages resolve to .ts source, use tsx to handle ESM TypeScript
+const tsxPath = join(__dirname, '../../../node_modules/.bin/tsx')
+const tsx = spawnSync(tsxPath, [join(__dirname, '../src/bin.ts'), ...process.argv.slice(2)], {
+  stdio: 'inherit'
+})
+
+if (tsx.error) {
+  // Production: tsx not available, use built dist
+  import('../dist/src/bin.js')
+}

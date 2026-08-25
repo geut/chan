@@ -3,25 +3,20 @@
   "version": "3.2.6",
   "description": "Function to parse a git url and generates template url for the git compare preview.",
   "type": "module",
-  "module": "./src/index.js",
+  "module": "./src/index.ts",
   "exports": {
-    ".": "./src/index.js"
+    ".": "./src/index.ts"
   },
   "scripts": {
-    "lint": "standard \"**/*.js\""
+    "test": "vitest run",
+    "lint": "oxlint",
+    "check-types": "tsgo --noEmit",
+    "build": "tsgo --build"
   },
   "dependencies": {
-    "find-up": "^5.0.0",
-    "git-url-parse": "^11.1.2",
-    "gitconfiglocal": "^2.0.2"
-  },
-  "devDependencies": {
-    "standard": "^16.0.3"
-  },
-  "standard": {
-    "env": [
-      "node"
-    ]
+    "find-up": "^8.0.0",
+    "ini": "^1.3.8",
+    "parse-github-url": "^1.0.4"
   },
   "homepage": "http://geutstudio.com",
   "author": {
@@ -30,7 +25,21 @@
   },
   "license": "ISC",
   "repository": "https://github.com/geut/chan/tree/master/packages/git-url-parse",
+  "files": [
+    "dist/src/",
+    "src/"
+  ],
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "module": "./dist/src/index.js",
+    "exports": {
+      ".": {
+        "import": "./dist/src/index.js",
+        "types": "./dist/src/index.d.ts"
+      }
+    }
+  },
+  "devDependencies": {
+    "@types/ini": "^4.1.1"
   }
 }

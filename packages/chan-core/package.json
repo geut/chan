@@ -3,45 +3,34 @@
   "version": "3.2.7",
   "description": "API and transformers to work with chast",
   "type": "module",
-  "module": "./src/index.js",
+  "module": "./src/index.ts",
   "exports": {
-    ".": "./src/index.js"
+    ".": "./src/index.ts"
   },
+  "files": [
+    "dist/src/",
+    "src/"
+  ],
   "scripts": {
-    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
-    "lint": "standard \"**/*.js\""
+    "test": "vitest run",
+    "lint": "oxlint",
+    "check-types": "tsgo --noEmit",
+    "build": "tsgo --build"
   },
   "dependencies": {
     "@geut/chan-stringify": "^3.2.7",
     "@geut/chast": "^3.2.6",
     "@geut/remark-chan": "^3.2.6",
-    "remark-parse": "^9.0.0",
-    "semver": "^7.3.5",
-    "unified": "^9.2.1",
-    "unist-util-remove-position": "^4.0.0",
-    "unist-util-select": "^4.0.0"
+    "remark-parse": "^11.0.0",
+    "semver": "^7.7.4",
+    "unified": "^11.0.5",
+    "unist-util-remove-position": "^5.0.0",
+    "unist-util-select": "^5.0.0"
   },
   "devDependencies": {
-    "cross-env": "^7.0.3",
-    "dirname-filename-esm": "^1.1.1",
-    "jest": "^27.0.0",
-    "jest-date-mock": "^1.0.7",
-    "standard": "^16.0.3",
-    "to-vfile": "^6.1.0",
-    "vfile-reporter": "^7.0.0"
-  },
-  "jest": {
-    "resolver": "<rootDir>/../../jest-module-resolver.js",
-    "transform": {},
-    "setupFiles": [
-      "jest-date-mock"
-    ]
-  },
-  "standard": {
-    "env": [
-      "node",
-      "jest"
-    ]
+    "to-vfile": "^8.0.0",
+    "vfile": "^6.0.0",
+    "vitest": "^4.1.5"
   },
   "homepage": "http://geutstudio.com",
   "author": {
@@ -51,6 +40,13 @@
   "license": "ISC",
   "repository": "https://github.com/geut/chan/tree/master/packages/chan-core",
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "module": "./dist/src/index.js",
+    "exports": {
+      ".": {
+        "import": "./dist/src/index.js",
+        "types": "./dist/src/index.d.ts"
+      }
+    }
   }
 }

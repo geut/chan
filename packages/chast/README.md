@@ -1,4 +1,5 @@
 # chast
+
 > Unist compatible spec for changelogs and helpers to nodes creation
 
 ## Structure
@@ -45,4 +46,3 @@ interface Change <: Node {
   children: [Node]
 }
 ```
-
