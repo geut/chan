@@ -48,3 +48,4 @@ lerna-debug.log
 .DS_Store
 
 .agents/
+.pi/
