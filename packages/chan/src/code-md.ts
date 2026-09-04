@@ -19,6 +19,21 @@ export const CODE_MD_HEADING = `# Code Knowledge Base
 
 `
 
+export const CONTEXT_START_MARKER = '<!-- chan:context:start -->'
+export const CONTEXT_END_MARKER = '<!-- chan:context:end -->'
+
+// Structural shape of the AI Inspection response (chan-ai's
+// ProjectInspectionResponse, slice 12). Defined locally so this module does
+// not depend on the chan-ai schema landing first.
+export interface CodeBaseContext {
+  description: string
+  usage: string
+  runtimes: string[]
+  projectTypes: string[]
+  requirements: string[]
+  notes: string[]
+}
+
 export function chanDir(cwd: string): string {
   return join(cwd, CHAN_DIR)
 }
@@ -142,6 +157,108 @@ export async function initCodeMd(cwd: string): Promise<void> {
     }
   }
   await writeAtomic.promise(path, CODE_MD_HEADING)
+}
+
+export function formatContextSection(context: CodeBaseContext): string {
+  const lines: string[] = [CONTEXT_START_MARKER, '', '## Context', '']
+
+  lines.push(`- **Description:** ${singleLine(context.description)}`)
+  lines.push(`- **Usage:** ${singleLine(context.usage)}`)
+  lines.push(`- **Runtimes:** ${context.runtimes.join(', ')}`)
+  lines.push(`- **Project types:** ${context.projectTypes.join(', ')}`)
+  lines.push(`- **Requirements:** ${context.requirements.join(', ')}`)
+  lines.push(`- **Notes:** ${context.notes.map(singleLine).join(', ')}`)
+
+  lines.push('', CONTEXT_END_MARKER, '')
+  return lines.join('\n')
+}
+
+export function hasContextSection(content: string): boolean {
+  return content.includes(CONTEXT_START_MARKER) && content.includes(CONTEXT_END_MARKER)
+}
+
+// A Context section is "empty" when none of its fields carry content
+// (e.g. an all-empty Inspection response was stored so a re-run can refill
+// it). Markers with no body, or body with only blank field values, count
+// as empty.
+export function isContextEmpty(content: string): boolean {
+  const start = content.indexOf(CONTEXT_START_MARKER)
+  const end = content.indexOf(CONTEXT_END_MARKER)
+  if (start === -1 || end === -1 || end < start) return true
+  const body = content.slice(start + CONTEXT_START_MARKER.length, end)
+  return !/- \*\*[^*]+\*\* \S/.test(body)
+}
+
+export async function readContextSection(cwd: string): Promise<string> {
+  const content = await readCodeMd(cwd)
+  const start = content.indexOf(CONTEXT_START_MARKER)
+  const end = content.indexOf(CONTEXT_END_MARKER)
+  if (start === -1 || end === -1 || end < start) return ''
+  return content.slice(start + CONTEXT_START_MARKER.length, end).trim()
+}
+
+export interface WriteContextSectionOptions {
+  cwd: string
+  context: CodeBaseContext
+}
+
+// ADR-0001: the Context section is the machine-owned, append-only-exempt part
+// of the Knowledge Base. Insert after the heading when markers are absent or
+// the section is empty; no-op when a populated Context already exists; never
+// touch existing entries.
+export async function writeContextSection({
+  cwd,
+  context,
+}: WriteContextSectionOptions): Promise<void> {
+  await ensureChanDir(cwd)
+  const path = codeMdPath(cwd)
+
+  let existing = ''
+  try {
+    existing = await readFile(path, 'utf8')
+  } catch (err) {
+    if (err && typeof err === 'object' && 'code' in err && (err as { code?: string }).code !== 'ENOENT') {
+      throw err
+    }
+    existing = ''
+  }
+
+  if (!existing.startsWith('# Code Knowledge Base')) {
+    existing = CODE_MD_HEADING + existing
+  }
+
+  if (hasContextSection(existing) && !isContextEmpty(existing)) {
+    // populated Context — never rewrite (append-only exemption only covers
+    // missing/empty sections).
+    return
+  }
+
+  const section = formatContextSection(context)
+
+  let next: string
+  if (hasContextSection(existing)) {
+    // empty section present — replace the marker block with the fresh one.
+    const start = existing.indexOf(CONTEXT_START_MARKER)
+    const end = existing.indexOf(CONTEXT_END_MARKER)
+    const before = existing.slice(0, start)
+    const afterContent = existing.slice(end + CONTEXT_END_MARKER.length).replace(/^\n+/, '')
+    // section already ends with a single newline; keep exactly one blank
+    // line before the following content (or a clean EOF).
+    next = afterContent ? `${before}${section}\n${afterContent}` : `${before}${section}`
+  } else {
+    // no markers — insert right after the heading, before the first
+    // `## ` entry (Commit / Action). Falls back to appending at the end.
+    const firstEntry = existing.search(/^## /m)
+    if (firstEntry === -1) {
+      const prefix = existing.endsWith('\n') || existing === '' ? existing : `${existing}\n`
+      next = `${prefix}${section}`
+    } else {
+      const before = existing.slice(0, firstEntry)
+      next = `${before}${section}\n${existing.slice(firstEntry)}`
+    }
+  }
+
+  await writeAtomic.promise(path, next.endsWith('\n') ? next : `${next}\n`)
 }
 
 export interface FormatActionEntryOptions {

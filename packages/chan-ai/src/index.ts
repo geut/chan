@@ -34,7 +34,13 @@ export type {
   AugmentArgs,
   SHA,
 } from './types.js'
-export type { Provider, ProviderConfig, ChatMessage, CompletionResult, TokenUsage } from './providers/types.js'
+export type {
+  Provider,
+  ProviderConfig,
+  ChatMessage,
+  CompletionResult,
+  TokenUsage,
+} from './providers/types.js'
 export { MockProvider } from './providers/index.js'
 
 const exec = promisify(execRaw)
@@ -131,7 +137,7 @@ const SYSTEM_PROMPT = `
   You don't need to update the code.md file, only generate the content.
   Response must be a valid JSON object. 
 `
-// TODO: provide codebase context -- this should be generated once and stored perhaps at the beggining of the code.md file
+// TODO: provide codebase context -- this should be generated once and stored perhaps at the beginning of the code.md file
 // const contextSchema = z.object({
 //   codebase: z.string(),
 // })
@@ -234,13 +240,7 @@ const AUGMENT_SYSTEM_PROMPT = `
 
 export function createAugmenter(config: AIConfig): AugmentFn {
   const parsedConfig = AIConfigSchema.parse(config)
-  const {
-    provider,
-    model,
-    context,
-    baseUrl,
-    maxTokens = DEFAULT_MAX_TOKENS,
-  } = parsedConfig
+  const { provider, model, context, baseUrl, maxTokens = DEFAULT_MAX_TOKENS } = parsedConfig
 
   if (typeof provider === 'string' && !isKnownProvider(provider)) {
     throw new Error(`Provider ${provider} is not supported`)
@@ -257,7 +257,9 @@ export function createAugmenter(config: AIConfig): AugmentFn {
     codeMdContext,
   }: AugmentArgs): Promise<CompletionResult<ActionAugmentationResponse>> => {
     const userParts = [
-      message ? `User-provided message: ${message}` : 'No user-provided message; infer it from the commits.',
+      message
+        ? `User-provided message: ${message}`
+        : 'No user-provided message; infer it from the commits.',
       `Commit SHAs covered: ${commitShas.join(', ')}`,
       codeMdContext
         ? `.chan/code.md context (per-commit analyses for these commits and recent neighbors):\n${codeMdContext}`
@@ -266,9 +268,7 @@ export function createAugmenter(config: AIConfig): AugmentFn {
 
     const messages = [
       { role: 'system' as const, content: AUGMENT_SYSTEM_PROMPT },
-      ...(context
-        ? [{ role: 'system' as const, content: `Codebase context: ${context}` }]
-        : []),
+      ...(context ? [{ role: 'system' as const, content: `Codebase context: ${context}` }] : []),
       { role: 'user' as const, content: userParts.join('\n\n') },
     ]
 

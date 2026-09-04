@@ -1,5 +1,5 @@
 services:
-  chan-ai:
+  cowork:
     build:
       context: .
       dockerfile: Dockerfile.cowork
@@ -14,7 +14,7 @@ services:
     stdin_open: true
     tty: true
     # No exposed ports: this is a CLI/test package with no HTTP service.
-    # Humans interact with it via `docker compose exec chan-ai ...`.
+    # Humans interact with it via `docker compose exec cowork ...`.
 
 volumes:
   node_modules:

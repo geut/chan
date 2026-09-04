@@ -7,14 +7,21 @@ import { describe, expect, it } from 'vitest'
 import {
   CODE_MD_FILENAME,
   CODE_MD_HEADING,
+  CONTEXT_END_MARKER,
+  CONTEXT_START_MARKER,
   appendEntries,
   appendActionEntry,
   codeMdPath,
   commitsSinceLastAction,
   formatActionEntry,
+  formatContextSection,
   formatEntry,
+  hasContextSection,
   initCodeMd,
+  isContextEmpty,
+  readContextSection,
   scanBreakingChanges,
+  writeContextSection,
 } from '../src/code-md.js'
 import type { CommitMetadata } from '../src/git.js'
 
@@ -299,5 +306,208 @@ describe('scanBreakingChanges', () => {
     })
     const findings = await scanBreakingChanges(cwd)
     expect(findings).toHaveLength(1)
+  })
+})
+
+const sampleContext = {
+  description: 'A changelog management tool with an AI layer.',
+  usage: 'CLI: chan <command>; post-commit hook appends entries.',
+  runtimes: ['node', 'cli'],
+  projectTypes: ['module', 'cli tool'],
+  requirements: ['Node >= 20', 'git'],
+  notes: ['monorepo (packages/chan, chan-ai)', 'vitest for tests'],
+}
+
+const emptyContext = {
+  description: '',
+  usage: '',
+  runtimes: [],
+  projectTypes: [],
+  requirements: [],
+  notes: [],
+}
+
+describe('formatContextSection', () => {
+  it('renders all six fields between the chan:context markers', () => {
+    const section = formatContextSection(sampleContext)
+
+    expect(section.startsWith(CONTEXT_START_MARKER)).toBe(true)
+    expect(section.endsWith(`${CONTEXT_END_MARKER}\n`)).toBe(true)
+    expect(section).toContain('## Context')
+    expect(section).toContain('- **Description:** A changelog management tool with an AI layer.')
+    expect(section).toContain('- **Usage:** CLI: chan <command>; post-commit hook appends entries.')
+    expect(section).toContain('- **Runtimes:** node, cli')
+    expect(section).toContain('- **Project types:** module, cli tool')
+    expect(section).toContain('- **Requirements:** Node >= 20, git')
+    expect(section).toContain('- **Notes:** monorepo (packages/chan, chan-ai), vitest for tests')
+  })
+})
+
+describe('hasContextSection / isContextEmpty', () => {
+  it('detects absence of markers', () => {
+    expect(hasContextSection(CODE_MD_HEADING)).toBe(false)
+    expect(isContextEmpty(CODE_MD_HEADING)).toBe(true)
+  })
+
+  it('detects a populated section as present and non-empty', () => {
+    const content = CODE_MD_HEADING + formatContextSection(sampleContext)
+    expect(hasContextSection(content)).toBe(true)
+    expect(isContextEmpty(content)).toBe(false)
+  })
+
+  it('detects an all-empty inspection response as empty', () => {
+    const content = CODE_MD_HEADING + formatContextSection(emptyContext)
+    expect(hasContextSection(content)).toBe(true)
+    expect(isContextEmpty(content)).toBe(true)
+  })
+
+  it('treats markers with no body as empty', () => {
+    const content = `${CODE_MD_HEADING}${CONTEXT_START_MARKER}\n${CONTEXT_END_MARKER}\n`
+    expect(hasContextSection(content)).toBe(true)
+    expect(isContextEmpty(content)).toBe(true)
+  })
+})
+
+describe('writeContextSection', () => {
+  it('creates the file with heading + context section on a fresh repo', async () => {
+    const cwd = tempDir()
+    await writeContextSection({ cwd, context: sampleContext })
+
+    const content = await readFile(codeMdPath(cwd), 'utf8')
+    expect(content.startsWith('# Code Knowledge Base')).toBe(true)
+    expect(content.indexOf(CONTEXT_START_MARKER)).toBeGreaterThan(0)
+    expect(content).toContain('- **Description:** A changelog management tool with an AI layer.')
+  })
+
+  it('creates the directory and file when .chan/ does not exist', async () => {
+    const cwd = tempDir()
+    await writeContextSection({ cwd, context: sampleContext })
+
+    const content = await readFile(codeMdPath(cwd), 'utf8')
+    expect(content).toContain(CONTEXT_START_MARKER)
+  })
+
+  it('inserts the section after the heading on an existing knowledge base without markers', async () => {
+    const cwd = tempDir()
+    await appendEntries({ cwd, entries: [formatEntry({ meta: rawMeta })] })
+    const before = await readFile(codeMdPath(cwd), 'utf8')
+
+    await writeContextSection({ cwd, context: sampleContext })
+
+    const after = await readFile(codeMdPath(cwd), 'utf8')
+    // the section sits between heading and the first commit entry
+    const headingEnd = after.indexOf('## Commit 0123456')
+    const sectionStart = after.indexOf(CONTEXT_START_MARKER)
+    const sectionEnd = after.indexOf(CONTEXT_END_MARKER)
+    expect(sectionStart).toBeGreaterThan(after.indexOf('# Code Knowledge Base'))
+    expect(sectionEnd).toBeLessThan(headingEnd)
+    // existing entries are untouched
+    expect(after.slice(headingEnd)).toBe(before.slice(before.indexOf('## Commit 0123456')))
+  })
+
+  it('is a no-op when a populated context already exists', async () => {
+    const cwd = tempDir()
+    await writeContextSection({ cwd, context: sampleContext })
+    const before = await readFile(codeMdPath(cwd), 'utf8')
+
+    const other = { ...sampleContext, description: 'Something else entirely.' }
+    await writeContextSection({ cwd, context: other })
+
+    const after = await readFile(codeMdPath(cwd), 'utf8')
+    expect(after).toBe(before)
+  })
+
+  it('refills an empty context section', async () => {
+    const cwd = tempDir()
+    await writeContextSection({ cwd, context: emptyContext })
+    expect(isContextEmpty(await readFile(codeMdPath(cwd), 'utf8'))).toBe(true)
+
+    await writeContextSection({ cwd, context: sampleContext })
+
+    const after = await readFile(codeMdPath(cwd), 'utf8')
+    expect(isContextEmpty(after)).toBe(false)
+    expect(after).toContain('- **Description:** A changelog management tool with an AI layer.')
+  })
+
+  it('refills an empty section without disturbing following entries', async () => {
+    const cwd = tempDir()
+    await writeContextSection({ cwd, context: emptyContext })
+    await appendEntries({ cwd, entries: [formatEntry({ meta: rawMeta })] })
+
+    await writeContextSection({ cwd, context: sampleContext })
+
+    const after = await readFile(codeMdPath(cwd), 'utf8')
+    expect(after).toContain('- **Description:** A changelog management tool with an AI layer.')
+    expect(after).toContain('## Commit 0123456')
+    expect(after.indexOf(CONTEXT_END_MARKER)).toBeLessThan(after.indexOf('## Commit 0123456'))
+  })
+
+  it('does not rewrite a populated context even when entries were appended after it', async () => {
+    const cwd = tempDir()
+    await writeContextSection({ cwd, context: sampleContext })
+    await appendEntries({ cwd, entries: [formatEntry({ meta: rawMeta })] })
+    const before = await readFile(codeMdPath(cwd), 'utf8')
+
+    await writeContextSection({ cwd, context: emptyContext })
+
+    const after = await readFile(codeMdPath(cwd), 'utf8')
+    expect(after).toBe(before)
+  })
+})
+
+describe('readContextSection', () => {
+  it('returns the text between markers', async () => {
+    const cwd = tempDir()
+    await writeContextSection({ cwd, context: sampleContext })
+
+    const section = await readContextSection(cwd)
+    expect(section).toContain('## Context')
+    expect(section).toContain('- **Description:** A changelog management tool with an AI layer.')
+    expect(section).not.toContain(CONTEXT_START_MARKER)
+    expect(section).not.toContain(CONTEXT_END_MARKER)
+  })
+
+  it('returns an empty string when the section is absent', async () => {
+    const cwd = tempDir()
+    await initCodeMd(cwd)
+
+    expect(await readContextSection(cwd)).toBe('')
+  })
+
+  it('returns an empty string when no knowledge base exists', async () => {
+    const cwd = tempDir()
+    expect(await readContextSection(cwd)).toBe('')
+  })
+})
+
+describe('context section interactions', () => {
+  it('appendEntries appends after the context section without disturbing it', async () => {
+    const cwd = tempDir()
+    await writeContextSection({ cwd, context: sampleContext })
+    const contextBefore = await readContextSection(cwd)
+
+    await appendEntries({ cwd, entries: [formatEntry({ meta: rawMeta })] })
+
+    const content = await readFile(codeMdPath(cwd), 'utf8')
+    expect(await readContextSection(cwd)).toBe(contextBefore)
+    expect(content.indexOf('## Commit 0123456')).toBeGreaterThan(content.indexOf(CONTEXT_END_MARKER))
+  })
+
+  it('commitsSinceLastAction ignores the context section', async () => {
+    const cwd = tempDir()
+    await writeContextSection({ cwd, context: sampleContext })
+    await appendEntries({ cwd, entries: [formatEntry({ meta: rawMeta })] })
+
+    const shas = await commitsSinceLastAction(cwd)
+    expect(shas).toEqual(['0123456'])
+  })
+
+  it('scanBreakingChanges is unaffected by the context section', async () => {
+    const cwd = tempDir()
+    await writeContextSection({ cwd, context: sampleContext })
+    await appendEntries({ cwd, entries: [formatEntry({ meta: rawMeta })] })
+
+    const findings = await scanBreakingChanges(cwd)
+    expect(findings).toHaveLength(0)
   })
 })
