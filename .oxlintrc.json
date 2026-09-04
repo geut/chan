@@ -24,7 +24,6 @@
     "no-labels": "error",
     "no-extra-label": "error",
     "sort-imports": "off",
-
     "unicorn/prefer-string-starts-ends-with": "error",
     "unicorn/prefer-string-trim-start-end": "error",
     "unicorn/prefer-spread": "error",

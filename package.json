@@ -1,49 +1,52 @@
 {
   "name": "@geut/chan",
   "version": "3.2.8",
-  "description": "Chan monorepo",
   "private": true,
-  "type": "module",
+  "description": "Chan monorepo",
+  "keywords": [
+    "changelog",
+    "cli",
+    "geut",
+    "keepachangelog",
+    "tooling"
+  ],
+  "homepage": "http://geutstudio.com",
+  "bugs": {
+    "url": "https://github.com/geut/chan/issues"
+  },
+  "license": "ISC",
+  "author": {
+    "name": "GEUT",
+    "email": "contact@geutstudio.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/geut/chan.git"
+  },
   "workspaces": {
     "packages": [
       "packages/*"
     ]
   },
+  "type": "module",
   "scripts": {
     "test": "vitest",
+    "test:ci": "vitest run --reporter=verbose",
     "posttest": "npm run lint",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "tsgo": "tsgo",
     "check-types": "tsgo --noEmit"
   },
-  "keywords": [
-    "cli",
-    "geut",
-    "tooling",
-    "changelog",
-    "keepachangelog"
-  ],
-  "homepage": "http://geutstudio.com",
-  "author": {
-    "name": "GEUT",
-    "email": "contact@geutstudio.com"
-  },
-  "license": "ISC",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/geut/chan.git"
-  },
-  "bugs": {
-    "url": "https://github.com/geut/chan/issues"
-  },
   "devDependencies": {
+    "@types/node": "^26.1.1",
     "@types/signale": "^1.4.7",
     "@types/unist": "^3.0.3",
     "@types/yargs": "^17.0.35",
     "@typescript/native-preview": "^7.0.0-dev.20260421.1",
     "oxfmt": "^0.46.0",
     "oxlint": "^1.61.0",
+    "oxlint-tsgolint": "^0.23.0",
     "tsx": "^4.21.0",
     "vitest": "^4.1.4"
   }
