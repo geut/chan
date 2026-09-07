@@ -19,13 +19,20 @@ Each piece degrades gracefully: a non-node project still yields a README + listi
 
 ## Acceptance criteria
 
-- [ ] Snapshot includes the full package.json when present, omitted (no error) when absent
-- [ ] Snapshot includes the full README when present, omitted when absent
-- [ ] Snapshot includes the top-level directory listing with `/` suffix on directories
-- [ ] Output is a single deterministic string with `##`-delimited sections
-- [ ] Unit tests with temp dirs cover: node project with README, project without package.json, project without README, empty-ish directory
-- [ ] `npm run lint` passes with oxlint
-- [ ] `npm run check-types` passes with tsgo
+- [x] Snapshot includes the full package.json when present, omitted (no error) when absent
+- [x] Snapshot includes the full README when present, omitted when absent
+- [x] Snapshot includes the top-level directory listing with `/` suffix on directories
+- [x] Output is a single deterministic string with `##`-delimited sections
+- [x] Unit tests with temp dirs cover: node project with README, project without package.json, project without README, empty-ish directory
+- [x] `npm run lint` passes with oxlint
+- [x] `npm run check-types` passes with tsgo
+
+## Notes
+
+- README is resolved by matching the already-read `readdir` listing against a fixed priority list (`README.md` > `readme.md` > `Readme.md` > `README`) with exact-name comparison — never by probing the filesystem with `readFile` per candidate — so the result is identical on case-sensitive and case-insensitive filesystems.
+- Output shape: sections in the fixed order `## package.json` / `## README` / `## Top-level entries` (the first two omitted when their source is absent), blank-line separated, single trailing `\n`. The listing section is always present: non-recursive, code-unit sorted via `toSorted()`, directories suffixed `/`, dotfiles listed as-is, bare names only (no path separators) so output is platform-stable.
+- Graceful degradation is ENOENT-only: `package.json` read errors other than ENOENT propagate; an absent README produces no read attempt at all (it falls out of the listing match); an empty directory yields `## Top-level entries` with an empty body.
+- The module is internal for now — not re-exported from the package root. Slice 13 imports it directly in `commands/init.ts`; the signature stays `(cwd: string) => Promise<string>`, and the inspector (slice 12) receives the string verbatim per `InspectArgsSchema`.
 
 ## Blocked by
 
