@@ -9,11 +9,15 @@ import {
   type AnalyzeFn,
   type AugmentArgs,
   type AugmentFn,
+  type InspectArgs,
+  type InspectFn,
   type CommitAnalysisResponse,
   type ActionAugmentationResponse,
+  type ProjectInspectionResponse,
   AIConfigSchema,
   CommitAnalysisResponseSchema,
   ActionAugmentationResponseSchema,
+  ProjectInspectionResponseSchema,
 } from './types.js'
 import type { CompletionResult } from './providers/types.js'
 
@@ -21,6 +25,8 @@ export {
   AIConfigSchema,
   CommitAnalysisResponseSchema,
   ActionAugmentationResponseSchema,
+  ProjectInspectionResponseSchema,
+  InspectArgsSchema,
   CATEGORIES,
   CHAN_ACTIONS,
 } from './types.js'
@@ -28,10 +34,13 @@ export type {
   AIConfig,
   CommitAnalysisResponse,
   ActionAugmentationResponse,
+  ProjectInspectionResponse,
   AnalyzeFn,
   AugmentFn,
+  InspectFn,
   AnalyzeArgs,
   AugmentArgs,
+  InspectArgs,
   SHA,
 } from './types.js'
 export type {
@@ -137,10 +146,9 @@ const SYSTEM_PROMPT = `
   You don't need to update the code.md file, only generate the content.
   Response must be a valid JSON object. 
 `
-// TODO: provide codebase context -- this should be generated once and stored perhaps at the beginning of the code.md file
-// const contextSchema = z.object({
-//   codebase: z.string(),
-// })
+// The codebase context for the Knowledge Base is generated once by `createInspector`
+// (Inspection flow) and stored in the `## Context` section of .chan/code.md,
+// where later AI operations re-read it as prompt context.
 
 const DEFAULT_MAX_TOKENS = 1000
 
@@ -275,6 +283,67 @@ export function createAugmenter(config: AIConfig): AugmentFn {
     const result = await modelProvider.invoke(messages, ActionAugmentationResponseSchema)
     console.log(
       `Augment token usage: ${result.usage.total} (input: ${result.usage.input}, output: ${result.usage.output})`
+    )
+    return result
+  }
+}
+
+const INSPECT_SYSTEM_PROMPT = `
+  You are a helpful assistant that inspects a Codebase Snapshot and produces a structured summary of the project.
+  You will receive a Codebase Snapshot: deterministic text gathered from the project (package.json, full README, top-level directory listing). It is the ONLY evidence you have about the project.
+
+  ## Hard rules
+  - Evidence discipline: base every field on evidence present in the snapshot. If the snapshot does not support a field, use an empty string ("") or an empty array ([]) rather than guessing or drawing on prior knowledge.
+  - Terse, telegraphic style: no marketing language, no full sentences where a phrase suffices. This output is stored once and re-read as prompt context by later AI operations; every fluffy word is recurring token cost.
+
+  ## description
+  One phrase describing what the project is (e.g. "changelog management tool with optional AI layer"). No adjectives beyond what the snapshot supports.
+
+  ## usage
+  A phrase or short imperative describing how the project is used (e.g. "npx chan init; npx chan analyze"). Empty string if the snapshot gives no usage evidence.
+
+  ## runtimes
+  Environments the project targets (e.g. "node", "browser", "cli", "ci"). Only those evidenced by the snapshot.
+
+  ## projectTypes
+  The kind(s) of project (e.g. "module", "application", "cli tool", "monorepo").
+
+  ## requirements
+  Hard requirements with versions when evidenced (e.g. "Node >= 20", "git").
+
+  ## notes
+  Anything else in the snapshot useful for analyzing future commits (e.g. test runner, key scripts, workspace layout). Empty array if nothing else stands out.
+
+  Respond with a single valid JSON object matching the given schema. No markdown, no prose outside the JSON.
+`
+
+export function createInspector(config: AIConfig): InspectFn {
+  const parsedConfig = AIConfigSchema.parse(config)
+  const { provider, model, baseUrl, maxTokens = DEFAULT_MAX_TOKENS } = parsedConfig
+
+  if (typeof provider === 'string' && !isKnownProvider(provider)) {
+    throw new Error(`Provider ${provider} is not supported`)
+  }
+
+  const modelProvider =
+    typeof provider === 'string'
+      ? createProvider(provider, { model, baseUrl, maxTokens })
+      : provider
+
+  return async ({
+    codebaseSnapshot,
+  }: InspectArgs): Promise<CompletionResult<ProjectInspectionResponse>> => {
+    const messages = [
+      { role: 'system' as const, content: INSPECT_SYSTEM_PROMPT },
+      {
+        role: 'user' as const,
+        content: `Inspect the following codebase snapshot and produce the project summary:\n\n${codebaseSnapshot}`,
+      },
+    ]
+
+    const result = await modelProvider.invoke(messages, ProjectInspectionResponseSchema)
+    console.log(
+      `Inspect token usage: ${result.usage.total} (input: ${result.usage.input}, output: ${result.usage.output})`
     )
     return result
   }

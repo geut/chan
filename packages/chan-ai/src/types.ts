@@ -89,6 +89,23 @@ const ActionAugmentationResponseSchema = z.object({
   confidence: z.number().describe('Confidence level (0 to 1) of the inferred action/message.')
 })
 
+const ProjectInspectionResponseSchema = z.object({
+  description: z.string().describe('One-phrase description of what the project is. Empty string if the snapshot gives no evidence.'),
+  usage: z
+    .string()
+    .describe('How the project is used (phrase or short imperative). Empty string if the snapshot gives no evidence.'),
+  runtimes: z.array(z.string()).describe('Target runtimes/environments (e.g. node, browser, cli, ci).'),
+  projectTypes: z.array(z.string()).describe('Kind(s) of project (e.g. module, application, cli tool, monorepo).'),
+  requirements: z.array(z.string()).describe('Hard requirements with versions when evidenced (e.g. "Node >= 20", "git").'),
+  notes: z
+    .array(z.string())
+    .describe('Anything else in the snapshot useful for analyzing future commits (test runner, key scripts, workspace layout).'),
+})
+
+const InspectArgsSchema = z.object({
+  codebaseSnapshot: z.string().describe('Codebase Snapshot text (built by chan via buildCodebaseSnapshot), consumed verbatim.'),
+})
+
 const AnalyzeArgsSchema = z.object({
   commitShas: z.array(z.string()),
   cwd: z.string(),
@@ -105,21 +122,35 @@ const AugmentArgsSchema = z.object({
 
 type AnalyzeArgs = z.input<typeof AnalyzeArgsSchema>
 type AugmentArgs = z.input<typeof AugmentArgsSchema>
+type InspectArgs = z.input<typeof InspectArgsSchema>
 type AnalyzeFn = (args: AnalyzeArgs) => Promise<CompletionResult<CommitAnalysisResponse>[]>
 type AugmentFn = (args: AugmentArgs) => Promise<CompletionResult<ActionAugmentationResponse>>
+type InspectFn = (args: InspectArgs) => Promise<CompletionResult<ProjectInspectionResponse>>
 type AIConfig = z.infer<typeof AIConfigSchema>
 type CommitAnalysisResponse = z.infer<typeof CommitAnalysisResponseSchema>
 type ActionAugmentationResponse = z.infer<typeof ActionAugmentationResponseSchema>
+type ProjectInspectionResponse = z.infer<typeof ProjectInspectionResponseSchema>
 type SHA = z.infer<typeof SHASchema>
 
-export { AIConfigSchema, CommitAnalysisResponseSchema, ActionAugmentationResponseSchema, CATEGORIES, CHAN_ACTIONS }
+export {
+  AIConfigSchema,
+  CommitAnalysisResponseSchema,
+  ActionAugmentationResponseSchema,
+  ProjectInspectionResponseSchema,
+  InspectArgsSchema,
+  CATEGORIES,
+  CHAN_ACTIONS,
+}
 export type {
   AIConfig,
   CommitAnalysisResponse,
   ActionAugmentationResponse,
+  ProjectInspectionResponse,
   AnalyzeFn,
   AugmentFn,
+  InspectFn,
   AnalyzeArgs,
   AugmentArgs,
+  InspectArgs,
   SHA,
 }

@@ -3,7 +3,7 @@ import { createTempGitRepo } from './e2e/fixtures.js'
 
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 import * as chanAI from '../src/index.js'
-import { CATEGORIES, CommitAnalysisResponseSchema, ActionAugmentationResponseSchema, CHAN_ACTIONS } from '../src/types.js'
+import { CATEGORIES, CommitAnalysisResponseSchema, ActionAugmentationResponseSchema, ProjectInspectionResponseSchema, InspectArgsSchema, CHAN_ACTIONS } from '../src/types.js'
 
 const mockResponse = {
   sha: 'abc123',
@@ -159,6 +159,101 @@ describe('augment unit test', () => {
 
     expect(result.parsed.message).toBeDefined()
     expect(result.parsed.action).toBe('added')
+  })
+})
+
+describe('inspect unit test', () => {
+  const codebaseSnapshot = [
+    '# Codebase Snapshot',
+    '',
+    '## package.json',
+    '{"name": "@geut/chan", "engines": {"node": ">=20"}}',
+    '',
+    '## README (full)',
+    'Chan is a changelog management tool with an optional AI layer.',
+    '',
+    '## Top-level directories',
+    'packages/ docs/ scripts/',
+  ].join('\n')
+
+  const mockInspectResponse = {
+    description: 'changelog management tool with optional AI layer',
+    usage: 'npx chan init; npx chan analyze',
+    runtimes: ['node', 'cli'],
+    projectTypes: ['monorepo', 'cli tool'],
+    requirements: ['Node >= 20', 'git'],
+    notes: [],
+  }
+
+  it('createInspector throws for an unsupported provider', () => {
+    expect(() =>
+      chanAI.createInspector({
+        provider: 'invalidProvider',
+        model: 'mockModel',
+      })
+    ).toThrow('Provider invalidProvider is not supported')
+  })
+
+  it('inspects a codebase snapshot into a structured project summary', async () => {
+    const mockProvider = new MockProvider(mockInspectResponse)
+    const invokeSpy = vi.spyOn(mockProvider, 'invoke')
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    const inspect = chanAI.createInspector({
+      provider: mockProvider,
+      model: 'mockModel',
+    })
+
+    const result = await inspect({ codebaseSnapshot })
+
+    expect(invokeSpy).toHaveBeenCalledTimes(1)
+    const [[messages]] = invokeSpy.mock.calls
+    const [systemMessage, userMessage] = messages
+    expect(messages).toHaveLength(2)
+
+    // system prompt first, with the hard rules
+    expect(systemMessage.role).toBe('system')
+    expect(systemMessage.content).toContain('Evidence discipline')
+    expect(systemMessage.content).toContain('Terse, telegraphic style')
+
+    // user message contains the snapshot verbatim
+    expect(userMessage.role).toBe('user')
+    expect(userMessage.content).toContain(codebaseSnapshot)
+
+    // response conforms to the schema (empty notes = evidence discipline)
+    expect(ProjectInspectionResponseSchema.parse(result.parsed)).toBeTruthy()
+    expect(result.parsed.description).toBe('changelog management tool with optional AI layer')
+    expect(result.parsed.usage).toBe('npx chan init; npx chan analyze')
+    expect(result.parsed.runtimes).toEqual(['node', 'cli'])
+    expect(result.parsed.projectTypes).toEqual(['monorepo', 'cli tool'])
+    expect(result.parsed.requirements).toEqual(['Node >= 20', 'git'])
+    expect(result.parsed.notes).toEqual([])
+
+    // token usage is logged like the other factories
+    expect(logSpy).toHaveBeenCalledWith('Inspect token usage: 0 (input: 0, output: 0)')
+    logSpy.mockRestore()
+  })
+
+  it('accepts an all-empty inspection response (evidence over guessing)', async () => {
+    const mockProvider = new MockProvider({
+      description: '',
+      usage: '',
+      runtimes: [],
+      projectTypes: [],
+      requirements: [],
+      notes: [],
+    })
+    const inspect = chanAI.createInspector({ provider: mockProvider, model: 'mockModel' })
+
+    const result = await inspect({ codebaseSnapshot: '## package.json\n{}' })
+
+    expect(ProjectInspectionResponseSchema.parse(result.parsed)).toBeTruthy()
+    expect(result.parsed.description).toBe('')
+    expect(result.parsed.runtimes).toEqual([])
+  })
+
+  it('exports InspectArgsSchema from the package root', () => {
+    expect(InspectArgsSchema.parse({ codebaseSnapshot })).toEqual({ codebaseSnapshot })
   })
 })
 
