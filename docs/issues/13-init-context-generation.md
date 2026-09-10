@@ -28,17 +28,27 @@ Re-run semantics (per ADR-0001): `chan init` populates the Context section if it
 
 ## Acceptance criteria
 
-- [ ] `chan init` without AI config creates CHANGELOG.md + starter code.md with heading only, and logs the AI hint
-- [ ] `chan init` with AI config generates and writes the Context section between `chan:context` markers
-- [ ] CHANGELOG.md creation happens before any AI call and is unaffected by AI failures
-- [ ] An AI failure logs a warning; init exits successfully with CHANGELOG.md + starter code.md created
-- [ ] An all-empty inspection response writes the empty Context section with markers and logs a warning
-- [ ] Re-running init on a repo with a populated Context does not touch it
-- [ ] Re-running init on a repo with an empty Context refills it
-- [ ] AI flags override `.chanrc` values (same precedence as `analyze`)
-- [ ] Handler tests in `tests/init.test.ts` cover: no-AI path, AI happy path (MockProvider via flags), AI failure path, all-empty response, re-run no-op/refill
-- [ ] `npm run lint` passes with oxlint
-- [ ] `npm run check-types` passes with tsgo
+- [x] `chan init` without AI config creates CHANGELOG.md + starter code.md with heading only, and logs the AI hint
+- [x] `chan init` with AI config generates and writes the Context section between `chan:context` markers
+- [x] CHANGELOG.md creation happens before any AI call and is unaffected by AI failures
+- [x] An AI failure logs a warning; init exits successfully with CHANGELOG.md + starter code.md created
+- [x] An all-empty inspection response writes the empty Context section with markers and logs a warning
+- [x] Re-running init on a repo with a populated Context does not touch it
+- [x] Re-running init on a repo with an empty Context refills it
+- [x] AI flags override `.chanrc` values (same precedence as `analyze`)
+- [x] Handler tests in `tests/init.test.ts` cover: no-AI path, AI happy path (MockProvider via flags), AI failure path, all-empty response, re-run no-op/refill
+- [x] `npm run lint` passes with oxlint
+- [x] `npm run check-types` passes with tsgo
+
+## Notes
+
+- The Context flow lives in the exported seam `runInitContext({ cwd, ai, logger })` (`packages/chan/src/commands/init.ts`), mirroring `runAnalyze`: string flags cannot carry a `Provider` instance, so tests inject `new MockProvider(response)` through the `ai` option (`AiResolvedConfig.provider` is `string | Provider`). The handler calls the seam verbatim with `resolveAiConfig({ aiProvider, aiModel, aiMaxTokens, aiEndpoint })` — flag precedence over `.chanrc` is inherited unchanged from `resolveAiConfig`, and the four `builder` entries are byte-identical to `analyze.builder` (asserted with `toEqual`).
+- "MockProvider via flags" in the criteria resolves to this established seam idiom (same as analyze/auto tests); AI-path assertions live on the seam, not the handler, to stay hermetic against `loadConfig`'s `findUpSync` from `process.cwd()`. The no-AI path is covered at the real handler with a stdout spy.
+- Cost guard before any AI call: the flow reads `.chan/code.md` and short-circuits when a populated Context exists (`hasContextSection && !isContextEmpty`). `writeContextSection` would no-op anyway, but only after paying for the inspection; the skipped call is asserted via `vi.spyOn(MockProvider.prototype, 'invoke')`.
+- All-empty detection is done in-memory on `result.parsed` (every field `''`/`[]`): the empty marker section is still written (the re-runnable state per ADR-0001) and a `warn` tells the user a re-run of `chan init` can populate it.
+- AI failures are caught inside the seam and logged as `warn('Context generation failed: <message>')` — `logger.error`/`fatal` set `process.exitCode = 1` and are never used on the AI path, so init always exits successfully. CHANGELOG.md and the starter code.md are already on disk before the flow runs (handler order: initialize/write/report → `initCodeMd` → `runInitContext` → package.json tip).
+- `createInspectorFromConfig(ai)` was added to `packages/chan/src/ai-config.ts` as the third one-line analogue of `createAugmenterFromConfig`/`createAnalyzerFromConfig`.
+- Slice 14 (`document-init-context`) documents this flow for users; until then the flag descriptions in `--help` are the only user-facing docs.
 
 ## Blocked by
 

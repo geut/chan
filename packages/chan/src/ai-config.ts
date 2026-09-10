@@ -1,4 +1,4 @@
-import { createAugmenter, createAnalyzer, type Provider, type AugmentFn, type AnalyzeFn } from '@geut/chan-ai'
+import { createAugmenter, createAnalyzer, createInspector, type Provider, type AugmentFn, type AnalyzeFn, type InspectFn } from '@geut/chan-ai'
 
 import { loadConfig } from './config.js'
 
@@ -44,6 +44,15 @@ export function createAugmenterFromConfig(ai: AiResolvedConfig): AugmentFn {
 
 export function createAnalyzerFromConfig(ai: AiResolvedConfig): AnalyzeFn {
   return createAnalyzer({
+    provider: ai.provider,
+    model: ai.model,
+    maxTokens: ai.maxTokens,
+    baseUrl: ai.baseUrl,
+  })
+}
+
+export function createInspectorFromConfig(ai: AiResolvedConfig): InspectFn {
+  return createInspector({
     provider: ai.provider,
     model: ai.model,
     maxTokens: ai.maxTokens,
