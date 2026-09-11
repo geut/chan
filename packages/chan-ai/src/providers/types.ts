@@ -27,4 +27,5 @@ export interface ProviderConfig {
   baseUrl?: string
   maxTokens?: number
   headers?: Record<string, string>
+  temperature?: number
 }

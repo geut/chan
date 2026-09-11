@@ -21,6 +21,18 @@ export const DEFAULT_PROVIDERS: Record<string, (config: ProviderConfig) => Provi
       apiKey: process.env.OPENCODE_API_KEY,
       ...c,
     }),
+  'opencode-go': c =>
+    new OpenAICompatibleProvider({
+      baseUrl: 'https://opencode.ai/zen/go/v1',
+      apiKey: process.env.OPENCODE_API_KEY,
+      headers: {
+        'User-Agent': '@geut/chan-ai/1.0',
+        'x-opencode-session': crypto.randomUUID(),
+        ...c.headers,
+      },
+      ...c,
+      temperature: 1,
+    }),
   anthropic: c => new AnthropicProvider({ baseUrl: 'https://api.anthropic.com/v1', ...c }),
   ollama: c =>
     new OpenAICompatibleProvider({
