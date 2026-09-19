@@ -54,7 +54,7 @@ If you never configure AI, chan behaves identically to pre-AI Chan.
 With AI configured, chan becomes a subtle tool: manually noting changes is no longer needed. Two artifacts work together:
 
 - **`CHANGELOG.md`** — the consumer-facing changelog you already know.
-- **`.chan/code.md`** — an append-only, committed **knowledge base** of code changes (one entry per commit). It supports changelog enhancement and can be queried in the future to understand how the codebase evolved.
+- **`.chan/code.md`** — an append-only, committed **knowledge base** of code changes (one entry per commit). It supports changelog enhancement and can be queried in the future to understand how the codebase evolved. The one exception to the append-only rule is the machine-owned `## Context` section at the top: it is generated at `chan init` via an AI Inspection and inserted or refilled only when missing or empty (see [ADR-0001](../../docs/adr/0001-context-section-in-code-md.md)).
 
 The post-commit hook keeps `.chan/code.md` up to date automatically:
 
@@ -164,6 +164,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Creates a `CHANGELOG.md` if it does not exists. Chan will work with this file.
 
+Init also creates the `.chan/code.md` knowledge base if it does not exist (an existing file is never overwritten) and, when AI is configured, generates its `## Context` section:
+
+- With AI configured, `chan init` gathers a Codebase Snapshot (package.json, the full README, and a top-level directory listing), runs an AI Inspection over it, and writes the resulting `## Context` section into `.chan/code.md`, delimited by `chan:context:start`/`chan:context:end` markers. The Context contains the project's description, usage, runtimes, project types, requirements, and notes.
+- Without AI configured, the Context generation is skipped with a hint to configure AI (set `ai.provider` and `ai.model` in `.chanrc`, or pass `--ai-provider`/`--ai-model`). The knowledge base starter is still created and init succeeds either way.
+- Re-runs: `chan init` populates the Context section only when it is missing or empty. A populated Context is left untouched — no AI call is made — and nothing else in `.chan/code.md` is ever rewritten.
+- An AI failure during the Inspection degrades to a warning: init still succeeds. If the Inspection returns an all-empty result, chan writes an empty Context section and warns "The generated Context section is empty. Re-run `chan init` to populate it." — re-running `chan init` is the recovery path.
+
 ### Options
 
 #### `[dir]` (`string`)
@@ -173,6 +180,10 @@ Allows you to run init in a specific directory: `chan init packages/package-one`
 #### `-o, --overwrite` (`boolean`)
 
 Overwrite the current CHANGELOG.md
+
+#### AI options
+
+`--ai-provider`, `--ai-model`, `--ai-max-tokens`, `--ai-endpoint` override the `.chanrc` `ai.*` values.
 
 ## <a name="command-action"></a>`chan <action> <msg>`
 
@@ -432,7 +443,7 @@ Show help
 
 Show version number
 
-## <a name="config"></a> Configuration
+## <a name="config"></a><a name="config-package-json"></a> Configuration
 
 You can configure the chan options using the `package.json` or a rc file (`.chanrc`, `.chanrc.json`):
 
