@@ -62,7 +62,7 @@ The post-commit hook keeps `.chan/code.md` up to date automatically:
 $ chan hook install   # sets git core.hooksPath to .chan/hooks and installs a post-commit hook
 ```
 
-After that, every local commit runs `chan analyze` and appends a structured entry to `.chan/code.md`. `.chan/code.md` is meant to be **committed and shared** with the team — it is the project's release knowledge.
+After that, every local commit runs `chan analyze` and appends a structured entry to `.chan/code.md`. A commit that only updates `.chan/code.md` and/or `CHANGELOG.md` is skipped, so recording those files does not analyze them again. `.chan/code.md` is meant to be **committed and shared** with the team — it is the project's release knowledge.
 
 Instead of hand-writing changelog entries, let AI infer them from commits:
 
@@ -353,6 +353,7 @@ Analyzes commits and appends structured entries to the append-only `.chan/code.m
 
 - Requires AI to be configured. Without AI, `chan analyze` is a no-op (it logs a hint to configure AI).
 - By default analyzes HEAD (this is the path used by the `chan hook install` post-commit hook).
+- Commits whose only changes are `.chan/code.md` and/or `CHANGELOG.md` are skipped. When those files change alongside other files, their patches are left out of the analysis.
 - Use `--gitSha <sha>` for a specific commit, or `--commits <sha,sha,...>` for several.
 - Use `--limit <n>` to analyze the last `n` commits from the log (default `1`).
 
@@ -414,7 +415,7 @@ Prefix the change with `[<group>]`. Allows grouping changes at release time.
 
 Installs or uninstalls chan's git hooks.
 
-- `chan hook install` creates `.chan/hooks/post-commit` (which runs `chan analyze`) and sets `git config core.hooksPath .chan/hooks`. After this, every local commit appends an entry to `.chan/code.md`.
+- `chan hook install` creates `.chan/hooks/post-commit` (which runs `chan analyze`) and sets `git config core.hooksPath .chan/hooks`. After this, every local commit appends an entry to `.chan/code.md`, except a commit that only updates `.chan/code.md` and/or `CHANGELOG.md`.
 - `chan hook uninstall` removes the post-commit hook and unsets `core.hooksPath`.
 
 ### Options

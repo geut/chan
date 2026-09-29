@@ -2,7 +2,7 @@ import { createAnalyzer, type CommitAnalysisResponse, type Provider } from '@geu
 
 import { createLogger } from '../logger.js'
 import { getCommitLog, getCommitMetadata, getHeadSha } from '../git.js'
-import { appendEntries, formatEntry } from '../code-md.js'
+import { appendEntries, formatEntry, isBookkeepingOnlyChange } from '../code-md.js'
 import {
   resolveAiConfig,
   createAnalyzerFromConfig,
@@ -65,16 +65,35 @@ export interface RunAnalyzeOptions {
   cwd: string
   commitShas: string[]
   ai?: AiResolvedConfig
+  onStart?: (progress: { analyzing: number; skipped: number }) => void
+}
+
+export interface RunAnalyzeResult {
+  appended: number
+  skipped: number
 }
 
 export async function runAnalyze({
   cwd,
   commitShas,
   ai,
-}: RunAnalyzeOptions): Promise<number> {
+  onStart,
+}: RunAnalyzeOptions): Promise<RunAnalyzeResult> {
   const metas = await Promise.all(commitShas.map(sha => getCommitMetadata(sha, cwd)))
+  const kept = commitShas.flatMap((sha, index) => {
+    const meta = metas[index]
+    if (!meta || isBookkeepingOnlyChange(meta.files)) return []
+    return [{ sha, meta }]
+  })
+  const skipped = commitShas.length - kept.length
 
-  let analyses: (CommitAnalysisResponse | undefined)[] = metas.map(() => undefined)
+  onStart?.({ analyzing: kept.length, skipped })
+
+  if (kept.length === 0) {
+    return { appended: 0, skipped }
+  }
+
+  let analyses: (CommitAnalysisResponse | undefined)[] = kept.map(() => undefined)
 
   if (ai) {
     const analyzer = createAnalyzer({
@@ -83,17 +102,17 @@ export async function runAnalyze({
       maxTokens: ai.maxTokens,
       baseUrl: ai.baseUrl,
     })
-    const results = await analyzer({ commitShas, cwd })
+    const results = await analyzer({ commitShas: kept.map(item => item.sha), cwd })
     analyses = results.map(r => r.parsed)
   }
 
-  const entries = metas.map((meta, index) =>
-    formatEntry({ meta, analysis: analyses[index] })
+  const entries = kept.map((item, index) =>
+    formatEntry({ meta: item.meta, analysis: analyses[index] })
   )
 
   await appendEntries({ cwd, entries })
 
-  return entries.length
+  return { appended: entries.length, skipped }
 }
 
 export async function handler(args: AnalyzeArgs) {
@@ -148,11 +167,30 @@ export async function handler(args: AnalyzeArgs) {
     return
   }
 
-  info(`Analyzing ${commitShas.length} commit(s) with AI (${ai.provider}/${ai.model})...`)
+  const { appended } = await runAnalyze({
+    cwd,
+    commitShas,
+    ai,
+    onStart: ({ analyzing, skipped }) => {
+      if (skipped > 0) {
+        info(
+          skipped === 1
+            ? 'Skipped 1 commit that only updates .chan/code.md or CHANGELOG.md.'
+            : `Skipped ${skipped} commits that only update .chan/code.md or CHANGELOG.md.`
+        )
+      }
+      if (analyzing > 0) {
+        info(`Analyzing ${analyzing} commit(s) with AI (${ai.provider}/${ai.model})...`)
+      }
+    },
+  })
 
-  const count = await runAnalyze({ cwd, commitShas, ai })
+  if (appended === 0) {
+    info('No commits to analyze.')
+    return
+  }
 
-  success(`Appended ${count} entr${count === 1 ? 'y' : 'ies'} to .chan/code.md.`)
+  success(`Appended ${appended} entr${appended === 1 ? 'y' : 'ies'} to .chan/code.md.`)
 }
 
 // Re-export for external callers (e.g. tests / future github action wrapper).

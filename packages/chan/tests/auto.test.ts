@@ -3,13 +3,17 @@ import { mkdtempSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { execFileSync } from 'node:child_process'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi, afterEach } from 'vitest'
 
 import * as auto from '../src/commands/auto.js'
 import { runAuto } from '../src/commands/auto.js'
 import { MockProvider, type ActionAugmentationResponse } from '@geut/chan-ai'
 import { codeMdPath, appendEntries, formatEntry } from '../src/code-md.js'
 import type { CommitMetadata } from '../src/git.js'
+
+afterEach(() => {
+  vi.restoreAllMocks()
+})
 
 function git(args: string[], cwd: string): string {
   return execFileSync('git', args, { cwd, encoding: 'utf-8' }).trim()
@@ -121,5 +125,47 @@ describe('runAuto', () => {
     expect(call).toBeDefined()
     const content = await readFile(codeMdPath(dir), 'utf8')
     expect(content).toContain('## Commit')
+  })
+
+  it('returns undefined and does not call the model for a bookkeeping commit', async () => {
+    const { dir } = tempRepo()
+    git(['add', 'CHANGELOG.md'], dir)
+    git(['commit', '-m', 'docs: changelog'], dir)
+    const bookkeepingSha = git(['rev-parse', 'HEAD'], dir)
+    const invokeSpy = vi.spyOn(MockProvider.prototype, 'invoke')
+
+    const result = await runAuto({
+      cwd: dir,
+      commitShas: [bookkeepingSha],
+      ai: {
+        provider: new MockProvider(mockAugment),
+        model: 'mockModel',
+      },
+    })
+
+    expect(result).toBeUndefined()
+    expect(invokeSpy).not.toHaveBeenCalled()
+  })
+
+  it('drops bookkeeping commits and augments the remaining SHAs', async () => {
+    const { dir, headSha } = tempRepo()
+    git(['add', 'CHANGELOG.md'], dir)
+    git(['commit', '-m', 'docs: changelog'], dir)
+    const bookkeepingSha = git(['rev-parse', 'HEAD'], dir)
+    const invokeSpy = vi.spyOn(MockProvider.prototype, 'invoke')
+
+    await runAuto({
+      cwd: dir,
+      commitShas: [headSha, bookkeepingSha],
+      ai: {
+        provider: new MockProvider({ ...mockAugment, linkedShas: [headSha] }),
+        model: 'mockModel',
+      },
+    })
+
+    const messages = invokeSpy.mock.calls[0]?.[0]
+    const user = messages?.find(message => message.role === 'user')
+    expect(user?.content).toContain(headSha)
+    expect(user?.content).not.toContain(bookkeepingSha)
   })
 })

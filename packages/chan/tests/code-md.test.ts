@@ -18,6 +18,7 @@ import {
   formatEntry,
   hasContextSection,
   initCodeMd,
+  isBookkeepingOnlyChange,
   isContextEmpty,
   readContextSection,
   scanBreakingChanges,
@@ -28,6 +29,18 @@ import type { CommitMetadata } from '../src/git.js'
 function tempDir(): string {
   return mkdtempSync(join(tmpdir(), 'chan-codemd-'))
 }
+
+describe('isBookkeepingOnlyChange', () => {
+  it('matches commits that only touch .chan/code.md and/or CHANGELOG.md', () => {
+    expect(isBookkeepingOnlyChange(['.chan/code.md'])).toBe(true)
+    expect(isBookkeepingOnlyChange(['CHANGELOG.md'])).toBe(true)
+    expect(isBookkeepingOnlyChange(['.chan/code.md', 'CHANGELOG.md'])).toBe(true)
+    expect(isBookkeepingOnlyChange([])).toBe(false)
+    expect(isBookkeepingOnlyChange(['index.ts'])).toBe(false)
+    expect(isBookkeepingOnlyChange(['.chan/code.md', 'index.ts'])).toBe(false)
+    expect(isBookkeepingOnlyChange(['packages/app/CHANGELOG.md'])).toBe(false)
+  })
+})
 
 const rawMeta: CommitMetadata = {
   sha: '0123456789abcdef0123456789abcdef01234567',

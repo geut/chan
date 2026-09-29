@@ -6,12 +6,13 @@ import { addChanges } from '@geut/chan-core'
 import { createLogger } from '../logger.js'
 import { openInEditor } from '../open-in-editor.js'
 import { write } from '../vfs.js'
-import { getHeadSha } from '../git.js'
+import { getCommitMetadata, getHeadSha } from '../git.js'
 import {
   appendActionEntry,
   codeMdContextForShas,
   commitsSinceLastAction,
   formatActionEntry,
+  isBookkeepingOnlyChange,
 } from '../code-md.js'
 import {
   resolveAiConfig,
@@ -115,7 +116,13 @@ export async function runAction({
     commitShas = commits
   } else {
     const sinceLast = await commitsSinceLastAction(cwd)
-    commitShas = sinceLast.length > 0 ? sinceLast : [await getHeadSha(cwd)]
+    if (sinceLast.length > 0) {
+      commitShas = sinceLast
+    } else {
+      const head = await getHeadSha(cwd)
+      const meta = await getCommitMetadata(head, cwd)
+      commitShas = isBookkeepingOnlyChange(meta.files) ? [] : [head]
+    }
   }
 
   const augment = createAugmenterFromConfig(ai)

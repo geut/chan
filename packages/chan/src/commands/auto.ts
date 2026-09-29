@@ -10,6 +10,7 @@ import {
   appendActionEntry,
   codeMdContextForShas,
   formatActionEntry,
+  omitBookkeepingCommits,
 } from '../code-md.js'
 import {
   resolveAiConfig,
@@ -95,12 +96,15 @@ export async function runAuto({
   message,
   commitShas,
   ai,
-}: RunAutoOptions): Promise<{ action: ChanAction; augmentedMessage: string; classification: string[]; linkedShas: string[]; breakingChange: boolean; breakingDetails: string }> {
+}: RunAutoOptions): Promise<{ action: ChanAction; augmentedMessage: string; classification: string[]; linkedShas: string[]; breakingChange: boolean; breakingDetails: string } | undefined> {
+  const { keep } = await omitBookkeepingCommits(cwd, commitShas)
+  if (keep.length === 0) return undefined
+
   const augment = createAugmenterFromConfig(ai)
 
-  const codeMdContext = await codeMdContextForShas(cwd, commitShas)
+  const codeMdContext = await codeMdContextForShas(cwd, keep)
 
-  const { parsed } = await augment({ message, commitShas, codeMdContext })
+  const { parsed } = await augment({ message, commitShas: keep, codeMdContext })
 
   const action: ChanAction = isChanAction(parsed.action)
     ? parsed.action
@@ -163,6 +167,10 @@ export async function handler(args: AutoArgs) {
 
   try {
     const result = await runAuto({ cwd, message, commitShas, ai })
+    if (!result) {
+      info('No commits to augment. The commit only updates .chan/code.md or CHANGELOG.md.')
+      return
+    }
 
     const file = await read(resolve(cwd, 'CHANGELOG.md'))
     await addChanges(file, {

@@ -4,13 +4,41 @@ import writeAtomic from 'fast-write-atomic'
 
 import type { CommitAnalysisResponse } from '@geut/chan-ai'
 
-import type { CommitMetadata } from './git.js'
+import { getCommitMetadata, type CommitMetadata } from './git.js'
 import type { ChanAction } from './categories.js'
 
 export const CHAN_DIR = '.chan'
 export const HOOKS_DIRNAME = 'hooks'
 export const CODE_MD_FILENAME = 'code.md'
+export const CHANGELOG_FILENAME = 'CHANGELOG.md'
 export const POST_COMMIT_FILENAME = 'post-commit'
+
+const BOOKKEEPING_PATHS = new Set([
+  `${CHAN_DIR}/${CODE_MD_FILENAME}`,
+  CHANGELOG_FILENAME,
+])
+
+// A follow-up commit that only records Chan's own artifacts. Empty commits are not bookkeeping.
+export function isBookkeepingOnlyChange(files: string[]): boolean {
+  return files.length > 0 && files.every(file => BOOKKEEPING_PATHS.has(file))
+}
+
+export async function omitBookkeepingCommits(
+  cwd: string,
+  shas: string[]
+): Promise<{ keep: string[]; skipped: number }> {
+  if (shas.length === 0) return { keep: [], skipped: 0 }
+
+  const metas = await Promise.all(shas.map(sha => getCommitMetadata(sha, cwd)))
+  const keep: string[] = []
+  let skipped = 0
+  shas.forEach((sha, index) => {
+    const files = metas[index]?.files ?? []
+    if (isBookkeepingOnlyChange(files)) skipped += 1
+    else keep.push(sha)
+  })
+  return { keep, skipped }
+}
 
 export const CODE_MD_HEADING = `# Code Knowledge Base
 

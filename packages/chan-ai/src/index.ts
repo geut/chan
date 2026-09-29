@@ -54,6 +54,116 @@ export { MockProvider } from './providers/index.js'
 
 const exec = promisify(execRaw)
 
+const OMITTED_LOCKFILES = new Set([
+  'pnpm-lock.yaml',
+  'package-lock.json',
+  'yarn.lock',
+  'Cargo.lock',
+  'go.sum',
+])
+
+// Chan's own artifacts. Paths match `@geut/chan` (`CHAN_DIR`/`CODE_MD_FILENAME` and repo-root CHANGELOG.md).
+const OMITTED_BOOKKEEPING_PATHS = new Set(['.chan/code.md', 'CHANGELOG.md'])
+
+function pathBasename(filePath: string): string {
+  const slash = filePath.lastIndexOf('/')
+  return slash === -1 ? filePath : filePath.slice(slash + 1)
+}
+
+// `diff --git a/<path> b/<path>`. Git quotes a path when it contains spaces or special characters.
+function readGitDiffPath(
+  input: string,
+  prefix: 'a/' | 'b/'
+): { path: string; consumed: number } | undefined {
+  if (input.startsWith('"')) {
+    let path = ''
+    for (let i = 1; i < input.length; i++) {
+      const char = input[i]
+      if (char === '\\' && i + 1 < input.length) {
+        path += input[i + 1]
+        i++
+        continue
+      }
+      if (char === '"') {
+        if (!path.startsWith(prefix)) return undefined
+        return { path: path.slice(prefix.length), consumed: i + 1 }
+      }
+      path += char
+    }
+    return undefined
+  }
+
+  if (!input.startsWith(prefix)) return undefined
+  const space = input.indexOf(' ')
+  const token = space === -1 ? input : input.slice(0, space)
+  return { path: token.slice(prefix.length), consumed: token.length }
+}
+
+function diffGitPaths(header: string): string[] | undefined {
+  const prefix = 'diff --git '
+  if (!header.startsWith(prefix)) return undefined
+  let rest = header.slice(prefix.length)
+  const a = readGitDiffPath(rest, 'a/')
+  if (!a) return undefined
+  rest = rest.slice(a.consumed).trimStart()
+  const b = readGitDiffPath(rest, 'b/')
+  if (!b) return undefined
+  return [a.path, b.path]
+}
+
+function isLockfileDiff(header: string): boolean {
+  const paths = diffGitPaths(header)
+  if (!paths) return false
+  return paths.some(filePath => OMITTED_LOCKFILES.has(pathBasename(filePath)))
+}
+
+function lockfileOmissionLine(section: string): string {
+  let added = 0
+  let removed = 0
+  for (const line of section.split('\n')) {
+    if (line.startsWith('+++') || line.startsWith('---')) continue
+    if (line.startsWith('+')) added++
+    else if (line.startsWith('-')) removed++
+  }
+  return `lockfile omitted: +${added}/-${removed}`
+}
+
+function diffHeader(part: string): string {
+  const newline = part.indexOf('\n')
+  return newline === -1 ? part : part.slice(0, newline)
+}
+
+function isBookkeepingDiff(header: string): boolean {
+  const paths = diffGitPaths(header)
+  if (!paths) return false
+  return paths.some(filePath => OMITTED_BOOKKEEPING_PATHS.has(filePath))
+}
+
+// Replace known lockfile hunks with a one-line +N/-M summary. Source patches stay intact.
+function omitLockfilePatches(showOutput: string): string {
+  return showOutput
+    .split(/^(?=diff --git )/m)
+    .map(part => {
+      if (!part.startsWith('diff --git ')) return part
+      const header = diffHeader(part)
+      if (!isLockfileDiff(header)) return part
+      const trailingNewline = part.endsWith('\n') ? '\n' : ''
+      return `${header}\n${lockfileOmissionLine(part)}${trailingNewline}`
+    })
+    .join('')
+}
+
+// Drop Knowledge Base and changelog hunks entirely. They are Chan's own output.
+function omitBookkeepingPatches(showOutput: string): string {
+  return showOutput
+    .split(/^(?=diff --git )/m)
+    .filter(part => {
+      if (!part.startsWith('diff --git ')) return true
+      return !isBookkeepingDiff(diffHeader(part))
+    })
+    .join('')
+}
+
 export async function getCommitInfo({
   commitSha,
   cwd,
@@ -72,7 +182,7 @@ export async function getCommitInfo({
     throw new Error(stderr)
   }
 
-  return stdout.trim()
+  return omitBookkeepingPatches(omitLockfilePatches(stdout.trim()))
 }
 
 function getTokenUsage(responses: CompletionResult<CommitAnalysisResponse>[]) {
@@ -97,6 +207,7 @@ const SYSTEM_PROMPT = `
   The commit date is in the format strict ISO 8601.
   The output comes from the git show command. 
   The patch/diff is included in the commit information to analyze.
+  A line "lockfile omitted: +N/-M" means that lockfile changed by N added and M removed lines and its patch body was left out. Read dependency versions from manifest diffs when those are present.
   
   ## About the analysis
   Analysis should be based on the commit message, body, and other commit metadata (including diffs).
@@ -144,6 +255,7 @@ const SYSTEM_PROMPT = `
   Every decision should be backed by evidence. This is important.
   The condensed findings are going to be appended to the code.md file. 
   You don't need to update the code.md file, only generate the content.
+  Do not execute any code or commands.
   Response must be a valid JSON object. 
 `
 // The codebase context for the Knowledge Base is generated once by `createInspector`

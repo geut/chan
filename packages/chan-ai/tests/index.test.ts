@@ -1,3 +1,7 @@
+import { execFileSync } from 'node:child_process'
+import { mkdirSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
+
 import { MockProvider } from '../src/providers/mock.js'
 import { createTempGitRepo } from './e2e/fixtures.js'
 
@@ -50,6 +54,64 @@ describe('getCommitInfo unit test', () => {
         cwd: repo.dir,
       })
     ).rejects.toThrow()
+  })
+
+  it('omits lockfile patch bodies and keeps source hunks', async () => {
+    const { dir } = createTempGitRepo()
+    const lockPath = join(dir, 'packages', 'app', 'pnpm-lock.yaml')
+    const sentinel = 'integrity: sha512-LOCKFILE-SENTINEL-should-not-appear'
+    mkdirSync(join(dir, 'packages', 'app'), { recursive: true })
+    writeFileSync(lockPath, "lockfileVersion: '9.0'\nimporters: .\nold-line\n")
+    execFileSync('git', ['add', '.'], { cwd: dir })
+    execFileSync('git', ['commit', '-m', 'add lockfile'], { cwd: dir })
+
+    writeFileSync(lockPath, `lockfileVersion: '9.0'\nimporters: .\nnew-line\n${sentinel}\n`)
+    writeFileSync(
+      join(dir, 'index.ts'),
+      'export const add = (a: number, b: number) => a + b\nexport const sub = (a: number, b: number) => a - b\n'
+    )
+    execFileSync('git', ['add', '.'], { cwd: dir })
+    execFileSync('git', ['commit', '-m', 'tweak source and lockfile'], { cwd: dir })
+    const sha = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: dir, encoding: 'utf8' }).trim()
+
+    const info = await chanAI.getCommitInfo({ commitSha: sha, cwd: dir })
+
+    expect(info).toContain('diff --git a/index.ts b/index.ts')
+    expect(info).toContain('+export const sub = (a: number, b: number) => a - b')
+    expect(info).not.toContain(sentinel)
+    expect(info).not.toContain('old-line')
+
+    const lockSection = info
+      .split(/^(?=diff --git )/m)
+      .find(part => part.startsWith('diff --git a/packages/app/pnpm-lock.yaml'))
+    expect(lockSection?.trim()).toBe(
+      'diff --git a/packages/app/pnpm-lock.yaml b/packages/app/pnpm-lock.yaml\nlockfile omitted: +2/-1'
+    )
+  })
+
+  it('omits .chan/code.md and CHANGELOG.md patches and keeps source hunks', async () => {
+    const { dir } = createTempGitRepo()
+    const codeMdSentinel = 'CODE-MD-SENTINEL-should-not-appear'
+    const changelogSentinel = 'CHANGELOG-SENTINEL-should-not-appear'
+    mkdirSync(join(dir, '.chan'), { recursive: true })
+    writeFileSync(join(dir, '.chan', 'code.md'), `# Code Knowledge Base\n\n${codeMdSentinel}\n`)
+    writeFileSync(join(dir, 'CHANGELOG.md'), `# Changelog\n\n${changelogSentinel}\n`)
+    writeFileSync(
+      join(dir, 'index.ts'),
+      'export const add = (a: number, b: number) => a + b\nexport const sub = (a: number, b: number) => a - b\n'
+    )
+    execFileSync('git', ['add', '.'], { cwd: dir })
+    execFileSync('git', ['commit', '-m', 'feat: source plus chan artifacts'], { cwd: dir })
+    const sha = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: dir, encoding: 'utf8' }).trim()
+
+    const info = await chanAI.getCommitInfo({ commitSha: sha, cwd: dir })
+
+    expect(info).toContain('diff --git a/index.ts b/index.ts')
+    expect(info).toContain('+export const sub = (a: number, b: number) => a - b')
+    expect(info).not.toContain(codeMdSentinel)
+    expect(info).not.toContain(changelogSentinel)
+    expect(info).not.toContain('diff --git a/.chan/code.md')
+    expect(info).not.toContain('diff --git a/CHANGELOG.md')
   })
 })
 
