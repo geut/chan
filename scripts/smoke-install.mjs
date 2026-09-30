@@ -8,13 +8,20 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..')
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm'
 const withGlobal = process.argv.includes('--global')
 
-function run(command, args, options = {}) {
-  const result = spawnSync(command, args, {
+function spawnOptions(command, options) {
+  // Node refuses to spawn .cmd/.bat directly (EINVAL on Windows) unless a shell is used.
+  const winCmd = process.platform === 'win32' && command.toLowerCase().endsWith('.cmd')
+  return {
     stdio: 'inherit',
     cwd: repoRoot,
     env: process.env,
     ...options,
-  })
+    shell: winCmd || options.shell,
+  }
+}
+
+function run(command, args, options = {}) {
+  const result = spawnSync(command, args, spawnOptions(command, options))
   if (result.error) {
     throw result.error
   }
@@ -29,12 +36,7 @@ function run(command, args, options = {}) {
 }
 
 function runAllowFail(command, args, options = {}) {
-  return spawnSync(command, args, {
-    stdio: 'inherit',
-    cwd: repoRoot,
-    env: process.env,
-    ...options,
-  })
+  return spawnSync(command, args, spawnOptions(command, options))
 }
 
 const binJs = join(repoRoot, 'packages', 'chan', 'dist', 'src', 'bin.js')
