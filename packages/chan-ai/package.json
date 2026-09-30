@@ -1,6 +1,6 @@
 {
   "name": "@geut/chan-ai",
-  "version": "1.0.0",
+  "version": "4.0.0-beta.0",
   "description": "Inference commits",
   "keywords": [
     "ai",
@@ -22,28 +22,28 @@
     "src/"
   ],
   "type": "module",
-  "module": "./src/index.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    }
   },
   "publishConfig": {
     "access": "public",
-    "exports": {
-      ".": {
-        "import": "./dist/src/index.js",
-        "types": "./dist/src/index.d.ts"
-      }
-    },
-    "module": "./dist/src/index.js"
+    "tag": "beta"
   },
   "scripts": {
     "test": "vitest run",
     "test:e2e": "vitest run --config vitest.e2e.config.ts",
     "lint": "oxlint",
-    "check-types": "tsgo --noEmit",
-    "build": "tsgo --build"
+    "check-types": "tsgo --build",
+    "build": "tsgo --build",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "zod": "^4.4.3"
+  },
+  "engines": {
+    "node": ">=22.0.0"
   }
 }

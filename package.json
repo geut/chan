@@ -1,5 +1,5 @@
 {
-  "name": "@geut/chan",
+  "name": "chan-workspace",
   "version": "3.2.8",
   "private": true,
   "description": "Chan monorepo",
@@ -30,13 +30,17 @@
   },
   "type": "module",
   "scripts": {
+    "clean": "tsgo --build --clean",
+    "build": "tsgo --build",
+    "dev": "tsgo --build --watch",
     "test": "vitest",
     "test:ci": "vitest run --reporter=verbose",
     "posttest": "npm run lint",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "tsgo": "tsgo",
-    "check-types": "tsgo --noEmit"
+    "check-types": "tsgo --build",
+    "smoke": "node scripts/smoke-install.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",
@@ -47,7 +51,6 @@
     "oxfmt": "^0.46.0",
     "oxlint": "^1.61.0",
     "oxlint-tsgolint": "^0.23.0",
-    "tsx": "^4.21.0",
     "vitest": "^4.1.4"
   }
 }

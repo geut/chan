@@ -38,7 +38,7 @@ The codebase is organized into 6 packages under `/packages/`:
 **Purpose**: End-user command-line interface
 
 **Key Files**:
-- `bin/chan.js` - CLI entry point using yargs
+- `src/bin.ts` - CLI entry point using yargs (published as `dist/src/bin.js`)
 - `src/commands/index.js` - Command registry
 - `src/commands/init.js` - Initialize CHANGELOG.md
 - `src/commands/actions.js` - Add changes (added, changed, fixed, etc.)
@@ -408,7 +408,7 @@ export function remarkToChan () {
 ├── node_modules/                   # Dependencies
 └── packages/
     ├── chan/                       # CLI tool
-    │   ├── bin/chan.js
+    │   ├── src/bin.ts
     │   ├── src/
     │   │   ├── commands/
     │   │   ├── config.js

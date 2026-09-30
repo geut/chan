@@ -125,7 +125,7 @@ This verifies the no-regression path and the clear AI-required errors.
 
 ## Tips
 
-- **Iterating on chan itself while testing:** edits to `packages/chan/src/*.ts` are live immediately (tsx runs the TS source, and the workspace is bind-mounted into the container). No rebuild needed.
+- **Iterating on chan itself while testing:** run `npm run dev` (`tsgo --build --watch`) so `dist` stays current, then `npm link -w @geut/chan` or `node packages/chan/dist/src/bin.js`. The CLI runs the compiled output, the same entry point that is published.
 - **Test on a real project:** `cd` into that project, `npm link @geut/chan` (already linked globally in the container), add `.chanrc`, `chan hook install`, and work normally for an afternoon. That's the truest DX test.
 - **`.chan/code.md` is meant to be committed** — add it to git in your test project to see how it feels as a shared artifact.
 - **Provider coverage:** Opencode Zen is the most validated. OpenAI-direct, Anthropic-direct, and Ollama are still untested end-to-end — trying them is part of the HITL validation for issue 08.

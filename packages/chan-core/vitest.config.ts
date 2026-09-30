@@ -6,8 +6,4 @@ export default defineConfig({
   resolve: {
     alias: geutAliases,
   },
-  test: {
-    include: ['**/e2e/**/*.test.ts'],
-    testTimeout: 60000,
-  },
 })

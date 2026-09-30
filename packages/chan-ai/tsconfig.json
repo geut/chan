@@ -17,7 +17,8 @@
     "sourceMap": true,
     "declarationMap": true,
     "lib": ["es2023"],
-    "types": ["node"]
+    "types": ["node"],
+    "rootDir": "."
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"]
