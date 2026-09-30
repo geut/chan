@@ -4,14 +4,14 @@ import type { CompletionResult, Provider } from './providers/types.js'
 const SHASchema = z.hash('sha1')
 
 const ToolSchema = z.function({
-  input: [z.object({ commitSha: z.string(), cwd: z.string() })],
-  output: z.promise(z.string()),
+  input: [z.object({ commitShas: z.array(z.string()), cwd: z.string() })],
+  output: z.promise(z.array(z.string())),
 })
 
 const AIConfigSchema = z.object({
   provider: z.union([z.string(), z.custom<Provider>()]),
   model: z.string(),
-  // array of tool functions (receive an array of Shas and return a string)
+  // Tools receive every SHA at once and return one string per SHA, in order.
   tools: z.array(ToolSchema).optional(),
   context: z.string().optional(),
   maxTokens: z.number().optional(),

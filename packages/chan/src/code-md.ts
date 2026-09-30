@@ -4,7 +4,7 @@ import writeAtomic from 'fast-write-atomic'
 
 import type { CommitAnalysisResponse } from '@geut/chan-ai'
 
-import { getCommitMetadata, type CommitMetadata } from './git.js'
+import { getCommitsMetadata, type CommitMetadata } from './git.js'
 import type { ChanAction } from './categories.js'
 
 export const CHAN_DIR = '.chan'
@@ -29,7 +29,7 @@ export async function omitBookkeepingCommits(
 ): Promise<{ keep: string[]; skipped: number }> {
   if (shas.length === 0) return { keep: [], skipped: 0 }
 
-  const metas = await Promise.all(shas.map(sha => getCommitMetadata(sha, cwd)))
+  const metas = await getCommitsMetadata(shas, cwd)
   const keep: string[] = []
   let skipped = 0
   shas.forEach((sha, index) => {

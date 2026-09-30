@@ -1,4 +1,4 @@
-import { mkdtempSync, writeFileSync } from 'node:fs'
+import { cpSync, mkdtempSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { execFileSync } from 'node:child_process'
@@ -9,12 +9,17 @@ export interface TempRepo {
 }
 
 function git(args: string[], cwd: string): string {
-  return execFileSync('git', args, { cwd, encoding: 'utf-8' }).trim()
+  return execFileSync('git', args, { cwd, encoding: 'utf-8', windowsHide: true }).trim()
 }
 
-export function createTempGitRepo(): TempRepo {
-  const dir = mkdtempSync(join(tmpdir(), 'chan-ai-e2e-'))
+let template: TempRepo | undefined
+
+function buildTemplate(): TempRepo {
+  if (template) return template
+
+  const dir = mkdtempSync(join(tmpdir(), 'chan-ai-e2e-template-'))
   git(['init'], dir)
+  git(['config', 'core.autocrlf', 'false'], dir)
   git(['config', 'advice.defaultBranchName', 'false'], dir)
   git(['config', 'commit.gpgsign', 'false'], dir)
   git(['config', 'tag.gpgsign', 'false'], dir)
@@ -63,5 +68,13 @@ Requires Node.js >= 20.
 `
   )
 
-  return { dir, commits }
+  template = { dir, commits }
+  return template
+}
+
+export function createTempGitRepo(): TempRepo {
+  const source = buildTemplate()
+  const dir = mkdtempSync(join(tmpdir(), 'chan-ai-e2e-'))
+  cpSync(source.dir, dir, { recursive: true })
+  return { dir, commits: [...source.commits] }
 }

@@ -1,13 +1,9 @@
 import { createAnalyzer, type CommitAnalysisResponse, type Provider } from '@geut/chan-ai'
 
 import { createLogger } from '../logger.js'
-import { getCommitLog, getCommitMetadata, getHeadSha } from '../git.js'
+import { getCommitLog, getCommitsMetadata, getHeadSha } from '../git.js'
 import { appendEntries, formatEntry, isBookkeepingOnlyChange } from '../code-md.js'
-import {
-  resolveAiConfig,
-  createAnalyzerFromConfig,
-  type AiResolvedConfig,
-} from '../ai-config.js'
+import { resolveAiConfig, createAnalyzerFromConfig, type AiResolvedConfig } from '../ai-config.js'
 
 export const command = 'analyze'
 export const description = 'Analyze commits and append structured entries to .chan/code.md.'
@@ -28,7 +24,8 @@ export const builder = {
     type: 'string',
   },
   limit: {
-    describe: 'Max number of commits to read from git log (used when no gitSha/commits given and you want a range). Set to 1 to analyze only HEAD.',
+    describe:
+      'Max number of commits to read from git log (used when no gitSha/commits given and you want a range). Set to 1 to analyze only HEAD.',
     type: 'number',
     default: 1,
   },
@@ -79,7 +76,7 @@ export async function runAnalyze({
   ai,
   onStart,
 }: RunAnalyzeOptions): Promise<RunAnalyzeResult> {
-  const metas = await Promise.all(commitShas.map(sha => getCommitMetadata(sha, cwd)))
+  const metas = await getCommitsMetadata(commitShas, cwd)
   const kept = commitShas.flatMap((sha, index) => {
     const meta = metas[index]
     if (!meta || isBookkeepingOnlyChange(meta.files)) return []
@@ -116,16 +113,7 @@ export async function runAnalyze({
 }
 
 export async function handler(args: AnalyzeArgs) {
-  const {
-    verbose,
-    gitSha,
-    commits,
-    limit = 1,
-    aiProvider,
-    aiModel,
-    aiMaxTokens,
-    aiEndpoint,
-  } = args
+  const { verbose, gitSha, commits, limit = 1, aiProvider, aiModel, aiMaxTokens, aiEndpoint } = args
 
   const cwd = process.cwd()
   const { info, success } = createLogger({ scope: 'analyze', verbose })

@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+- `@geut/chan-ai`: analyzer tools now receive `{ commitShas, cwd }` and return `Promise<string[]>` (one string per SHA, in the same order). `getCommitInfo` is renamed to `getCommitsInfo`.
+
 ## [3.2.6] - 2021-12-23
 ### Fixed
 - fixed bitbucket and gitlab url in releaseTemplate

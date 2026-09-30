@@ -1,9 +1,8 @@
 import { promisify } from 'node:util'
-import { exec as execRaw } from 'node:child_process'
+import { execFile } from 'node:child_process'
 import { createProvider, isKnownProvider } from './providers/index.js'
 
 import {
-  type SHA,
   type AIConfig,
   type AnalyzeArgs,
   type AnalyzeFn,
@@ -52,7 +51,47 @@ export type {
 } from './providers/types.js'
 export { MockProvider } from './providers/index.js'
 
-const exec = promisify(execRaw)
+const execFileAsync = promisify(execFile)
+
+const SHA_CHUNK = 100
+const COMMIT_FORMAT = '%h%n%s%nBody:%b%n%an (%ae)%n%aI%n%p'
+
+function git(args: string[], cwd: string) {
+  return execFileAsync('git', args, {
+    cwd,
+    encoding: 'utf8',
+    windowsHide: true,
+    maxBuffer: 10 * 1024 * 1024,
+  })
+}
+
+function uniqueInOrder(shas: string[]): string[] {
+  const seen = new Set<string>()
+  const unique: string[] = []
+  for (const sha of shas) {
+    if (seen.has(sha)) continue
+    seen.add(sha)
+    unique.push(sha)
+  }
+  return unique
+}
+
+function chunked(shas: string[], size: number): string[][] {
+  const chunks: string[][] = []
+  for (let i = 0; i < shas.length; i += size) {
+    chunks.push(shas.slice(i, i + size))
+  }
+  return chunks
+}
+
+function leadingAbbrev(chunk: string): string {
+  const newline = chunk.indexOf('\n')
+  return (newline === -1 ? chunk : chunk.slice(0, newline)).trim()
+}
+
+function shaMatchesAbbrev(input: string, abbrev: string): boolean {
+  return input.startsWith(abbrev) || abbrev.startsWith(input)
+}
 
 const OMITTED_LOCKFILES = new Set([
   'pnpm-lock.yaml',
@@ -164,25 +203,54 @@ function omitBookkeepingPatches(showOutput: string): string {
     .join('')
 }
 
-export async function getCommitInfo({
-  commitSha,
+export async function getCommitsInfo({
+  commitShas,
   cwd,
 }: {
-  commitSha: SHA
+  commitShas: string[]
   cwd: string
-}): Promise<string> {
-  const { stdout, stderr } = await exec(
-    `git show ${commitSha} --pretty=format:"%h%n%s%nBody:%b%n%an (%ae)%n%aI%n%p" -U0`,
-    {
-      cwd,
-    }
-  )
+}): Promise<string[]> {
+  if (commitShas.length === 0) return []
 
-  if (stderr) {
-    throw new Error(stderr)
+  const unique = uniqueInOrder(commitShas)
+  const byInput = new Map<string, string>()
+
+  for (const chunk of chunked(unique, SHA_CHUNK)) {
+    const { stdout } = await git(
+      [
+        'log',
+        '--no-walk=unsorted',
+        '-p',
+        '-U0',
+        '--diff-merges=dense-combined',
+        `--pretty=format:%x00${COMMIT_FORMAT}`,
+        '--end-of-options',
+        ...chunk,
+        '--',
+      ],
+      cwd
+    )
+    const parts = stdout.split('\0').slice(1)
+    if (parts.length !== chunk.length) {
+      const missing = chunk[parts.length] ?? chunk[0]
+      throw new Error(`No commit info for ${missing}`)
+    }
+
+    chunk.forEach((sha, index) => {
+      const raw = parts[index] ?? ''
+      const abbrev = leadingAbbrev(raw)
+      if (!shaMatchesAbbrev(sha, abbrev)) {
+        throw new Error(`No commit info for ${sha}`)
+      }
+      byInput.set(sha, omitBookkeepingPatches(omitLockfilePatches(raw.trim())))
+    })
   }
 
-  return omitBookkeepingPatches(omitLockfilePatches(stdout.trim()))
+  return commitShas.map(sha => {
+    const info = byInput.get(sha)
+    if (info === undefined) throw new Error(`No commit info for ${sha}`)
+    return info
+  })
 }
 
 function getTokenUsage(responses: CompletionResult<CommitAnalysisResponse>[]) {
@@ -269,7 +337,7 @@ export function createAnalyzer(config: AIConfig): AnalyzeFn {
   const {
     provider,
     model,
-    tools = [getCommitInfo],
+    tools = [getCommitsInfo],
     context,
     baseUrl,
     maxTokens = DEFAULT_MAX_TOKENS,
@@ -288,16 +356,20 @@ export function createAnalyzer(config: AIConfig): AnalyzeFn {
     commitShas,
     cwd,
   }: AnalyzeArgs): Promise<CompletionResult<CommitAnalysisResponse>[]> => {
-    // call tools
-    const toolResults = []
+    // One call per tool for the whole batch, then one prompt per commit.
+    const perCommit: string[][] = commitShas.map(() => [])
     for (const tool of tools) {
-      // each tool should be called with the commit shas and the cwd
-      const results = await Promise.all(commitShas.map(sha => tool({ commitSha: sha, cwd })))
-      toolResults.push(...results)
+      const results = await tool({ commitShas, cwd })
+      if (results.length !== commitShas.length) {
+        throw new Error(`Tool returned ${results.length} results for ${commitShas.length} commits`)
+      }
+      results.forEach((text, index) => {
+        perCommit[index]?.push(text)
+      })
     }
 
     const responses = await Promise.all(
-      toolResults.map(result => {
+      perCommit.map(parts => {
         const messages = [
           { role: 'system' as const, content: SYSTEM_PROMPT },
           ...(context
@@ -305,7 +377,7 @@ export function createAnalyzer(config: AIConfig): AnalyzeFn {
             : []),
           {
             role: 'user' as const,
-            content: `Analyze the following commit information:\n\n${result}`,
+            content: `Analyze the following commit information:\n\n${parts.join('\n\n')}`,
           },
         ]
         return modelProvider.invoke(messages, CommitAnalysisResponseSchema)

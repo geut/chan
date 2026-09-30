@@ -37,7 +37,7 @@ chan analyze --auto
 `
 
 async function gitConfig(args: string[], cwd: string): Promise<void> {
-  await execFileAsync('git', args, { cwd })
+  await execFileAsync('git', args, { cwd, windowsHide: true })
 }
 
 export async function handler({ action, path, verbose }: HookArgs) {

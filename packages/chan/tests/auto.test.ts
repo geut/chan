@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises'
-import { mkdtempSync, writeFileSync } from 'node:fs'
+import { cpSync, mkdtempSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { execFileSync } from 'node:child_process'
@@ -16,21 +16,30 @@ afterEach(() => {
 })
 
 function git(args: string[], cwd: string): string {
-  return execFileSync('git', args, { cwd, encoding: 'utf-8' }).trim()
+  return execFileSync('git', args, { cwd, encoding: 'utf-8', windowsHide: true }).trim()
 }
 
+let repoTemplate: { dir: string; headSha: string } | undefined
+
 function tempRepo(): { dir: string; headSha: string } {
+  if (!repoTemplate) {
+    const dir = mkdtempSync(join(tmpdir(), 'chan-auto-template-'))
+    git(['init'], dir)
+    git(['config', 'core.autocrlf', 'false'], dir)
+    git(['config', 'commit.gpgsign', 'false'], dir)
+    git(['config', 'user.email', 't@t.com'], dir)
+    git(['config', 'user.name', 'T'], dir)
+    writeFileSync(join(dir, 'a.ts'), 'export const x = 1\n')
+    git(['add', '.'], dir)
+    git(['commit', '-m', 'feat: add x'], dir)
+    // Initialize a CHANGELOG.md so the handler can read it.
+    writeFileSync(join(dir, 'CHANGELOG.md'), '# Changelog\n\n## Unreleased\n\n### Added\n\n')
+    repoTemplate = { dir, headSha: git(['rev-parse', 'HEAD'], dir) }
+  }
+
   const dir = mkdtempSync(join(tmpdir(), 'chan-auto-'))
-  git(['init'], dir)
-  git(['config', 'commit.gpgsign', 'false'], dir)
-  git(['config', 'user.email', 't@t.com'], dir)
-  git(['config', 'user.name', 'T'], dir)
-  writeFileSync(join(dir, 'a.ts'), 'export const x = 1\n')
-  git(['add', '.'], dir)
-  git(['commit', '-m', 'feat: add x'], dir)
-  // Initialize a CHANGELOG.md so the handler can read it.
-  writeFileSync(join(dir, 'CHANGELOG.md'), '# Changelog\n\n## Unreleased\n\n### Added\n\n')
-  return { dir, headSha: git(['rev-parse', 'HEAD'], dir) }
+  cpSync(repoTemplate.dir, dir, { recursive: true })
+  return { dir, headSha: repoTemplate.headSha }
 }
 
 const mockAugment: ActionAugmentationResponse = {

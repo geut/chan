@@ -25,17 +25,21 @@ const mockResponse = {
   relatedIssues: [''],
 }
 
-describe('getCommitInfo unit test', () => {
+function git(args: string[], cwd: string): string {
+  return execFileSync('git', args, { cwd, encoding: 'utf8', windowsHide: true }).trim()
+}
+
+describe('getCommitsInfo unit test', () => {
   it('should get the commit info', async () => {
     const { commits, dir } = createTempGitRepo()
-    const [sha, _] = commits
+    const sha = commits[0] ?? ''
 
-    const info = await chanAI.getCommitInfo({
-      commitSha: sha,
+    const [info] = await chanAI.getCommitsInfo({
+      commitShas: [sha],
       cwd: dir,
     })
     // format: %h, %s, Body:%b, %an (%ae), %aI, %p, then diff (-U0)
-    const lines = info.split('\n')
+    const lines = (info ?? '').split('\n')
 
     expect(lines[0]).toBe(sha.slice(0, 7))
     expect(lines[1]).toBe('add function to add two numbers')
@@ -46,11 +50,26 @@ describe('getCommitInfo unit test', () => {
     expect(info).toContain('+export const add = (a: number, b: number) => a + b')
   })
 
+  it('returns one entry per SHA in input order, including duplicates', async () => {
+    const { commits, dir } = createTempGitRepo()
+    const [first, second] = commits
+
+    const infos = await chanAI.getCommitsInfo({
+      commitShas: [second ?? '', first ?? '', second ?? ''],
+      cwd: dir,
+    })
+
+    expect(infos).toHaveLength(3)
+    expect(infos[0]?.split('\n')[0]).toBe((second ?? '').slice(0, 7))
+    expect(infos[1]?.split('\n')[0]).toBe((first ?? '').slice(0, 7))
+    expect(infos[2]?.split('\n')[0]).toBe((second ?? '').slice(0, 7))
+  })
+
   it('should throw for an unknown commit', async () => {
     const repo = createTempGitRepo()
     await expect(
-      chanAI.getCommitInfo({
-        commitSha: 'deadbeef',
+      chanAI.getCommitsInfo({
+        commitShas: ['deadbeef'],
         cwd: repo.dir,
       })
     ).rejects.toThrow()
@@ -62,19 +81,19 @@ describe('getCommitInfo unit test', () => {
     const sentinel = 'integrity: sha512-LOCKFILE-SENTINEL-should-not-appear'
     mkdirSync(join(dir, 'packages', 'app'), { recursive: true })
     writeFileSync(lockPath, "lockfileVersion: '9.0'\nimporters: .\nold-line\n")
-    execFileSync('git', ['add', '.'], { cwd: dir })
-    execFileSync('git', ['commit', '-m', 'add lockfile'], { cwd: dir })
+    git(['add', '.'], dir)
+    git(['commit', '-m', 'add lockfile'], dir)
 
     writeFileSync(lockPath, `lockfileVersion: '9.0'\nimporters: .\nnew-line\n${sentinel}\n`)
     writeFileSync(
       join(dir, 'index.ts'),
       'export const add = (a: number, b: number) => a + b\nexport const sub = (a: number, b: number) => a - b\n'
     )
-    execFileSync('git', ['add', '.'], { cwd: dir })
-    execFileSync('git', ['commit', '-m', 'tweak source and lockfile'], { cwd: dir })
-    const sha = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: dir, encoding: 'utf8' }).trim()
+    git(['add', '.'], dir)
+    git(['commit', '-m', 'tweak source and lockfile'], dir)
+    const sha = git(['rev-parse', 'HEAD'], dir)
 
-    const info = await chanAI.getCommitInfo({ commitSha: sha, cwd: dir })
+    const [info] = await chanAI.getCommitsInfo({ commitShas: [sha], cwd: dir })
 
     expect(info).toContain('diff --git a/index.ts b/index.ts')
     expect(info).toContain('+export const sub = (a: number, b: number) => a - b')
@@ -82,7 +101,7 @@ describe('getCommitInfo unit test', () => {
     expect(info).not.toContain('old-line')
 
     const lockSection = info
-      .split(/^(?=diff --git )/m)
+      ?.split(/^(?=diff --git )/m)
       .find(part => part.startsWith('diff --git a/packages/app/pnpm-lock.yaml'))
     expect(lockSection?.trim()).toBe(
       'diff --git a/packages/app/pnpm-lock.yaml b/packages/app/pnpm-lock.yaml\nlockfile omitted: +2/-1'
@@ -100,11 +119,11 @@ describe('getCommitInfo unit test', () => {
       join(dir, 'index.ts'),
       'export const add = (a: number, b: number) => a + b\nexport const sub = (a: number, b: number) => a - b\n'
     )
-    execFileSync('git', ['add', '.'], { cwd: dir })
-    execFileSync('git', ['commit', '-m', 'feat: source plus chan artifacts'], { cwd: dir })
-    const sha = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: dir, encoding: 'utf8' }).trim()
+    git(['add', '.'], dir)
+    git(['commit', '-m', 'feat: source plus chan artifacts'], dir)
+    const sha = git(['rev-parse', 'HEAD'], dir)
 
-    const info = await chanAI.getCommitInfo({ commitSha: sha, cwd: dir })
+    const [info] = await chanAI.getCommitsInfo({ commitShas: [sha], cwd: dir })
 
     expect(info).toContain('diff --git a/index.ts b/index.ts')
     expect(info).toContain('+export const sub = (a: number, b: number) => a - b')
@@ -119,14 +138,13 @@ describe('analyze unit test', () => {
   let analyzer: Function
   let mockProvider: MockProvider
   let invokeSpy: ReturnType<typeof vi.spyOn>
-  const getCommitsInfoTool = vi.fn().mockResolvedValue(
-    `abc123
+  const commitText = `abc123
 feat: update code
 Body:
 User (user@example.com)
 2026-05-04T00:00:00+00:00
 `
-  )
+  const getCommitsInfoTool = vi.fn().mockResolvedValue([commitText])
 
   beforeAll(async () => {
     mockProvider = new MockProvider(mockResponse)
@@ -154,7 +172,11 @@ User (user@example.com)
       cwd: process.cwd(),
     })
 
-    expect(getCommitsInfoTool).toHaveBeenCalledWith({ commitSha: 'abc123', cwd: process.cwd() })
+    expect(getCommitsInfoTool).toHaveBeenCalledWith({
+      commitShas: ['abc123'],
+      cwd: process.cwd(),
+    })
+    expect(getCommitsInfoTool).toHaveBeenCalledTimes(1)
     expect(invokeSpy).toHaveBeenCalledTimes(1)
 
     // validate the response with the schema
@@ -165,6 +187,31 @@ User (user@example.com)
     expect(result[0].parsed.date).toBe('2026-05-04')
     expect(CATEGORIES.includes(result[0].parsed.category)).toBe(true)
     expect(result[0].parsed.breakingChange).toBeTypeOf('boolean')
+  })
+
+  it('calls the tool once for the batch and the model once per commit', async () => {
+    const tool = vi.fn().mockResolvedValue(['first commit', 'second commit'])
+    const provider = new MockProvider(mockResponse)
+    const invoke = vi.spyOn(provider, 'invoke')
+    const batchAnalyzer = chanAI.createAnalyzer({
+      provider,
+      model: 'mockModel',
+      tools: [tool],
+    })
+
+    const result = await batchAnalyzer({
+      commitShas: ['aaa', 'bbb'],
+      cwd: process.cwd(),
+    })
+
+    expect(tool).toHaveBeenCalledTimes(1)
+    expect(tool).toHaveBeenCalledWith({ commitShas: ['aaa', 'bbb'], cwd: process.cwd() })
+    expect(invoke).toHaveBeenCalledTimes(2)
+    expect(result).toHaveLength(2)
+    const firstCall = invoke.mock.calls[0]?.[0]
+    const secondCall = invoke.mock.calls[1]?.[0]
+    expect(firstCall?.find(message => message.role === 'user')?.content).toContain('first commit')
+    expect(secondCall?.find(message => message.role === 'user')?.content).toContain('second commit')
   })
 })
 
