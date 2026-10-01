@@ -163,8 +163,8 @@ export async function handler(args: AnalyzeArgs) {
       if (skipped > 0) {
         info(
           skipped === 1
-            ? 'Skipped 1 commit that only updates .chan/code.md or CHANGELOG.md.'
-            : `Skipped ${skipped} commits that only update .chan/code.md or CHANGELOG.md.`
+            ? 'Skipped 1 commit that only updates .chan/code.md, CHANGELOG.md, or lockfiles.'
+            : `Skipped ${skipped} commits that only update .chan/code.md, CHANGELOG.md, or lockfiles.`
         )
       }
       if (analyzing > 0) {

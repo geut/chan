@@ -31,13 +31,18 @@ function tempDir(): string {
 }
 
 describe('isBookkeepingOnlyChange', () => {
-  it('matches commits that only touch .chan/code.md and/or CHANGELOG.md', () => {
+  it('matches commits that only touch .chan/code.md, CHANGELOG.md, and/or lockfiles', () => {
     expect(isBookkeepingOnlyChange(['.chan/code.md'])).toBe(true)
     expect(isBookkeepingOnlyChange(['CHANGELOG.md'])).toBe(true)
     expect(isBookkeepingOnlyChange(['.chan/code.md', 'CHANGELOG.md'])).toBe(true)
+    expect(isBookkeepingOnlyChange(['.chan/code.md', 'pnpm-lock.yaml'])).toBe(true)
+    expect(isBookkeepingOnlyChange(['packages/app/pnpm-lock.yaml'])).toBe(true)
+    expect(isBookkeepingOnlyChange(['package-lock.json', 'yarn.lock', 'Cargo.lock', 'go.sum'])).toBe(true)
     expect(isBookkeepingOnlyChange([])).toBe(false)
     expect(isBookkeepingOnlyChange(['index.ts'])).toBe(false)
     expect(isBookkeepingOnlyChange(['.chan/code.md', 'index.ts'])).toBe(false)
+    expect(isBookkeepingOnlyChange(['pnpm-lock.yaml', 'index.ts'])).toBe(false)
+    expect(isBookkeepingOnlyChange(['pnpm-lock.yaml', 'package.json'])).toBe(false)
     expect(isBookkeepingOnlyChange(['packages/app/CHANGELOG.md'])).toBe(false)
   })
 })

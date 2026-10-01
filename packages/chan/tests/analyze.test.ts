@@ -161,6 +161,48 @@ describe('runAnalyze (AI via MockProvider)', () => {
     expect(content).not.toContain('should not be written')
   })
 
+  it('skips a commit that only updates .chan/code.md and a lockfile', async () => {
+    const repo = createTempGitRepo()
+    const sha = commitFiles(
+      repo.dir,
+      {
+        '.chan/code.md': '# Code Knowledge Base\n\nrecord\n',
+        'pnpm-lock.yaml': "lockfileVersion: '9.0'\n",
+      },
+      'chore: record knowledge base'
+    )
+    const invokeSpy = vi.spyOn(MockProvider.prototype, 'invoke')
+
+    const result = await runAnalyze({
+      cwd: repo.dir,
+      commitShas: [sha],
+      ai: {
+        provider: new MockProvider({
+          sha,
+          analysis: 'should not be written',
+          author: 'Chan Test User',
+          authorEmail: 'test@test.com',
+          coauthors: [],
+          date: '2026-07-20T12:00:00+00:00',
+          category: 'Chore',
+          breakingChange: false,
+          breakingDetails: '',
+          breakingConfidence: 0.1,
+          packagesAffected: [],
+          relatedCode: [],
+          relatedIssues: [],
+        }),
+        model: 'mockModel',
+      },
+    })
+
+    expect(result).toEqual({ appended: 0, skipped: 1 })
+    expect(invokeSpy).not.toHaveBeenCalled()
+    const content = await readFile(codeMdPath(repo.dir), 'utf8')
+    expect(content).not.toContain(`## Commit ${sha.slice(0, 7)}`)
+    expect(content).not.toContain('should not be written')
+  })
+
   it('appends only the non-bookkeeping commit from a mixed batch', async () => {
     const repo = createTempGitRepo()
     const realSha = repo.commits[repo.commits.length - 1] ?? ''

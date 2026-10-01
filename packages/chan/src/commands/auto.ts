@@ -168,7 +168,7 @@ export async function handler(args: AutoArgs) {
   try {
     const result = await runAuto({ cwd, message, commitShas, ai })
     if (!result) {
-      info('No commits to augment. The commit only updates .chan/code.md or CHANGELOG.md.')
+      info('No commits to augment. The commit only updates .chan/code.md, CHANGELOG.md, or lockfiles.')
       return
     }
 

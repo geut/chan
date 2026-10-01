@@ -18,9 +18,28 @@ const BOOKKEEPING_PATHS = new Set([
   CHANGELOG_FILENAME,
 ])
 
-// A follow-up commit that only records Chan's own artifacts. Empty commits are not bookkeeping.
+// Same basenames as OMITTED_LOCKFILES in @geut/chan-ai. Nested paths count.
+const LOCKFILE_BASENAMES = new Set([
+  'pnpm-lock.yaml',
+  'package-lock.json',
+  'yarn.lock',
+  'Cargo.lock',
+  'go.sum',
+])
+
+function pathBasename(filePath: string): string {
+  const slash = filePath.lastIndexOf('/')
+  return slash === -1 ? filePath : filePath.slice(slash + 1)
+}
+
+function isIgnorablePath(file: string): boolean {
+  return BOOKKEEPING_PATHS.has(file) || LOCKFILE_BASENAMES.has(pathBasename(file))
+}
+
+// A follow-up commit that only records Chan's own artifacts or known lockfiles.
+// Empty commits are not bookkeeping. Nested CHANGELOG.md stays analyzable.
 export function isBookkeepingOnlyChange(files: string[]): boolean {
-  return files.length > 0 && files.every(file => BOOKKEEPING_PATHS.has(file))
+  return files.length > 0 && files.every(isIgnorablePath)
 }
 
 export async function omitBookkeepingCommits(
