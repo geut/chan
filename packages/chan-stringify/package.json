@@ -1,12 +1,20 @@
 {
   "name": "@geut/chan-stringify",
-  "version": "3.2.7",
+  "version": "4.0.0-beta.0",
   "description": "Stringify chast to keepachangelog markdown",
   "homepage": "http://geutstudio.com",
+  "author": {
+    "name": "GEUT",
+    "email": "contact@geutstudio.com"
+  },
+  "license": "ISC",
+  "repository": "https://github.com/geut/chan/tree/master/packages/chan-stringify",
   "type": "module",
-  "module": "./src/index.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    }
   },
   "files": [
     "dist/src/",
@@ -14,19 +22,14 @@
   ],
   "publishConfig": {
     "access": "public",
-    "module": "./dist/src/index.js",
-    "exports": {
-      ".": {
-        "import": "./dist/src/index.js",
-        "types": "./dist/src/index.d.ts"
-      }
-    }
+    "tag": "beta"
   },
   "scripts": {
     "test": "vitest run",
     "lint": "oxlint",
-    "check-types": "tsgo --noEmit",
-    "build": "tsgo --build"
+    "check-types": "tsgo --build",
+    "build": "tsgo --build",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "mdast-util-to-markdown": "^2.1.2",
@@ -37,10 +40,7 @@
   "devDependencies": {
     "vitest": "^4.1.5"
   },
-  "author": {
-    "name": "GEUT",
-    "email": "contact@geutstudio.com"
-  },
-  "license": "ISC",
-  "repository": "https://github.com/geut/chan/tree/master/packages/chan-stringify"
+  "engines": {
+    "node": ">=22.0.0"
+  }
 }

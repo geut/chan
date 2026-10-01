@@ -8,6 +8,8 @@ import { gitUrlParse } from '@geut/git-url-parse'
 import { createLogger, hasWarnings } from '../logger.js'
 import { createGithubRelease, type GitParsed } from './gh-release.js'
 import { write } from '../vfs.js'
+import { resolveAiConfig } from '../ai-config.js'
+import { scanBreakingChanges } from '../code-md.js'
 
 export const command = 'release <semver>'
 export const description = 'Create a new release on your CHANGELOG.md.'
@@ -72,6 +74,12 @@ export const builder = {
     describe: 'Build a changelog with git support.',
     type: 'boolean' as const,
     default: true
+  },
+  ci: {
+    describe:
+      'Run in CI mode. When AI is enabled and a breaking change is detected that the semver does not reflect, append a "possible breaking" note instead of erroring.',
+    type: 'boolean' as const,
+    default: false
   }
 }
 
@@ -89,6 +97,7 @@ interface ReleaseArgs {
   releasePrefix: string
   ghrelease: boolean
   git: boolean
+  ci: boolean
   verbose?: boolean
   stdout?: boolean
 }
@@ -107,6 +116,7 @@ export async function handler ({
   releasePrefix,
   ghrelease,
   git,
+  ci,
   verbose,
   stdout
 }: ReleaseArgs) {
@@ -117,6 +127,42 @@ export async function handler ({
     if (!version) {
       error('Version release is not valid.')
       return
+    }
+
+    // AI-enabled breaking-change guard. Scan .chan/code.md for commit entries
+    // flagged as breaking since the last `## Action` marker (i.e. unreleased
+    // work). If any are found and the passed semver does not look like a
+    // breaking-appropriate version, behave according to mode:
+    //   - default (local): error out so the developer fixes the semver.
+    //   - --ci: append a "possible breaking" note to the changelog instead.
+    //
+    // Heuristic (no access to the previous version here): a breaking-appropriate
+    // target is the start of a new major or minor line — `x.0.0` or `0.x.0` —
+    // possibly as a pre-release (`2.0.0-beta`). A `1.5.0` with a breaking change
+    // is NOT breaking-appropriate and should error.
+    const ai = resolveAiConfig()
+    if (ai) {
+      const findings = await scanBreakingChanges(resolve(path))
+      if (findings.length > 0) {
+        const reflectsBreaking =
+          semver.minor(version) === 0 && semver.patch(version) === 0
+
+        if (!reflectsBreaking) {
+          const detail = findings
+            .map(f => `\`${f.sha}\`${f.breakingDetails ? `: ${f.breakingDetails}` : ''}`)
+            .join('\n')
+          if (ci) {
+            warn(
+              `Possible breaking change(s) detected that the semver ${version} may not reflect:\n${detail}`
+            )
+          } else {
+            error(
+              `Release ${version} includes breaking change(s) not reflected by the semver:\n${detail}\nBump to a breaking-appropriate version (e.g. x.0.0), or re-run with --ci to annotate the changelog instead of erroring.`
+            )
+            return
+          }
+        }
+      }
     }
 
     const file = await read(resolve(path, 'CHANGELOG.md'))

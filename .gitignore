@@ -44,3 +44,8 @@ packages/**/dist
 .vscode
 
 lerna-debug.log
+
+.DS_Store
+
+.agents/
+.pi/

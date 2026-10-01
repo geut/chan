@@ -16,7 +16,7 @@ async function openEditor(tmpFile: string): Promise<void> {
 
 export async function openInEditor(): Promise<string | null> {
   try {
-    const tmpFile = tempfile('.md')
+    const tmpFile = tempfile({ extension: 'md' })
     await openEditor(tmpFile)
     const data = await fs.readFile(tmpFile, 'utf8')
     return data

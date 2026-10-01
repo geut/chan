@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [4.0.0-beta.0] - 2026-09-30
+
+### Changed
+- Packages are ESM TypeScript. Published `exports` and the `chan` bin point at the compiled `dist` output.
+- Node.js 22 or newer is required.
+- `@geut/chan-ai`: analyzer tools now receive `{ commitShas, cwd }` and return `Promise<string[]>` (one string per SHA, in the same order). `getCommitInfo` is renamed to `getCommitsInfo`.
+
+### Added
+- AI-assisted `chan analyze`, `chan auto`, and `chan hook`, plus a breaking-change check on `chan release`.
+
 ## [3.2.6] - 2021-12-23
 ### Fixed
 - fixed bitbucket and gitlab url in releaseTemplate

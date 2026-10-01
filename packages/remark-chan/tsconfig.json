@@ -17,8 +17,12 @@
     "sourceMap": true,
     "declarationMap": true,
     "lib": ["es2023"],
-    "types": ["node"]
+    "types": ["node"],
+    "rootDir": "."
   },
+  "references": [
+    { "path": "../chast" }
+  ],
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

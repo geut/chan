@@ -1,0 +1,534 @@
+import { promisify } from 'node:util'
+import { execFile } from 'node:child_process'
+import { createProvider, isKnownProvider } from './providers/index.js'
+
+import {
+  type AIConfig,
+  type AnalyzeArgs,
+  type AnalyzeFn,
+  type AugmentArgs,
+  type AugmentFn,
+  type InspectArgs,
+  type InspectFn,
+  type CommitAnalysisResponse,
+  type ActionAugmentationResponse,
+  type ProjectInspectionResponse,
+  AIConfigSchema,
+  CommitAnalysisResponseSchema,
+  ActionAugmentationResponseSchema,
+  ProjectInspectionResponseSchema,
+} from './types.js'
+import type { CompletionResult } from './providers/types.js'
+
+export {
+  AIConfigSchema,
+  CommitAnalysisResponseSchema,
+  ActionAugmentationResponseSchema,
+  ProjectInspectionResponseSchema,
+  InspectArgsSchema,
+  CATEGORIES,
+  CHAN_ACTIONS,
+} from './types.js'
+export type {
+  AIConfig,
+  CommitAnalysisResponse,
+  ActionAugmentationResponse,
+  ProjectInspectionResponse,
+  AnalyzeFn,
+  AugmentFn,
+  InspectFn,
+  AnalyzeArgs,
+  AugmentArgs,
+  InspectArgs,
+  SHA,
+} from './types.js'
+export type {
+  Provider,
+  ProviderConfig,
+  ChatMessage,
+  CompletionResult,
+  TokenUsage,
+} from './providers/types.js'
+export { MockProvider } from './providers/index.js'
+
+const execFileAsync = promisify(execFile)
+
+const SHA_CHUNK = 100
+const COMMIT_FORMAT = '%h%n%s%nBody:%b%n%an (%ae)%n%aI%n%p'
+
+function git(args: string[], cwd: string) {
+  return execFileAsync('git', args, {
+    cwd,
+    encoding: 'utf8',
+    windowsHide: true,
+    maxBuffer: 10 * 1024 * 1024,
+  })
+}
+
+function uniqueInOrder(shas: string[]): string[] {
+  const seen = new Set<string>()
+  const unique: string[] = []
+  for (const sha of shas) {
+    if (seen.has(sha)) continue
+    seen.add(sha)
+    unique.push(sha)
+  }
+  return unique
+}
+
+function chunked(shas: string[], size: number): string[][] {
+  const chunks: string[][] = []
+  for (let i = 0; i < shas.length; i += size) {
+    chunks.push(shas.slice(i, i + size))
+  }
+  return chunks
+}
+
+function leadingAbbrev(chunk: string): string {
+  const newline = chunk.indexOf('\n')
+  return (newline === -1 ? chunk : chunk.slice(0, newline)).trim()
+}
+
+function shaMatchesAbbrev(input: string, abbrev: string): boolean {
+  return input.startsWith(abbrev) || abbrev.startsWith(input)
+}
+
+const OMITTED_LOCKFILES = new Set([
+  'pnpm-lock.yaml',
+  'package-lock.json',
+  'yarn.lock',
+  'Cargo.lock',
+  'go.sum',
+])
+
+// Chan's own artifacts. Paths match `@geut/chan` (`CHAN_DIR`/`CODE_MD_FILENAME` and repo-root CHANGELOG.md).
+const OMITTED_BOOKKEEPING_PATHS = new Set(['.chan/code.md', 'CHANGELOG.md'])
+
+function pathBasename(filePath: string): string {
+  const slash = filePath.lastIndexOf('/')
+  return slash === -1 ? filePath : filePath.slice(slash + 1)
+}
+
+// `diff --git a/<path> b/<path>`. Git quotes a path when it contains spaces or special characters.
+function readGitDiffPath(
+  input: string,
+  prefix: 'a/' | 'b/'
+): { path: string; consumed: number } | undefined {
+  if (input.startsWith('"')) {
+    let path = ''
+    for (let i = 1; i < input.length; i++) {
+      const char = input[i]
+      if (char === '\\' && i + 1 < input.length) {
+        path += input[i + 1]
+        i++
+        continue
+      }
+      if (char === '"') {
+        if (!path.startsWith(prefix)) return undefined
+        return { path: path.slice(prefix.length), consumed: i + 1 }
+      }
+      path += char
+    }
+    return undefined
+  }
+
+  if (!input.startsWith(prefix)) return undefined
+  const space = input.indexOf(' ')
+  const token = space === -1 ? input : input.slice(0, space)
+  return { path: token.slice(prefix.length), consumed: token.length }
+}
+
+function diffGitPaths(header: string): string[] | undefined {
+  const prefix = 'diff --git '
+  if (!header.startsWith(prefix)) return undefined
+  let rest = header.slice(prefix.length)
+  const a = readGitDiffPath(rest, 'a/')
+  if (!a) return undefined
+  rest = rest.slice(a.consumed).trimStart()
+  const b = readGitDiffPath(rest, 'b/')
+  if (!b) return undefined
+  return [a.path, b.path]
+}
+
+function isLockfileDiff(header: string): boolean {
+  const paths = diffGitPaths(header)
+  if (!paths) return false
+  return paths.some(filePath => OMITTED_LOCKFILES.has(pathBasename(filePath)))
+}
+
+function lockfileOmissionLine(section: string): string {
+  let added = 0
+  let removed = 0
+  for (const line of section.split('\n')) {
+    if (line.startsWith('+++') || line.startsWith('---')) continue
+    if (line.startsWith('+')) added++
+    else if (line.startsWith('-')) removed++
+  }
+  return `lockfile omitted: +${added}/-${removed}`
+}
+
+function diffHeader(part: string): string {
+  const newline = part.indexOf('\n')
+  return newline === -1 ? part : part.slice(0, newline)
+}
+
+function isBookkeepingDiff(header: string): boolean {
+  const paths = diffGitPaths(header)
+  if (!paths) return false
+  return paths.some(filePath => OMITTED_BOOKKEEPING_PATHS.has(filePath))
+}
+
+// Replace known lockfile hunks with a one-line +N/-M summary. Source patches stay intact.
+function omitLockfilePatches(showOutput: string): string {
+  return showOutput
+    .split(/^(?=diff --git )/m)
+    .map(part => {
+      if (!part.startsWith('diff --git ')) return part
+      const header = diffHeader(part)
+      if (!isLockfileDiff(header)) return part
+      const trailingNewline = part.endsWith('\n') ? '\n' : ''
+      return `${header}\n${lockfileOmissionLine(part)}${trailingNewline}`
+    })
+    .join('')
+}
+
+// Drop Knowledge Base and changelog hunks entirely. They are Chan's own output.
+function omitBookkeepingPatches(showOutput: string): string {
+  return showOutput
+    .split(/^(?=diff --git )/m)
+    .filter(part => {
+      if (!part.startsWith('diff --git ')) return true
+      return !isBookkeepingDiff(diffHeader(part))
+    })
+    .join('')
+}
+
+export async function getCommitsInfo({
+  commitShas,
+  cwd,
+}: {
+  commitShas: string[]
+  cwd: string
+}): Promise<string[]> {
+  if (commitShas.length === 0) return []
+
+  const unique = uniqueInOrder(commitShas)
+  const byInput = new Map<string, string>()
+
+  for (const chunk of chunked(unique, SHA_CHUNK)) {
+    const { stdout } = await git(
+      [
+        'log',
+        '--no-walk=unsorted',
+        '-p',
+        '-U0',
+        '--diff-merges=dense-combined',
+        `--pretty=format:%x00${COMMIT_FORMAT}`,
+        '--end-of-options',
+        ...chunk,
+        '--',
+      ],
+      cwd
+    )
+    const parts = stdout.split('\0').slice(1)
+    if (parts.length !== chunk.length) {
+      const missing = chunk[parts.length] ?? chunk[0]
+      throw new Error(`No commit info for ${missing}`)
+    }
+
+    chunk.forEach((sha, index) => {
+      const raw = parts[index] ?? ''
+      const abbrev = leadingAbbrev(raw)
+      if (!shaMatchesAbbrev(sha, abbrev)) {
+        throw new Error(`No commit info for ${sha}`)
+      }
+      byInput.set(sha, omitBookkeepingPatches(omitLockfilePatches(raw.trim())))
+    })
+  }
+
+  return commitShas.map(sha => {
+    const info = byInput.get(sha)
+    if (info === undefined) throw new Error(`No commit info for ${sha}`)
+    return info
+  })
+}
+
+function getTokenUsage(responses: CompletionResult<CommitAnalysisResponse>[]) {
+  const totalTokenUsage = responses.reduce(
+    (acc, response) => {
+      const usage = response?.usage
+      return {
+        input: acc.input + (usage?.input ?? 0),
+        output: acc.output + (usage?.output ?? 0),
+        total: acc.total + (usage?.total ?? 0),
+      }
+    },
+    { input: 0, output: 0, total: 0 }
+  )
+  return totalTokenUsage
+}
+
+const SYSTEM_PROMPT = `
+  You are a helpful assistant that analyzes commits and updates the code.md file.
+  You will be given a commit with some information and you will need to analyze it to enhance the knowledge around that commit.
+  Each commit information is formatted as follows: "%h%n%s%nBody:%b%n%an (%ae)%n%aI%n%p" (commit hash, commit message, message body (Body:%b), author name and email, ISO date, parent SHAs). The separator is "%n".
+  The commit date is in the format strict ISO 8601.
+  The output comes from the git show command. 
+  The patch/diff is included in the commit information to analyze.
+  A line "lockfile omitted: +N/-M" means that lockfile changed by N added and M removed lines and its patch body was left out. Read dependency versions from manifest diffs when those are present.
+  
+  ## About the analysis
+  Analysis should be based on the commit message, body, and other commit metadata (including diffs).
+  With your knowledge of the codebase, you will need to enhance the commit message with more details about the changes. 
+  Be brief and to the point. Consider how this information could be used in the future along with other commits to understand how the codebase has evolved.
+
+  ## About coauthors
+  List the coauthors of the commit. Return an empty array if no coauthors are present.
+
+  ## About categories
+  You will need to categorize the changes into the following categories: Feature, Fix, Documentation, Refactor, Test, Chore, Style, Performance or Security.
+  
+  ## Breaking change decision (be consistent)
+  You will also need to evaluate if it is a breaking change or not (true or false). Along with the decision you will need to provide a confidence level between 0 and 1, where 0 is the lowest confidence and 1 is the highest confidence. Any confidence level >= 0.8 is considered a strong decision. Lastly add breaking details if any (useful with low confidence levels).
+  Definition: A breaking change is any change that can cause a previously working external consumer (downstream code, scripts, CI, integrations) to fail to build, fail at runtime, or behave incompatibly WITHOUT them changing their code, assuming they use public/documented surfaces.
+  
+  breakingChange: boolean — true only if a public/documented consumer could break without changing their code.
+  breakingConfidence: number from 0 to 1 — confidence that breakingChange is correct (not P(breaking)).
+  - 0.8–1.0: clear evidence in diff/message
+  - 0.4–0.7: partial evidence
+  - 0.0–0.3: weak evidence; prefer breakingChange false unless hard signals on public surface
+  breakingDetails: string — required. If breakingChange is false, use "".
+
+  Decision procedure:
+  1. Look for HARD breaking signals in the diff/patch:
+    - removed/renamed exports, CLI commands, flags, config keys
+    - signature/return shape changes
+    - output format changes (JSON/markdown/file layout)
+    - entrypoint/export changes (package.json "exports"/"bin")
+    - engine/runtime requirement changes
+  If any are present and affect public surface => breakingChange = true.
+  2. If only SOFT signals exist (refactor/tests/docs/internal changes) => breakingChange = false.
+  3. Insufficient evidence: breakingChange false, breakingConfidence ≤ 0.3, state what evidence is missing.
+  Use the provided codebase context to judge what is public API.
+
+  ## About packages affected
+  You will also need to evaluate if the changes are related to a specific package or not. If they are, you will need to provide the package name. Return an empty array if no packages are affected.
+
+  ## About related code
+  List files, functions or other code elements that are related to your analysis.
+
+  ## About related issues
+  List issues that are related to your analysis. This can be a github issue (#123) or jira (JIRA-456) or linear link. Return an empty array if no issues are related.
+
+  Every decision should be backed by evidence. This is important.
+  The condensed findings are going to be appended to the code.md file. 
+  You don't need to update the code.md file, only generate the content.
+  Do not execute any code or commands.
+  Response must be a valid JSON object. 
+`
+// The codebase context for the Knowledge Base is generated once by `createInspector`
+// (Inspection flow) and stored in the `## Context` section of .chan/code.md,
+// where later AI operations re-read it as prompt context.
+
+const DEFAULT_MAX_TOKENS = 1000
+
+export function createAnalyzer(config: AIConfig): AnalyzeFn {
+  const parsedConfig = AIConfigSchema.parse(config)
+  const {
+    provider,
+    model,
+    tools = [getCommitsInfo],
+    context,
+    baseUrl,
+    maxTokens = DEFAULT_MAX_TOKENS,
+  } = parsedConfig
+
+  if (typeof provider === 'string' && !isKnownProvider(provider)) {
+    throw new Error(`Provider ${provider} is not supported`)
+  }
+
+  const modelProvider =
+    typeof provider === 'string'
+      ? createProvider(provider, { model, baseUrl, maxTokens })
+      : provider
+
+  return async ({
+    commitShas,
+    cwd,
+  }: AnalyzeArgs): Promise<CompletionResult<CommitAnalysisResponse>[]> => {
+    // One call per tool for the whole batch, then one prompt per commit.
+    const perCommit: string[][] = commitShas.map(() => [])
+    for (const tool of tools) {
+      const results = await tool({ commitShas, cwd })
+      if (results.length !== commitShas.length) {
+        throw new Error(`Tool returned ${results.length} results for ${commitShas.length} commits`)
+      }
+      results.forEach((text, index) => {
+        perCommit[index]?.push(text)
+      })
+    }
+
+    const responses = await Promise.all(
+      perCommit.map(parts => {
+        const messages = [
+          { role: 'system' as const, content: SYSTEM_PROMPT },
+          ...(context
+            ? [{ role: 'system' as const, content: `Codebase context: ${context}` }]
+            : []),
+          {
+            role: 'user' as const,
+            content: `Analyze the following commit information:\n\n${parts.join('\n\n')}`,
+          },
+        ]
+        return modelProvider.invoke(messages, CommitAnalysisResponseSchema)
+      })
+    )
+
+    // get token usage
+    const tokenUsage = getTokenUsage(responses)
+    console.log(
+      `Total token usage: ${tokenUsage.total} (input: ${tokenUsage.input}, output: ${tokenUsage.output})`
+    )
+
+    return responses
+  }
+}
+
+const AUGMENT_SYSTEM_PROMPT = `
+  You are a helpful assistant that turns one or more git commits into a single keepachangelog-style changelog entry.
+  You will receive: (a) optionally a user-provided message, (b) the commit SHAs covered, and (c) relevant context from the project's .chan/code.md knowledge base (per-commit analyses).
+
+  ## Goal
+  Produce ONE concise, user-facing changelog entry that summarizes the work across the given commits.
+  - If the user provided a message, treat it as the intended changelog line and refine it for clarity; do not invent unrelated changes.
+  - If no user message was provided, infer the changelog line from the commits and code.md context.
+
+  ## action
+  Choose exactly one keepachangelog verb: "added", "changed", "deprecated", "removed", "fixed", or "security".
+  - added: new features / new capabilities.
+  - changed: changes in existing functionality (includes refactors and performance changes that affect behavior).
+  - deprecated: soon-to-be removed features.
+  - removed: now-removed features.
+  - fixed: bug fixes.
+  - security: vulnerability fixes / security-relevant changes.
+
+  ## classification
+  Preserve the PRECISE chan-ai taxonomy in "classification" (one or more of): Feature, Fix, Documentation, Refactor, Test, Chore, Style, Performance, Security. This is more granular than "action" and may include multiple values. Keep it even when it overlaps with the chosen action.
+
+  ## message
+  A single concise sentence as it should appear in CHANGELOG.md. Imperative or past tense, no leading verb-prefix, no trailing period. Do not include the SHA.
+
+  ## linkedShas
+  The commit SHAs this entry corresponds to. Use the SHAs you were given. Short or full forms are both acceptable; prefer the form you were given.
+
+  ## breakingChange
+  true only if a public/documented consumer could break without changing their code (removed/renamed exports, signature/return-shape changes, output-format changes, entrypoint/export changes, engine/runtime bumps). Otherwise false. Provide breakingDetails when true, "" when false.
+
+  ## confidence
+  Confidence (0 to 1) that the chosen action and message correctly represent the commits.
+
+  Respond with a single valid JSON object matching the given schema. No markdown, no prose outside the JSON.
+`
+
+export function createAugmenter(config: AIConfig): AugmentFn {
+  const parsedConfig = AIConfigSchema.parse(config)
+  const { provider, model, context, baseUrl, maxTokens = DEFAULT_MAX_TOKENS } = parsedConfig
+
+  if (typeof provider === 'string' && !isKnownProvider(provider)) {
+    throw new Error(`Provider ${provider} is not supported`)
+  }
+
+  const modelProvider =
+    typeof provider === 'string'
+      ? createProvider(provider, { model, baseUrl, maxTokens })
+      : provider
+
+  return async ({
+    message,
+    commitShas,
+    codeMdContext,
+  }: AugmentArgs): Promise<CompletionResult<ActionAugmentationResponse>> => {
+    const userParts = [
+      message
+        ? `User-provided message: ${message}`
+        : 'No user-provided message; infer it from the commits.',
+      `Commit SHAs covered: ${commitShas.join(', ')}`,
+      codeMdContext
+        ? `.chan/code.md context (per-commit analyses for these commits and recent neighbors):\n${codeMdContext}`
+        : '.chan/code.md context: (not available)',
+    ]
+
+    const messages = [
+      { role: 'system' as const, content: AUGMENT_SYSTEM_PROMPT },
+      ...(context ? [{ role: 'system' as const, content: `Codebase context: ${context}` }] : []),
+      { role: 'user' as const, content: userParts.join('\n\n') },
+    ]
+
+    const result = await modelProvider.invoke(messages, ActionAugmentationResponseSchema)
+    console.log(
+      `Augment token usage: ${result.usage.total} (input: ${result.usage.input}, output: ${result.usage.output})`
+    )
+    return result
+  }
+}
+
+const INSPECT_SYSTEM_PROMPT = `
+  You are a helpful assistant that inspects a Codebase Snapshot and produces a structured summary of the project.
+  You will receive a Codebase Snapshot: deterministic text gathered from the project (package.json, full README, top-level directory listing). It is the ONLY evidence you have about the project.
+
+  ## Hard rules
+  - Evidence discipline: base every field on evidence present in the snapshot. If the snapshot does not support a field, use an empty string ("") or an empty array ([]) rather than guessing or drawing on prior knowledge.
+  - Terse, telegraphic style: no marketing language, no full sentences where a phrase suffices. This output is stored once and re-read as prompt context by later AI operations; every fluffy word is recurring token cost.
+
+  ## description
+  One phrase describing what the project is (e.g. "changelog management tool with optional AI layer"). No adjectives beyond what the snapshot supports.
+
+  ## usage
+  A phrase or short imperative describing how the project is used (e.g. "npx chan init; npx chan analyze"). Empty string if the snapshot gives no usage evidence.
+
+  ## runtimes
+  Environments the project targets (e.g. "node", "browser", "cli", "ci"). Only those evidenced by the snapshot.
+
+  ## projectTypes
+  The kind(s) of project (e.g. "module", "application", "cli tool", "monorepo").
+
+  ## requirements
+  Hard requirements with versions when evidenced (e.g. "Node >= 20", "git").
+
+  ## notes
+  Anything else in the snapshot useful for analyzing future commits (e.g. test runner, key scripts, workspace layout). Empty array if nothing else stands out.
+
+  Respond with a single valid JSON object matching the given schema. No markdown, no prose outside the JSON.
+`
+
+export function createInspector(config: AIConfig): InspectFn {
+  const parsedConfig = AIConfigSchema.parse(config)
+  const { provider, model, baseUrl, maxTokens = DEFAULT_MAX_TOKENS } = parsedConfig
+
+  if (typeof provider === 'string' && !isKnownProvider(provider)) {
+    throw new Error(`Provider ${provider} is not supported`)
+  }
+
+  const modelProvider =
+    typeof provider === 'string'
+      ? createProvider(provider, { model, baseUrl, maxTokens })
+      : provider
+
+  return async ({
+    codebaseSnapshot,
+  }: InspectArgs): Promise<CompletionResult<ProjectInspectionResponse>> => {
+    const messages = [
+      { role: 'system' as const, content: INSPECT_SYSTEM_PROMPT },
+      {
+        role: 'user' as const,
+        content: `Inspect the following codebase snapshot and produce the project summary:\n\n${codebaseSnapshot}`,
+      },
+    ]
+
+    const result = await modelProvider.invoke(messages, ProjectInspectionResponseSchema)
+    console.log(
+      `Inspect token usage: ${result.usage.total} (input: ${result.usage.input}, output: ${result.usage.output})`
+    )
+    return result
+  }
+}

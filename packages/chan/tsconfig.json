@@ -17,8 +17,14 @@
     "sourceMap": true,
     "declarationMap": true,
     "lib": ["es2023"],
-    "types": ["node"]
+    "types": ["node"],
+    "rootDir": "."
   },
+  "references": [
+    { "path": "../chan-ai" },
+    { "path": "../chan-core" },
+    { "path": "../git-url-parse" }
+  ],
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }
